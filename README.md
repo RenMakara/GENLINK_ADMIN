@@ -24,6 +24,13 @@ pnpm install
 pnpm dev
 ```
 
+Then open **http://localhost:3000/admin** — not `/`.
+
+The portal is served under a base path (SSOT §1.7): one nginx origin serves both it and the
+API, which removes CORS from the MVP entirely. `/` redirects to `/admin` so a bare visit still
+lands somewhere useful, and the path comes from `NEXT_PUBLIC_BASE_PATH` — set it empty once
+the portal has its own subdomain.
+
 Then the checks CI runs:
 
 ```bash

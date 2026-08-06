@@ -44,7 +44,19 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
       className={`${plusJakarta.variable} ${kantumruy.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
+      {/*
+        suppressHydrationWarning here is for browser extensions, not for our own markup.
+        Password managers, antivirus and privacy extensions inject attributes onto <body>
+        (bis_register, __processed_<uuid>__, data-new-gr-c-s-check-loaded and friends) before
+        React hydrates, which React reports as a mismatch it "won't patch up".
+
+        It suppresses attribute and text differences on this element only — children are still
+        checked — so a genuine hydration bug in the tree below still surfaces.
+      */}
+      <body
+        suppressHydrationWarning
+        className="min-h-full flex flex-col bg-background text-foreground"
+      >
         <ThemeProvider>
           <NextIntlClientProvider>{children}</NextIntlClientProvider>
         </ThemeProvider>
