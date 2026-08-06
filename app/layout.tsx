@@ -1,17 +1,31 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, Kantumruy_Pro } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
+import { ThemeProvider } from "@/providers/theme-provider";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+/**
+ * Latin UI face, matching the mobile app (SSOT §11.3 / DESIGN_SYSTEM.md).
+ *
+ * `display: "swap"` renders fallback text immediately rather than holding the page blank
+ * while the font loads — next/font's default, stated here because it is a requirement.
+ */
+const plusJakarta = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+/**
+ * Khmer face. The admin UI is English-first, but user-generated content and bilingual entity
+ * fields render in Khmer, so the face has to be present from the start — a Khmer name in a
+ * user table otherwise falls back to whatever the OS supplies.
+ */
+const kantumruy = Kantumruy_Pro({
+  variable: "--font-kantumruy",
+  subsets: ["khmer"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -20,22 +34,20 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  // Resolved by i18n/request.ts. Fixed to 'en' today (ADM-012), but read rather than
-  // hard-coded so adding a locale later does not mean editing the layout.
   const locale = await getLocale();
 
   return (
+    // suppressHydrationWarning is required by next-themes: it sets the class on <html>
+    // before React hydrates, so server and client markup differ by design.
     <html
       lang={locale}
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
+      className={`${plusJakarta.variable} ${kantumruy.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        {/*
-          Wraps everything so client components can call useTranslations. Server components
-          reach the same messages without it, but the provider has to be here for the client
-          half of the app — which is most of an admin dashboard.
-        */}
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+      <body className="min-h-full flex flex-col bg-background text-foreground">
+        <ThemeProvider>
+          <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

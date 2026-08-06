@@ -1,26 +1,203 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-heading: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-khmer: var(--font-kantumruy), var(--font-plus-jakarta), sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-chart-6: var(--chart-6);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  /* ── GenLink KH palette (SSOT §11.2, from docs/DESIGN_SYSTEM.md) ──────────
+     Hex rather than oklch on purpose: these values are greppable against the
+     design system document, which is where they are agreed. */
+  --background: #F8FAFC;
+  --foreground: #0E1621;
+
+  --card: #FFFFFF;
+  --card-foreground: #0E1621;
+  --popover: #FFFFFF;
+  --popover-foreground: #0E1621;
+
+  --primary: #1F5B3A;              /* GenLink deep green */
+  --primary-foreground: #FFFFFF;
+
+  --secondary: #EEF2F6;
+  --secondary-foreground: #0E1621;
+
+  --muted: #EEF2F6;
+  /* Slate. Deliberately NOT #64748B (slate-500): that fails 4.5:1 on this
+     background - see scripts/check-contrast.mjs and the note in ADM-013. */
+  --muted-foreground: #55637A;
+
+  /* GenLink light green. BACKGROUND AND BORDER ONLY - #BDF4D3 fails 4.5:1
+     against white, so it must never carry text or a small icon (SSOT §11.8). */
+  --accent: #BDF4D3;
+  --accent-foreground: #0E1621;
+
+  --destructive: #DC2626;          /* bans, deletes */
+  --destructive-foreground: #FFFFFF;
+  --warning: #B45309;              /* suspensions - darkened from #D97706 for AA */
+  --warning-foreground: #FFFFFF;
+  --success: #1F5B3A;              /* darkened from #4BAE73 for AA on light */
+  --success-foreground: #FFFFFF;
+
+  --border: #DDE3EA;              /* decorative divider - subtle by design */
+  /* Darker than --border on purpose: this draws the edge of a text field, and
+     WCAG 1.4.11 wants 3:1 for anything that identifies a control. shadcn ships
+     these equal; that leaves form fields at ~1.2:1 and hard to locate. */
+  --input: #7C8B9E;
+  --ring: #1F5B3A;
+
+  /* Categorical series (SSOT §11.2): GenLink greens extended with neutrals
+     rather than unrelated hues, so charts stay recognisably GenLink. */
+  --chart-1: #1F5B3A;
+  --chart-2: #4BAE73;
+  --chart-3: #BDF4D3;
+  --chart-4: #0F766E;
+  --chart-5: #84CC16;
+  --chart-6: #64748B;
+
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #0E1621;
+  --sidebar-primary: #1F5B3A;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #EEF2F6;
+  --sidebar-accent-foreground: #0E1621;
+  --sidebar-border: #DDE3EA;
+  --sidebar-ring: #1F5B3A;
+
+  --radius: 0.5rem;                /* tighter than mobile - mouse, not thumb */
+}
+
+.dark {
+  --background: #0E1621;
+  --foreground: #F8FAFC;
+
+  --card: #16202C;
+  --card-foreground: #F8FAFC;
+  --popover: #16202C;
+  --popover-foreground: #F8FAFC;
+
+  --primary: #4BAE73;              /* GenLink mid green - lifts off the dark ground */
+  --primary-foreground: #0E1621;
+
+  --secondary: #1E2A38;
+  --secondary-foreground: #F8FAFC;
+
+  --muted: #1E2A38;
+  --muted-foreground: #94A3B8;
+
+  --accent: #1F5B3A;
+  --accent-foreground: #F8FAFC;
+
+  --destructive: #EF4444;
+  --destructive-foreground: #0E1621;
+  --warning: #F59E0B;
+  --warning-foreground: #0E1621;
+  --success: #4BAE73;
+  --success-foreground: #0E1621;
+
+  --border: #263445;              /* decorative divider */
+  --input: #5D7189;               /* control boundary - see the light-mode note */
+  --ring: #4BAE73;
+
+  --chart-1: #4BAE73;
+  --chart-2: #BDF4D3;
+  --chart-3: #1F5B3A;
+  --chart-4: #2DD4BF;
+  --chart-5: #A3E635;
+  --chart-6: #94A3B8;
+
+  --sidebar: #16202C;
+  --sidebar-foreground: #F8FAFC;
+  --sidebar-primary: #4BAE73;
+  --sidebar-primary-foreground: #0E1621;
+  --sidebar-accent: #1E2A38;
+  --sidebar-accent-foreground: #F8FAFC;
+  --sidebar-border: #263445;
+  --sidebar-ring: #4BAE73;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  /*
+    Khmer needs more room than Latin. At the line heights that look right for
+    Plus Jakarta Sans, Khmer diacritics are clipped by the line box (SSOT §11.3).
+    Applied by language so it never affects English copy.
+  */
+  :lang(km) {
+    font-family: var(--font-khmer);
+    line-height: 1.7;
+  }
+
+  /*
+    Proportional digits make a column of numbers impossible to scan - the digits
+    do not line up vertically (SSOT §11.3). Applied to the elements that actually
+    hold figures rather than globally, because tabular digits look wrong in prose.
+  */
+  table,
+  .tabular-nums,
+  [data-slot="table"] {
+    font-variant-numeric: tabular-nums;
+  }
 }

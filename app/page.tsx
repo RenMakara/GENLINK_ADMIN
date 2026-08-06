@@ -1,22 +1,84 @@
 import { useTranslations } from "next-intl";
 
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { ThemeToggle } from "@/components/theme-toggle";
+
 /**
- * Placeholder home page.
+ * Placeholder home page, doubling as the theme proof for ADM-013.
  *
- * <p>Exists to prove the i18n wiring end to end (ADM-012): if the plugin, `i18n/request.ts`
- * or the provider were misconfigured, these would render as their keys rather than as English.
- *
- * <p>Replaced by the real dashboard in ADM-056. The route structure arrives with the app shell
- * in ADM-034.
+ * <p>Renders one of each shadcn primitive so that toggling light/dark visibly exercises the
+ * token set rather than asserting it in the abstract. Replaced by the real dashboard in
+ * ADM-056; the app shell arrives in ADM-034.
  */
 export default function Home() {
-  // A Server Component may call useTranslations directly - no await, no client boundary.
   const t = useTranslations("App");
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-3 p-16 text-center">
-      <h1 className="text-2xl font-semibold tracking-tight">{t("name")}</h1>
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("tagline")}</p>
+    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 p-8">
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("name")}</h1>
+          <p className="text-sm text-muted-foreground">{t("tagline")}</p>
+        </div>
+        <ThemeToggle />
+      </header>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Design tokens</CardTitle>
+          <CardDescription>
+            Every primitive below reads the same CSS variables, so switching theme moves all
+            of them together.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-6">
+          <div className="flex flex-wrap gap-2">
+            <Button>Primary</Button>
+            <Button variant="secondary">Secondary</Button>
+            <Button variant="outline">Outline</Button>
+            <Button variant="ghost">Ghost</Button>
+            <Button variant="destructive">Destructive</Button>
+          </div>
+
+          {/*
+            Status colours are semantic (SSOT §11.2), and every badge carries text as well as
+            colour — roughly 1 in 12 men has a colour-vision deficiency, and the person banning
+            accounts may be one of them.
+          */}
+          <div className="flex flex-wrap gap-2">
+            <Badge className="bg-success text-success-foreground">Active</Badge>
+            <Badge className="bg-warning text-warning-foreground">Suspended</Badge>
+            <Badge variant="destructive">Banned</Badge>
+            <Badge variant="secondary">Pending</Badge>
+            <Badge variant="outline">Deleted</Badge>
+          </div>
+
+          <Input placeholder="Search users…" aria-label="Search users" />
+
+          {/* Tabular numerals: digits line up so a column of figures can be scanned. */}
+          <table className="w-full text-sm">
+            <tbody>
+              <tr className="border-b border-border">
+                <td className="py-1">Total users</td>
+                <td className="py-1 text-right">1,284</td>
+              </tr>
+              <tr>
+                <td className="py-1">Pending verification</td>
+                <td className="py-1 text-right">117</td>
+              </tr>
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
     </main>
   );
 }
