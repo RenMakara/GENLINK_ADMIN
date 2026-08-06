@@ -1,0 +1,116 @@
+name: CI
+
+# Runs on every PR, and again on main after merge. The second trigger is not redundant:
+# a PR is tested against its own head, so two PRs that each pass can still break main
+# together. Without the push trigger that breakage is discovered by the next contributor.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Superseding a commit cancels its run. Opposite of the backend deploy workflow, which must
+# never be cancelled — a half-finished deploy has to complete, whereas a half-finished CI run
+# on an obsolete commit is only spending runner minutes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Lint, typecheck, test, build
+    runs-on: ubuntu-latest
+    # A cached run finishes in well under this. The timeout exists so a hung install fails in
+    # ten minutes instead of holding a runner for the default six hours.
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Must precede setup-node: `cache: pnpm` below shells out to pnpm to locate the store,
+      # so setup-node fails outright if pnpm is not on PATH yet. Ordering is load-bearing.
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        # No version pinned here on purpose — the action reads `packageManager` from
+        # package.json, keeping one source of truth for the pnpm version.
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          # Read from .nvmrc so CI and `nvm use` cannot drift apart.
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        # --frozen-lockfile makes CI fail rather than silently resolving a different tree when
+        # package.json and the lockfile disagree, which is the whole point of committing one.
+        run: pnpm install --frozen-lockfile
+
+      # Next's build cache, so an unchanged dependency tree does not rebuild from cold.
+      #
+      # Keyed on the commit rather than on a source hash: this step runs *after* install, so a
+      # `**/*.ts` glob would walk the whole of node_modules to compute the key — minutes of
+      # hashing to save seconds of build. A per-commit key never hits exactly and always falls
+      # through to restore-keys, which is the intended behaviour for a warm-start cache.
+      - name: Restore Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: next-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          # Scoped to the same lockfile: a cache built against a different dependency tree is
+          # not worth restoring.
+          restore-keys: |
+            next-${{ hashFiles('pnpm-lock.yaml') }}-
+
+      # Every gate below runs even after an earlier one fails, so a PR gets the complete list
+      # in one round trip. Fail-fast would report the lint error, hide the type error behind
+      # it, and cost a second push to discover.
+      #
+      # `!cancelled()` rather than `always()`: a cancelled run should stop, not push on through
+      # every remaining step.
+
+      - name: Lint
+        if: ${{ !cancelled() }}
+        # Also enforces the architectural rules in eslint.config.mjs — feature boundaries,
+        # process.env confinement, timezone-safe date formatting, query-key factory.
+        run: pnpm lint
+
+      - name: Typecheck
+        if: ${{ !cancelled() }}
+        # The script runs `next typegen` first. Next 16 generates globals such as
+        # `LayoutProps` into .next/types, which tsconfig includes — so on a checkout that has
+        # never been built, `tsc --noEmit` fails on app/layout.tsx with "Cannot find name
+        # 'LayoutProps'". Found by running the gates against a fresh clone; it broke
+        # `git clone && pnpm install && pnpm typecheck` for a new contributor too, which is
+        # why the fix is in the script rather than an extra step here.
+        run: pnpm typecheck
+
+      - name: Test
+        if: ${{ !cancelled() }}
+        env:
+          # Deliberately not Asia/Phnom_Penh.
+          #
+          # The display timezone is fixed to Phnom Penh (SSOT §9.5), and every developer here
+          # has a machine set to it — which is exactly the configuration where a date rendered
+          # without an explicit `timeZone` looks correct. Verified: with the pinning removed,
+          # the date suite passes 24/24 on a Cambodian machine and fails 9 assertions here.
+          #
+          # Running CI on a clock that disagrees turns that class of bug from invisible into a
+          # red build. Do not "fix" this to match production.
+          TZ: America/New_York
+        run: pnpm test
+
+      - name: Contrast (WCAG 2.1 AA)
+        if: ${{ !cancelled() }}
+        # Design tokens drift silently: a colour tweaked for looks can drop text below 4.5:1
+        # with nothing to show for it on the reviewer's monitor.
+        run: pnpm check:contrast
+
+      - name: Build
+        if: ${{ !cancelled() }}
+        # Last because it is the slowest, and because a type or lint error is quicker feedback.
+        # No env vars set: lib/config/env.ts supplies validated defaults, so a build needing
+        # configuration here would mean a default went missing.
+        run: pnpm build

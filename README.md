@@ -34,8 +34,32 @@ the portal has its own subdomain.
 Then the checks CI runs:
 
 ```bash
-pnpm lint && pnpm typecheck && pnpm build
+pnpm lint && pnpm typecheck && pnpm test && pnpm check:contrast && pnpm build
 ```
+
+## CI
+
+`.github/workflows/ci.yml` runs those five gates on every pull request, and again on `main`
+after merge — a PR is tested against its own head, so two that each pass can still break `main`
+together.
+
+Every gate runs even after an earlier one fails, so a push gets the complete list of problems
+in one round trip rather than one per attempt.
+
+**The test job runs with `TZ=America/New_York`, deliberately.** The display timezone is fixed to
+Asia/Phnom_Penh (SSOT §9.5), and every machine on this team is set to it — which is exactly the
+configuration in which a date formatted without an explicit `timeZone` looks correct. With the
+pinning removed the date suite passes 24/24 locally and fails 9 assertions under a disagreeing
+clock. Do not "fix" that variable to match production.
+
+### Repository setting that is not in this repo
+
+CI can only block a merge once **branch protection** is configured on GitHub, which is a
+setting rather than a file. On `main`, require the status check **`Lint, typecheck, test,
+build`** to pass before merging.
+
+Until that is switched on the workflow reports failures but does not prevent anyone merging
+through them.
 
 ## Source of truth
 
