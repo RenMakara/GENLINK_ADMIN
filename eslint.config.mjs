@@ -82,7 +82,9 @@ const eslintConfig = defineConfig([
     // `process.env` belongs in one place, so the domain-agnostic rule (SSOT §1.7) is
     // enforceable rather than aspirational: no hostname, IP, port or scheme in code.
     files: ["**/*.{ts,tsx}"],
-    ignores: ["lib/config/**", "scripts/**", "*.config.{ts,mjs,js}", "i18n/**"],
+    // Exactly one application file may read process.env (SSOT §1.7). The others are outside
+    // the app: build config, and standalone node scripts that never reach the browser.
+    ignores: ["lib/config/env.ts", "scripts/**", "*.config.{ts,mjs,js}"],
     rules: {
       "no-restricted-properties": [
         "error",
