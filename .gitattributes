@@ -1,0 +1,16 @@
+# Normalise line endings in the repository to LF, regardless of platform.
+#
+# Without this, Git on Windows commits CRLF and every file shows as modified when
+# a teammate on Linux/macOS touches it. It also keeps ESLint, Prettier and diffs
+# stable across the team.
+* text=auto eol=lf
+
+# Binary - never convert.
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+
+# Generated; keep diffs readable but do not let anyone hand-edit expectations.
+pnpm-lock.yaml linguist-generated=true
