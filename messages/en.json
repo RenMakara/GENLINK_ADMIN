@@ -1,0 +1,13 @@
+{
+  "App": {
+    "name": "GenLink KH Admin",
+    "tagline": "Staff administration portal"
+  },
+  "Common": {
+    "loading": "Loading…",
+    "retry": "Try again",
+    "cancel": "Cancel",
+    "save": "Save",
+    "search": "Search"
+  }
+}

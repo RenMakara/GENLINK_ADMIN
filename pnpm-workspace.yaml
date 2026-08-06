@@ -1,3 +1,16 @@
+# pnpm 11 refuses to run a dependency's install scripts unless they are listed here, and
+# errors if any are silently ignored. Native postinstall scripts are the main supply-chain
+# risk in a Node project, so the default is to decline and only opt in with a reason.
 allowBuilds:
   sharp: false
   unrs-resolver: false
+
+  # Both arrive via next-intl and exist only for its message *extractor*
+  # (`next-intl/extractor`), which builds message catalogues by parsing source files.
+  # We hand-write `messages/en.json`, so the extractor is never invoked and neither native
+  # binary is needed at build or at runtime — proven by `pnpm build` passing without them.
+  #
+  # Revisit only if the extractor is adopted; declining a native build for tooling we do not
+  # use is the safer default.
+  "@swc/core": false
+  "@parcel/watcher": false
