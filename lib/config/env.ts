@@ -129,3 +129,16 @@ export function serverEnv() {
 }
 
 export type Env = typeof env;
+
+/**
+ * Build mode, not configuration — which is why it is exposed here rather than read directly.
+ *
+ * <p>`NODE_ENV` is set by the toolchain, not by an operator, so it is not part of the schema
+ * above. It still has to come through this module: the lint rule that keeps `process.env` in
+ * one place makes no exception for it, and shouldn't — an exception is how the next one gets
+ * added.
+ *
+ * <p>Next replaces `process.env.NODE_ENV` with a literal at build time, so a `false` here is
+ * statically known and the guarded code is dropped from the production bundle entirely.
+ */
+export const isDevelopment = process.env.NODE_ENV === "development";

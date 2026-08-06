@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Kantumruy_Pro } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
-import { ThemeProvider } from "@/providers/theme-provider";
+import { Providers } from "@/providers";
 import "./globals.css";
 
 /**
@@ -57,9 +57,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         suppressHydrationWarning
         className="min-h-full flex flex-col bg-background text-foreground"
       >
-        <ThemeProvider>
+        <Providers>
           <NextIntlClientProvider>{children}</NextIntlClientProvider>
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );

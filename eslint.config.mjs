@@ -108,6 +108,16 @@ const eslintConfig = defineConfig([
             "Use the Asia/Phnom_Penh formatter in lib/utils/date.ts. toLocaleString() uses " +
             "the browser's timezone (SSOT §9.5).",
         },
+        {
+          // An inline key cannot be invalidated by anything that does not repeat the same
+          // literal. Banning a user has to refresh the list, the detail and the enforcement
+          // timeline; with scattered literals, a missed one shows the moderator stale data
+          // straight after they acted (SSOT §12.1).
+          selector: "Property[key.name='queryKey'] > ArrayExpression",
+          message:
+            "Build query keys with the factory in services/query-keys.ts, not an inline " +
+            "array — otherwise invalidation after a mutation becomes guesswork (SSOT §12.1).",
+        },
       ],
     },
   },
