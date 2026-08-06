@@ -74,6 +74,43 @@ const featureBoundaries = featureNames().map((feature) => {
   };
 });
 
+/**
+ * `toLocaleString()` and friends render in the *browser's* timezone, so a dashboard disagrees
+ * with itself depending on who is looking — and it is invisible when reviewed from Phnom Penh,
+ * where the two agree (SSOT §9.5). Verified: with the pinning removed, the date suite passes
+ * 24/24 on a Cambodian machine and fails 9 assertions from New York.
+ */
+const NO_LOCAL_TIMEZONE = {
+  selector: "CallExpression[callee.property.name=/^toLocale(Date|Time)?String$/]",
+  message:
+    "Use the Asia/Phnom_Penh formatter in lib/utils/date.ts. toLocaleString() uses " +
+    "the browser's timezone (SSOT §9.5).",
+};
+
+/**
+ * The same bug by the other route. `new Intl.DateTimeFormat(locale, {...})` with no `timeZone`
+ * option silently uses the machine's zone, and unlike `toLocaleString` it *looks* deliberate —
+ * which makes it likelier to survive review, not less.
+ */
+const NO_RAW_INTL_DATE = ["NewExpression", "CallExpression"].map((kind) => ({
+  selector: `${kind}[callee.object.name='Intl'][callee.property.name='DateTimeFormat']`,
+  message:
+    "Construct date formatters in lib/utils/date.ts, which pins timeZone. A bare " +
+    "Intl.DateTimeFormat uses the machine's timezone (SSOT §9.5).",
+}));
+
+/**
+ * An inline key cannot be invalidated by anything that does not repeat the same literal.
+ * Banning a user has to refresh the list, the detail and the enforcement timeline; with
+ * scattered literals, a missed one shows the moderator stale data straight after they acted.
+ */
+const NO_INLINE_QUERY_KEY = {
+  selector: "Property[key.name='queryKey'] > ArrayExpression",
+  message:
+    "Build query keys with the factory in services/query-keys.ts, not an inline " +
+    "array — otherwise invalidation after a mutation becomes guesswork (SSOT §12.1).",
+};
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
@@ -98,27 +135,24 @@ const eslintConfig = defineConfig([
       ],
       "no-restricted-syntax": [
         "error",
-        {
-          // Renders in the *browser's* timezone, so a dashboard disagrees with itself
-          // depending on who is looking — and it is invisible when reviewed from Phnom Penh,
-          // where the two agree (SSOT §9.5).
-          selector:
-            "CallExpression[callee.property.name=/^toLocale(Date|Time)?String$/]",
-          message:
-            "Use the Asia/Phnom_Penh formatter in lib/utils/date.ts. toLocaleString() uses " +
-            "the browser's timezone (SSOT §9.5).",
-        },
-        {
-          // An inline key cannot be invalidated by anything that does not repeat the same
-          // literal. Banning a user has to refresh the list, the detail and the enforcement
-          // timeline; with scattered literals, a missed one shows the moderator stale data
-          // straight after they acted (SSOT §12.1).
-          selector: "Property[key.name='queryKey'] > ArrayExpression",
-          message:
-            "Build query keys with the factory in services/query-keys.ts, not an inline " +
-            "array — otherwise invalidation after a mutation becomes guesswork (SSOT §12.1).",
-        },
+        NO_LOCAL_TIMEZONE,
+        ...NO_RAW_INTL_DATE,
+        NO_INLINE_QUERY_KEY,
       ],
+    },
+  },
+
+  {
+    /**
+     * The one file allowed to build a date formatter — it is what the rule above points at.
+     *
+     * <p>Flat config replaces a rule's options rather than merging them, so the two rules that
+     * still apply here are restated. Narrowing an exemption to a single file beats adding a
+     * blanket `eslint-disable`, which would also silence the next mistake in it.
+     */
+    files: ["lib/utils/date.ts"],
+    rules: {
+      "no-restricted-syntax": ["error", NO_LOCAL_TIMEZONE, NO_INLINE_QUERY_KEY],
     },
   },
 
