@@ -24,6 +24,7 @@ const raw = {
   NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   NEXT_PUBLIC_BASE_PATH: process.env.NEXT_PUBLIC_BASE_PATH,
   NEXT_PUBLIC_TIMEZONE: process.env.NEXT_PUBLIC_TIMEZONE,
+  NEXT_PUBLIC_ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT,
   ADMIN_COOKIE_SECURE: process.env.ADMIN_COOKIE_SECURE,
 } as const;
 
@@ -73,6 +74,21 @@ const clientSchema = z.object({
       message: "must be an IANA timezone name, e.g. 'Asia/Phnom_Penh'",
     })
     .default("Asia/Phnom_Penh"),
+
+  /**
+   * Which deployment this is. Drives the topbar badge (SSOT §3).
+   *
+   * <p>Not cosmetic. Staff will have staging and production open in adjacent tabs, and "ban
+   * user" is not an action you want to take against the wrong database. The badge is the only
+   * thing on screen that tells them apart.
+   *
+   * <p>Defaults to `development`, so a misconfigured deployment shows a badge it should not
+   * rather than hiding one it should show. Failing towards a visible warning is the right
+   * direction for a control whose whole job is to be noticed.
+   */
+  NEXT_PUBLIC_ENVIRONMENT: z
+    .enum(["development", "staging", "production"])
+    .default("development"),
 });
 
 /**
