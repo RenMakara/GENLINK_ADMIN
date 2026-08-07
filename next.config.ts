@@ -1,7 +1,7 @@
 import createNextIntlPlugin from "next-intl/plugin";
 import type { NextConfig } from "next";
 
-import { env } from "./lib/config/env";
+import { env, isDevelopment, serverEnv } from "./lib/config/env";
 
 const nextConfig: NextConfig = {
   /**
@@ -29,6 +29,33 @@ const nextConfig: NextConfig = {
    * <p>In production nginx only routes `/admin` to this app, so this never fires there. It is
    * a development convenience, and harmless outside development.
    */
+  /**
+   * Development-only proxy from `/api/v1/**` to the Spring API.
+   *
+   * <p>`NEXT_PUBLIC_API_BASE_URL` is a *relative* path because, in production, nginx serves the
+   * portal and the API from one origin (SSOT §1.7) — which is what removes CORS from the MVP.
+   * In development there is no nginx: the portal is on :3000 and Spring on :8888, so that same
+   * relative path resolves to Next and answers 404.
+   *
+   * <p>This rewrite makes development behave the way production does, so the API base URL stays
+   * relative in both and no code branches on environment. It is registered **only** in
+   * development — in production nginx does this, and a second proxy in front of it would add a
+   * hop for nothing.
+   *
+   * <p>`basePath: false` because the client builds `/api/v1/...` from the origin root, not from
+   * under `/admin`; prefixing the rule would mean it never matched.
+   */
+  async rewrites() {
+    if (!isDevelopment) return [];
+    return [
+      {
+        source: "/api/v1/:path*",
+        destination: `${serverEnv().ADMIN_API_ORIGIN}/api/v1/:path*`,
+        basePath: false,
+      },
+    ];
+  },
+
   async redirects() {
     if (!env.NEXT_PUBLIC_BASE_PATH) return [];
     return [

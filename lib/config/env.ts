@@ -26,6 +26,7 @@ const raw = {
   NEXT_PUBLIC_TIMEZONE: process.env.NEXT_PUBLIC_TIMEZONE,
   NEXT_PUBLIC_ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT,
   ADMIN_COOKIE_SECURE: process.env.ADMIN_COOKIE_SECURE,
+  ADMIN_API_ORIGIN: process.env.ADMIN_API_ORIGIN,
 } as const;
 
 /** Accepts the spellings a shell or CI actually produces, and nothing else. */
@@ -104,6 +105,23 @@ const serverSchema = z.object({
    * it on plain HTTP breaks sign-in loudly on the first attempt. Fail visibly, not quietly.
    */
   ADMIN_COOKIE_SECURE: booleanish.default(true),
+
+  /**
+   * Absolute origin of the Spring API, for server-to-server calls from the route handlers.
+   *
+   * <p>Separate from {@code NEXT_PUBLIC_API_BASE_URL}, which is a *relative* path because the
+   * browser reaches the API through the same nginx origin (SSOT §1.7). A route handler runs on
+   * the server, where a relative URL has no origin to resolve against, so it needs a real one.
+   *
+   * <p>Server-only, so it is not exposed to the browser: it may name an internal address the
+   * public cannot reach - `http://app:8888` on the Docker network, for instance.
+   */
+  ADMIN_API_ORIGIN: z
+    .string()
+    .refine((value) => /^https?:\/\//.test(value), {
+      message: "must be an absolute http(s) origin, e.g. 'http://localhost:8888'",
+    })
+    .default("http://localhost:8888"),
 });
 
 function parse<T extends z.ZodType>(schema: T, label: string): z.infer<T> {

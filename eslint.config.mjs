@@ -100,6 +100,30 @@ const NO_RAW_INTL_DATE = ["NewExpression", "CallExpression"].map((kind) => ({
 }));
 
 /**
+ * Web storage is readable by any script on the page, so a token in it is a token an XSS walks
+ * away with — one carrying `user:delete` (SSOT §10.9, ADM-035 AC#1).
+ *
+ * <p>The access token lives in a ref and the refresh token in an `httpOnly` cookie. Neither is
+ * a rule anyone can see at the point where a "just cache it for a second" would be written, so
+ * the rule is here instead. `hooks/use-sidebar-state.ts` is exempted below — a collapsed
+ * sidebar is not a credential.
+ */
+const NO_WEB_STORAGE = ["localStorage", "sessionStorage"].flatMap((store) => [
+  {
+    selector: `MemberExpression[object.name='${store}']`,
+    message:
+      `Do not use ${store}. The access token is held in memory and the refresh token in an ` +
+      "httpOnly cookie, so an XSS cannot reach either (SSOT §10.9).",
+  },
+  {
+    selector: `MemberExpression[object.property.name='${store}']`,
+    message:
+      `Do not use window.${store}. The access token is held in memory and the refresh token ` +
+      "in an httpOnly cookie, so an XSS cannot reach either (SSOT §10.9).",
+  },
+]);
+
+/**
  * An inline key cannot be invalidated by anything that does not repeat the same literal.
  * Banning a user has to refresh the list, the detail and the enforcement timeline; with
  * scattered literals, a missed one shows the moderator stale data straight after they acted.
@@ -137,6 +161,25 @@ const eslintConfig = defineConfig([
         "error",
         NO_LOCAL_TIMEZONE,
         ...NO_RAW_INTL_DATE,
+        ...NO_WEB_STORAGE,
+        NO_INLINE_QUERY_KEY,
+      ],
+    },
+  },
+
+  {
+    /**
+     * The one file allowed to touch web storage.
+     *
+     * <p>Sidebar collapse is a display preference, not a credential. Exempted narrowly rather
+     * than by a blanket disable, so the next use of storage in this file is still caught.
+     */
+    files: ["hooks/use-sidebar-state.ts"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        NO_LOCAL_TIMEZONE,
+        ...NO_RAW_INTL_DATE,
         NO_INLINE_QUERY_KEY,
       ],
     },
@@ -152,7 +195,7 @@ const eslintConfig = defineConfig([
      */
     files: ["lib/utils/date.ts"],
     rules: {
-      "no-restricted-syntax": ["error", NO_LOCAL_TIMEZONE, NO_INLINE_QUERY_KEY],
+      "no-restricted-syntax": ["error", NO_LOCAL_TIMEZONE, ...NO_WEB_STORAGE, NO_INLINE_QUERY_KEY],
     },
   },
 

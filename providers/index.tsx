@@ -2,6 +2,8 @@
 
 import type { ReactNode } from "react";
 
+import { AuthProvider } from "@/features/auth/auth-provider";
+
 import { Devtools } from "./devtools";
 import { QueryProvider } from "./query-provider";
 import { ThemeProvider } from "./theme-provider";
@@ -20,16 +22,18 @@ import { ToastProvider } from "./toast-provider";
  *   <li>{@link QueryProvider} next, so anything below can call `useQuery`.
  * </ul>
  *
- * <p><strong>AuthProvider slots in below QueryProvider</strong> when ADM-035 lands: it needs
- * the query client to fetch `/admin/auth/me`, and everything that gates on a session needs to
- * sit inside it. `NextIntlClientProvider` stays in `layout.tsx` because the locale is resolved
- * on the server.
+ *   <li>{@link AuthProvider} innermost (ADM-035): it fetches `/admin/auth/me`, so it needs the
+ *       query client above it, and everything that gates on a session needs to sit inside it.
+ * </ul>
+ *
+ * <p>`NextIntlClientProvider` stays in `layout.tsx` because the locale is resolved on the
+ * server.
  */
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider>
       <QueryProvider>
-        {children}
+        <AuthProvider>{children}</AuthProvider>
         <ToastProvider />
         <Devtools />
       </QueryProvider>

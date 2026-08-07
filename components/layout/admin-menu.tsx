@@ -3,6 +3,7 @@
 import { LogOut, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/features/auth/auth-provider";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,11 +16,13 @@ import {
 /**
  * The admin avatar menu (SSOT §3).
  *
- * <p>Identity and sign-out both arrive with the auth provider in ADM-035 — there is no session
- * to read from yet. The menu renders its shape with the items disabled rather than being left
- * out, so the topbar is not rearranged later and it is obvious what is still missing.
+ * <p>Identity and sign-out come from the session (ADM-035). Sign-out revokes the refresh cookie
+ * and the access token's session server-side, so it takes effect immediately rather than when
+ * the token would have expired.
  */
 export function AdminMenu() {
+  const { session, signOut } = useAuth();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -37,14 +40,17 @@ export function AdminMenu() {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="font-normal">
           <span className="text-muted-foreground block text-xs">Signed in as</span>
-          {/* Real identity comes from /admin/auth/me once ADM-035 provides it. */}
-          <span className="block truncate text-sm font-medium">—</span>
+          <span className="block truncate text-sm font-medium">{session?.email ?? "—"}</span>
+          {session ? (
+            <span className="text-muted-foreground block truncate text-xs">
+              {session.roleName}
+            </span>
+          ) : null}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem disabled className="gap-2">
+        <DropdownMenuItem onSelect={() => void signOut()} className="gap-2">
           <LogOut className="size-4" aria-hidden />
           Sign out
-          <span className="sr-only">(available once sign-in is wired up)</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

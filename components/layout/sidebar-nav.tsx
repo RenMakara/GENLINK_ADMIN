@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { activeItem, visibleGroups } from "@/config/navigation";
+import { useAuth } from "@/features/auth/auth-provider";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -26,9 +27,12 @@ interface SidebarNavProps {
  */
 export function SidebarNav({ collapsed, onNavigate }: SidebarNavProps) {
   const pathname = usePathname();
-  // null = do not filter by permission. The auth provider is ADM-035; until then the shell shows
-  // every shipped item rather than an empty rail.
-  const groups = visibleGroups(null);
+  // Permissions come from /admin/auth/me, resolved from the caller's own granted authorities -
+  // so the sidebar cannot show a page the backend would refuse. null while the session is still
+  // loading, which renders every shipped item rather than flashing an empty rail and filling it
+  // in a moment later (ADM-035).
+  const { permissions } = useAuth();
+  const groups = visibleGroups(permissions);
   const active = activeItem(pathname);
 
   return (

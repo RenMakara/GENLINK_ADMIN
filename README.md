@@ -37,6 +37,30 @@ Then the checks CI runs:
 pnpm lint && pnpm typecheck && pnpm test && pnpm check:contrast && pnpm build
 ```
 
+## Running against the backend
+
+The portal talks to the Spring API through the **relative** path `/api/v1`, because in
+production nginx serves both from one origin (SSOT §1.7) — which is what removes CORS from the
+MVP entirely.
+
+In development there is no nginx, so `next.config.ts` proxies `/api/v1/**` to
+`ADMIN_API_ORIGIN` (default `http://localhost:8888`). That keeps the base URL relative in both
+environments, so no code branches on which one it is.
+
+**The backend needs one setting for local development:**
+
+```
+ADMIN_CORS_ORIGINS=http://localhost:3000
+```
+
+Without it every admin API call answers `403 Invalid CORS request`. That is not a bug — it is
+ADM-028's allow-list working. In development the browser is `localhost:3000` and Spring is
+`localhost:8888`, which is genuinely cross-origin; in production they share an origin, the
+browser's `Origin` matches the host, and Spring does not treat the request as CORS at all.
+
+> Leave `ADMIN_CORS_ORIGINS` **empty** in production under path-based routing. It is only
+> populated when the portal moves to its own subdomain.
+
 ## CI
 
 `.github/workflows/ci.yml` runs those five gates on every pull request, and again on `main`
