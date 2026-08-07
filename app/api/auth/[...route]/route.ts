@@ -184,19 +184,32 @@ async function handleLogout(request: NextRequest) {
 /**
  * Issues the CSRF token.
  *
- * <p>A GET so it can be fetched on load without needing a token of its own, and so the
- * chicken-and-egg — you need a token to make a request, and a request to get a token — does not
- * arise. Rotated on every call: a fresh token per page load costs nothing and shortens the
- * window in which a leaked one is useful.
+ * <p>A GET so it can be fetched on load without needing a token of its own — otherwise you need
+ * a token to make a request and a request to get a token.
+ *
+ * <h2>Returns the existing token when there is one</h2>
+ *
+ * An earlier version minted a fresh token on every call, on the reasoning that rotation
+ * shortens the window in which a leaked one is useful. That was wrong, and actively harmful:
+ * two concurrent callers each rotated the cookie, so whichever finished first held a token the
+ * cookie no longer matched. Its next request answered 403, which cleared the cached token,
+ * which triggered another fetch — a loop that fired thirteen requests on one page load.
+ *
+ * <p>A double-submit token does not need per-request rotation. Its security comes from a
+ * cross-origin page being unable to read it, which is true for as long as it exists. It is
+ * per-session, replaced on sign-out.
  */
-export async function GET(_request: NextRequest, context: { params: Promise<{ route: string[] }> }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ route: string[] }> }) {
   const { route } = await context.params;
   if (route.join("/") !== "csrf") {
     return failure(404, "NOT_FOUND", "Unknown auth route.");
   }
 
-  const token = newCsrfToken();
+  const existing = request.cookies.get(CSRF_COOKIE)?.value;
+  const token = existing ?? newCsrfToken();
   const response = NextResponse.json({ success: true, data: { token, header: CSRF_HEADER } });
-  response.cookies.set({ ...csrfCookieOptions(), name: CSRF_COOKIE, value: token });
+  if (!existing) {
+    response.cookies.set({ ...csrfCookieOptions(), name: CSRF_COOKIE, value: token });
+  }
   return response;
 }

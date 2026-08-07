@@ -27,23 +27,38 @@ let csrfHeader = "x-csrf-token";
  * <p>Cached for the tab's lifetime: the cookie is rotated per fetch, so requesting one per
  * request would invalidate the token any in-flight request was about to use.
  */
+let csrfInFlight: Promise<string> | null = null;
+
 async function ensureCsrfToken(): Promise<string> {
   if (csrfToken) {
     return csrfToken;
   }
-  const response = await fetch(authUrl("csrf"), { credentials: "same-origin", cache: "no-store" });
-  const body = (await response.json()) as { data?: { token: string; header: string } };
-  if (!body.data?.token) {
-    throw new Error("Could not obtain a CSRF token");
-  }
-  csrfToken = body.data.token;
-  csrfHeader = body.data.header;
-  return csrfToken;
+  // Single-flighted for the same reason as the refresh below: two callers arriving together
+  // would otherwise each fetch, and before the endpoint was fixed each fetch rotated the cookie
+  // out from under the other.
+  csrfInFlight ??= (async () => {
+    const response = await fetch(authUrl("csrf"), {
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+    const body = (await response.json()) as { data?: { token: string; header: string } };
+    if (!body.data?.token) {
+      throw new Error("Could not obtain a CSRF token");
+    }
+    csrfToken = body.data.token;
+    csrfHeader = body.data.header;
+    return csrfToken;
+  })().finally(() => {
+    csrfInFlight = null;
+  });
+
+  return csrfInFlight;
 }
 
 /** Dropped on sign-out so the next session starts with a fresh token. */
 export function resetCsrfToken(): void {
   csrfToken = null;
+  csrfInFlight = null;
 }
 
 interface Envelope<T> {
@@ -88,9 +103,42 @@ export async function verifyMfa(challengeToken: string, code: string): Promise<E
   return post<SessionTokens>("verify", { challengeToken, code });
 }
 
-/** Rotates the session using the refresh cookie. */
+/**
+ * Rotates the session using the refresh cookie — **at most once at a time**.
+ *
+ * <h2>Why this must be single-flighted here</h2>
+ *
+ * The backend rotates on every refresh: the token presented is revoked as it is spent, and
+ * presenting a revoked one again is treated as theft, which revokes every token on the account
+ * (ADM-024). So two concurrent refreshes are not merely wasteful — the second one logs the
+ * admin out and looks exactly like an attack in the audit log.
+ *
+ * <p>Two callers race by default:
+ * <ul>
+ *   <li><strong>React StrictMode</strong> double-invokes effects in development, so the
+ *       provider's bootstrap fires twice on every page load. Both send the same cookie, because
+ *       neither has seen the other's `Set-Cookie` yet.</li>
+ *   <li>A dashboard firing several queries at once produces several simultaneous 401s.</li>
+ * </ul>
+ *
+ * <p>`lib/api/client.ts` already guards the second case, but the bootstrap calls this directly
+ * and bypassed it — which is why a browser refresh reported "Refresh token reuse detected" and
+ * ended the session. Guarding at the source covers both, and any future caller.
+ */
+let refreshInFlight: Promise<Envelope<SessionTokens>> | null = null;
+
 export async function refreshSession(): Promise<Envelope<SessionTokens>> {
-  return post<SessionTokens>("refresh", {});
+  // Cleared once settled, so a *later* expiry can refresh again — holding the resolved promise
+  // would make every future refresh reuse a stale answer.
+  refreshInFlight ??= post<SessionTokens>("refresh", {}).finally(() => {
+    refreshInFlight = null;
+  });
+  return refreshInFlight;
+}
+
+/** Test seam. */
+export function resetRefreshInFlight(): void {
+  refreshInFlight = null;
 }
 
 export async function endSession(accessToken: string | null): Promise<void> {
