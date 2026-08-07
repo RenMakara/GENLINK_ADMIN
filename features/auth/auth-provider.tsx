@@ -12,7 +12,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { endSession, refreshSession, verifyMfa } from "@/features/auth/auth-client";
+import { endSession, refreshSession, requestChallenge, verifyMfa } from "@/features/auth/auth-client";
 import { api } from "@/lib/api/client";
 import { configureAuth } from "@/lib/api/client";
 import { endpoints } from "@/lib/api/endpoints";
@@ -51,12 +51,35 @@ export interface AdminSession {
 
 type Status = "loading" | "authenticated" | "unauthenticated";
 
+/**
+ * The half-finished sign-in between the password step and the code step.
+ *
+ * <p>Held in memory only. Not the URL — a token in a query string reaches the browser history,
+ * the server access log and any Referer header. Not storage — the lint rule that keeps tokens
+ * out of `localStorage` applies just as much to a challenge, and a reload legitimately
+ * abandoning a half-finished sign-in is the correct behaviour rather than a limitation.
+ */
+export interface PendingChallenge {
+  token: string;
+  enrolmentRequired: boolean;
+}
+
+export interface StepResult {
+  ok: boolean;
+  errorCode?: string;
+  status?: number;
+}
+
 interface AuthContextValue {
   status: Status;
   session: AdminSession | null;
   /** Permission codes, or null while unknown — see the sidebar's use of it. */
   permissions: string[] | null;
-  signIn: (challengeToken: string, code: string) => Promise<{ ok: boolean; errorCode?: string; message?: string }>;
+  challenge: PendingChallenge | null;
+  /** Password step. On success the caller navigates to the code step. */
+  beginSignIn: (email: string, password: string) => Promise<StepResult & { enrolmentRequired?: boolean }>;
+  /** Second factor. Uses the challenge held above, so no token crosses a page boundary. */
+  completeSignIn: (code: string) => Promise<StepResult>;
   signOut: () => Promise<void>;
 }
 
@@ -66,11 +89,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const accessToken = useRef<string | null>(null);
   const [status, setStatus] = useState<Status>("loading");
   const [session, setSession] = useState<AdminSession | null>(null);
+  const [challenge, setChallenge] = useState<PendingChallenge | null>(null);
   const router = useRouter();
 
   const clear = useCallback(() => {
     accessToken.current = null;
     setSession(null);
+    setChallenge(null);
     setStatus("unauthenticated");
   }, []);
 
@@ -139,17 +164,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [refresh, clear, loadSession]);
 
-  const signIn = useCallback(
-    async (challengeToken: string, code: string) => {
-      const result = await verifyMfa(challengeToken, code);
+  const beginSignIn = useCallback(async (email: string, password: string) => {
+    const result = await requestChallenge(email, password);
+    if (!result.ok || !result.challengeToken) {
+      return { ok: false, errorCode: result.errorCode, status: result.status };
+    }
+    setChallenge({
+      token: result.challengeToken,
+      enrolmentRequired: result.enrolmentRequired ?? false,
+    });
+    return { ok: true, enrolmentRequired: result.enrolmentRequired ?? false };
+  }, []);
+
+  const completeSignIn = useCallback(
+    async (code: string) => {
+      if (!challenge) {
+        // Reloading the code page drops the challenge, which is intended. Reported as a
+        // distinct code so the page sends them back to the start rather than saying the code
+        // was wrong.
+        return { ok: false, errorCode: "CHALLENGE_MISSING" };
+      }
+      const result = await verifyMfa(challenge.token, code);
       if (!result.success || !result.data) {
-        return { ok: false, errorCode: result.errorCode, message: result.message };
+        return { ok: false, errorCode: result.errorCode };
       }
       accessToken.current = result.data.accessToken;
+      setChallenge(null);
       await loadSession();
       return { ok: true };
     },
-    [loadSession],
+    [challenge, loadSession],
   );
 
   const signOut = useCallback(async () => {
@@ -163,10 +207,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       status,
       session,
       permissions: session?.permissions ?? null,
-      signIn,
+      challenge,
+      beginSignIn,
+      completeSignIn,
       signOut,
     }),
-    [status, session, signIn, signOut],
+    [status, session, challenge, beginSignIn, completeSignIn, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

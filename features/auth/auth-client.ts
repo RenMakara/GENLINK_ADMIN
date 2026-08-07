@@ -97,3 +97,43 @@ export async function endSession(accessToken: string | null): Promise<void> {
   await post("logout", {}, accessToken).catch(() => undefined);
   resetCsrfToken();
 }
+
+/**
+ * The password step, called straight against Spring rather than through a route handler.
+ *
+ * <p>No cookie is involved — it answers with a challenge token that authenticates nothing — so
+ * there is nothing here for CSRF to protect and no reason to add a hop.
+ *
+ * <p><strong>A 401 is the success case.</strong> The caller has proved a password and holds a
+ * challenge; they are not authenticated yet, and the status code says exactly that
+ * (SSOT §8 C-2).
+ */
+export interface ChallengeResult {
+  ok: boolean;
+  challengeToken?: string;
+  enrolmentRequired?: boolean;
+  errorCode?: string;
+  status?: number;
+}
+
+export async function requestChallenge(email: string, password: string): Promise<ChallengeResult> {
+  const response = await fetch(`${env.NEXT_PUBLIC_API_BASE_URL}/admin/auth/login`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    cache: "no-store",
+    body: JSON.stringify({ email, password }),
+  });
+
+  const body = (await response.json().catch(() => null)) as
+    | { data?: { challengeToken: string; enrolmentRequired: boolean }; errorCode?: string }
+    | null;
+
+  if (body?.data?.challengeToken) {
+    return {
+      ok: true,
+      challengeToken: body.data.challengeToken,
+      enrolmentRequired: body.data.enrolmentRequired,
+    };
+  }
+  return { ok: false, errorCode: body?.errorCode, status: response.status };
+}
