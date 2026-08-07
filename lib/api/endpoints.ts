@@ -16,6 +16,10 @@ export const endpoints = {
   auth: {
     /** ADM-021: password step; issues an MFA challenge, not a session. */
     login: `${ADMIN}/auth/login`,
+    /** ADM-022: begins enrolment; returns the secret and otpauth:// URI once. */
+    enrolMfa: `${ADMIN}/auth/mfa/enrol`,
+    /** ADM-022: confirms the first code and returns the recovery codes, once. */
+    confirmMfa: `${ADMIN}/auth/mfa/confirm`,
     /** ADM-023: TOTP or recovery code; issues the real tokens. */
     verifyMfa: `${ADMIN}/auth/mfa/verify`,
     /** ADM-024: rotates the access token using the refresh cookie. */

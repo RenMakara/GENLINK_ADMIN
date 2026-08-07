@@ -1,3 +1,4 @@
+import { endpoints } from "@/lib/api/endpoints";
 import { env } from "@/lib/config/env";
 
 /**
@@ -184,4 +185,60 @@ export async function requestChallenge(email: string, password: string): Promise
     };
   }
   return { ok: false, errorCode: body?.errorCode, status: response.status };
+}
+
+/**
+ * Enrolment, called straight against Spring like the password step.
+ *
+ * <p>Both routes are authorised by the challenge token as a bearer, not by a session — an
+ * unenrolled admin has no session and could never obtain one without these (SSOT §10.8). No
+ * cookie is involved, so there is nothing for CSRF to protect.
+ */
+
+export interface EnrolmentSetup {
+  secret: string;
+  otpauthUri: string;
+}
+
+async function challengeAuthorised<T>(
+  path: string,
+  challengeToken: string,
+  body?: unknown,
+): Promise<{ ok: boolean; data?: T; errorCode?: string }> {
+  const response = await fetch(`${env.NEXT_PUBLIC_API_BASE_URL}${path}`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${challengeToken}`,
+    },
+    cache: "no-store",
+    body: JSON.stringify(body ?? {}),
+  });
+  const envelope = (await response.json().catch(() => null)) as
+    | { success?: boolean; data?: T; errorCode?: string }
+    | null;
+
+  if (envelope?.data) {
+    return { ok: true, data: envelope.data };
+  }
+  return { ok: false, errorCode: envelope?.errorCode };
+}
+
+/** Issues a fresh secret. Calling it again replaces the previous one, which is intended. */
+export async function beginEnrolment(challengeToken: string) {
+  return challengeAuthorised<EnrolmentSetup>(endpoints.auth.enrolMfa, challengeToken);
+}
+
+/**
+ * Confirms the first code and returns the ten recovery codes.
+ *
+ * <p>This response is the only time the plaintext exists — they are stored BCrypt-hashed and
+ * are not retrievable afterwards (SSOT §10.8).
+ */
+export async function confirmEnrolment(challengeToken: string, code: string) {
+  return challengeAuthorised<{ recoveryCodes: string[] }>(
+    endpoints.auth.confirmMfa,
+    challengeToken,
+    { code },
+  );
 }

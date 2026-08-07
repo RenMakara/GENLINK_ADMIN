@@ -1,21 +1,26 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EnrolFlow } from "@/features/auth/enrol-flow";
+
+export const metadata = { title: "Set up two-factor authentication · GenLink KH Admin" };
 
 /**
- * Enrolment placeholder.
+ * Forced enrolment on first sign-in (SSOT §10.8).
  *
- * <p>Reached when an admin has never confirmed TOTP — sign-in is impossible until they do
- * (SSOT §10.8). The QR code, secret and recovery codes are <span>ADM-037</span>; the backend
- * routes behind them already exist.
+ * <p>Reached when the password step reports `enrolmentRequired`. Two-factor is mandatory for
+ * every admin and not configurable: an admin panel without it is a credential-stuffing target
+ * with a total blast radius.
  */
 export default function EnrolPage() {
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle>Set up two-factor authentication</CardTitle>
+        <CardDescription>
+          Required for every administrator. You will need an authenticator app.
+        </CardDescription>
       </CardHeader>
-      <CardContent className="text-muted-foreground text-sm">
-        This screen is built in <span className="font-mono">ADM-037</span>. Until then, enrol
-        with <span className="font-mono">scripts/dev-admin-mfa.sh</span> and sign in again.
+      <CardContent>
+        <EnrolFlow />
       </CardContent>
     </Card>
   );
