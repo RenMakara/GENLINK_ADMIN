@@ -18,6 +18,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import type { Permission } from "@/types/permissions";
+
 /**
  * The sidebar, from SSOT §3.
  *
@@ -41,11 +43,11 @@ export interface NavItem {
    * Permission code required to see this item, without the `PERM_` prefix — the shape
    * `/admin/auth/me` returns.
    *
-   * <p>Filtering is not applied yet: the auth provider is ADM-035 and `usePermission` is
-   * ADM-038, both of which land after this shell. The codes are declared now so wiring them up
-   * is a change in one place, and so the sidebar cannot quietly ship without them.
+   * <p>Typed as {@link Permission} rather than `string` (ADM-038): a nav entry gated on
+   * `user:bann` would compile as a string, match nothing, and silently vanish from every
+   * sidebar. That is a bug with no error message, which is exactly what a union is for.
    */
-  permission: string;
+  permission: Permission;
   phase: NavPhase;
 }
 
