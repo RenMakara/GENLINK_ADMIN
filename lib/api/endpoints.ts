@@ -30,6 +30,10 @@ export const endpoints = {
     /** ADM-025: opens the 5-minute sudo window (SSOT §10.7). */
     sudo: `${ADMIN}/auth/sudo`,
   },
+  dashboard: {
+    /** ADM-045: aggregate BFF-lite dashboard summary endpoint. */
+    summary: `${ADMIN}/dashboard/summary`,
+  },
 } as const;
 
 /**

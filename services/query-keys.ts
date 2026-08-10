@@ -37,6 +37,11 @@ export const queryKeys = {
     /** The signed-in admin: identity, role and resolved permissions (ADM-024). */
     me: () => ["auth", "me"] as const,
   },
+  dashboard: {
+    all: () => ["dashboard"] as const,
+    /** Aggregate BFF-lite summary endpoint (ADM-045, ADM-051, ADM-052). */
+    summary: () => ["dashboard", "summary"] as const,
+  },
 } as const;
 
 /**

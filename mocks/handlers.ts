@@ -121,4 +121,61 @@ export const handlers = [
   http.post(apiPattern(endpoints.auth.sudo), () => HttpResponse.json(apiResponse(null))),
 
   http.post(apiPattern(endpoints.auth.logout), () => HttpResponse.json(apiResponse(null))),
+
+  http.get(apiPattern(endpoints.dashboard.summary), () =>
+    HttpResponse.json(
+      apiResponse({
+        summary: {
+          totalUsers: 1284,
+          totalUsersDelta: 4.2,
+          activeUsers: 1058,
+          activeUsersDelta: 2.8,
+          newToday: 42,
+          newTodayDelta: 12.0,
+          dau: 412,
+          dauDelta: 1.5,
+          dauEstimated: true,
+          mau: 980,
+          mauDelta: 5.4,
+          mauEstimated: true,
+          pendingVerification: 117,
+          bannedOrSuspended: 24,
+        },
+        userGrowth: [
+          { date: "2026-08-01", count: 1120 },
+          { date: "2026-08-02", count: 1150 },
+          { date: "2026-08-03", count: 1190 },
+          { date: "2026-08-04", count: 1215 },
+          { date: "2026-08-05", count: 1240 },
+          { date: "2026-08-06", count: 1265 },
+          { date: "2026-08-07", count: 1284 },
+        ],
+        registrations: [
+          { date: "2026-08-01", count: 30 },
+          { date: "2026-08-02", count: 40 },
+          { date: "2026-08-03", count: 25 },
+          { date: "2026-08-04", count: 25 },
+          { date: "2026-08-05", count: 25 },
+          { date: "2026-08-06", count: 19 },
+          { date: "2026-08-07", count: 42 },
+        ],
+        activityTrends: [
+          { date: "2026-08-01", dau: 380, mau: 920 },
+          { date: "2026-08-02", dau: 390, mau: 935 },
+          { date: "2026-08-03", dau: 400, mau: 950 },
+          { date: "2026-08-04", dau: 405, mau: 960 },
+          { date: "2026-08-05", dau: 410, mau: 970 },
+          { date: "2026-08-06", dau: 408, mau: 975 },
+          { date: "2026-08-07", dau: 412, mau: 980 },
+        ],
+        statusSplit: [
+          { status: "ACTIVE", count: 1058 },
+          { status: "PENDING", count: 117 },
+          { status: "SUSPENDED", count: 18 },
+          { status: "BANNED", count: 6 },
+          { status: "DELETED", count: 85 },
+        ],
+      }),
+    ),
+  ),
 ];
