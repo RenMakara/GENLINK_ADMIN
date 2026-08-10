@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ChartsShowcase } from "./charts-showcase";
 import { PrimitivesShowcase } from "./primitives-showcase";
 
 /**
@@ -84,6 +85,8 @@ export default function Home() {
       </Card>
 
       <PrimitivesShowcase />
+
+      <ChartsShowcase />
     </div>
   );
 }
