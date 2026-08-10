@@ -34,6 +34,10 @@ export const endpoints = {
     /** ADM-045: aggregate BFF-lite dashboard summary endpoint. */
     summary: `${ADMIN}/dashboard/summary`,
   },
+  system: {
+    /** ADM-047: Spring Boot Actuator & system health status endpoint. */
+    health: `${ADMIN}/system/health`,
+  },
 } as const;
 
 /**

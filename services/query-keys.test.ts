@@ -20,5 +20,6 @@ describe("query key factory", () => {
     expect(Object.isFrozen(key) || Array.isArray(key)).toBe(true);
     expect(key).toEqual(["auth", "me"]);
     expect(queryKeys.dashboard.summary()).toEqual(["dashboard", "summary"]);
+    expect(queryKeys.system.health()).toEqual(["system", "health"]);
   });
 });

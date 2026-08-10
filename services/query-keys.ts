@@ -42,6 +42,11 @@ export const queryKeys = {
     /** Aggregate BFF-lite summary endpoint (ADM-045, ADM-051, ADM-052). */
     summary: () => ["dashboard", "summary"] as const,
   },
+  system: {
+    all: () => ["system"] as const,
+    /** System health summary endpoint (ADM-047, ADM-055). */
+    health: () => ["system", "health"] as const,
+  },
 } as const;
 
 /**

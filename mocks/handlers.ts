@@ -257,4 +257,40 @@ export const handlers = [
       }),
     ),
   ),
+
+  http.get(apiPattern(endpoints.system.health), () =>
+    HttpResponse.json(
+      apiResponse({
+        status: "UP",
+        api: { status: "UP", details: "All API routes operational (Uptime 99.98%)" },
+        database: { status: "UP", details: "PostgreSQL connection pool healthy" },
+        storage: { status: "UP", details: "S3 object storage ping 24ms" },
+        mail: { status: "UP", details: "SMTP server reachable (Last send: SUCCESS)" },
+        jobs: [
+          {
+            name: "AccountAnonymizationJob",
+            displayName: "Account Anonymization Job",
+            lastRunAt: "2026-08-10T02:00:00.000Z",
+            outcome: "SUCCESS",
+            details: "Processed scheduled account purges",
+          },
+          {
+            name: "RecurringFinanceJob",
+            displayName: "Recurring Finance Job",
+            lastRunAt: "2026-08-10T01:30:00.000Z",
+            outcome: "SUCCESS",
+            details: "Reconciled ledger transactions",
+          },
+          {
+            name: "MediaCleanupJob",
+            displayName: "Media Cleanup Job",
+            lastRunAt: null,
+            outcome: "NEVER_RUN",
+            details: "Never run since restart",
+          },
+        ],
+        updatedAt: "2026-08-10T16:50:00.000Z",
+      }),
+    ),
+  ),
 ];

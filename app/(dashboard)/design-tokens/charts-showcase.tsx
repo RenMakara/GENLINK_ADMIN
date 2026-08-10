@@ -12,6 +12,7 @@ import {
   DashboardCharts,
   RecentActivityPanels,
   QuickActionsPanel,
+  SystemHealthPanel,
 } from "@/components/dashboard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,6 +48,13 @@ export function ChartsShowcase() {
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
         <KpiCardRow />
+
+        <div className="border-t pt-6">
+          <h3 className="text-sm font-semibold text-muted-foreground mb-4">
+            System Health Panel (ADM-055)
+          </h3>
+          <SystemHealthPanel />
+        </div>
 
         <div className="border-t pt-6">
           <h3 className="text-sm font-semibold text-muted-foreground mb-4">
