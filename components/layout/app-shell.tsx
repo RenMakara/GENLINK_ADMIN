@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 
+import { CommandPalette } from "@/components/layout/command-palette";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
 import { Topbar } from "@/components/layout/topbar";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -23,9 +24,12 @@ import { cn } from "@/lib/utils";
 export function AppShell({ children }: { children: ReactNode }) {
   const { collapsed, toggle, animate } = useSidebarState();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
   return (
     <div className="bg-background flex min-h-svh">
+      <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
+
       <aside
         aria-label="Sidebar"
         className={cn(
@@ -70,6 +74,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           collapsed={collapsed}
           onToggleSidebar={toggle}
           onOpenMobileNav={() => setMobileNavOpen(true)}
+          onOpenCommandPalette={() => setCommandPaletteOpen(true)}
         />
         {/* max-w-[1600px] per SSOT §3: a data table stretched across an ultrawide monitor is
             unreadable, because the eye loses the row between the first and last column. */}

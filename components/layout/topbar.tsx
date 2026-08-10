@@ -13,6 +13,7 @@ interface TopbarProps {
   collapsed: boolean;
   onToggleSidebar: () => void;
   onOpenMobileNav: () => void;
+  onOpenCommandPalette?: () => void;
 }
 
 /**
@@ -21,7 +22,12 @@ interface TopbarProps {
  * <p>Sticky rather than scrolling away because the environment badge lives here. A warning that
  * only shows at the top of a long user list is not a warning.
  */
-export function Topbar({ collapsed, onToggleSidebar, onOpenMobileNav }: TopbarProps) {
+export function Topbar({
+  collapsed,
+  onToggleSidebar,
+  onOpenMobileNav,
+  onOpenCommandPalette,
+}: TopbarProps) {
   return (
     <header className="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b px-4 backdrop-blur">
       {/* Below md the rail is gone, so this opens the sheet instead of collapsing. */}
@@ -56,7 +62,7 @@ export function Topbar({ collapsed, onToggleSidebar, onOpenMobileNav }: TopbarPr
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
-        <CommandPaletteTrigger />
+        <CommandPaletteTrigger onClick={onOpenCommandPalette} />
         <EnvironmentBadge />
         <ThemeToggle />
         <AdminMenu />

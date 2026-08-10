@@ -12,14 +12,22 @@ import { Button } from "@/components/ui/button";
  * does nothing. Search is a later phase; a trigger that opened an empty dialog would be worse
  * than one that plainly says "not yet".
  */
-export function CommandPaletteTrigger() {
+interface CommandPaletteTriggerProps {
+  /** Optional click handler to open the command palette */
+  onClick?: () => void;
+}
+
+/**
+ * Trigger button for the ⌘K Command Palette (SSOT §3, ADM-057).
+ */
+export function CommandPaletteTrigger({ onClick }: CommandPaletteTriggerProps) {
   return (
     <Button
       variant="outline"
       size="sm"
-      disabled
-      title="Command palette — not implemented yet"
-      aria-label="Command palette — not implemented yet"
+      onClick={onClick}
+      title="Open Command palette (⌘K)"
+      aria-label="Open Command palette (⌘K)"
       className="text-muted-foreground hidden h-8 gap-2 px-2.5 font-normal sm:flex"
     >
       <Search className="size-3.5" aria-hidden />
