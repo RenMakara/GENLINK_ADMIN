@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from "recharts";
 
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { CHART_PALETTE, CHART_THEME_COLORS, getChartColor } from "./chart-colors";
 
 export interface DonutChartDataItem {
@@ -55,6 +56,8 @@ export function DonutChart({
   const isDark = resolvedTheme === "dark";
   const themeColors = isDark ? CHART_THEME_COLORS.dark : CHART_THEME_COLORS.light;
 
+  const shouldReduceMotion = useReducedMotion();
+
   if (!data || data.length === 0) {
     return null;
   }
@@ -75,6 +78,7 @@ export function DonutChart({
             paddingAngle={3}
             dataKey="value"
             nameKey="name"
+            isAnimationActive={!shouldReduceMotion}
           >
             {data.map((entry, idx) => (
               <Cell key={`cell-${entry.name}`} fill={entry.color || getChartColor(idx, colors)} />

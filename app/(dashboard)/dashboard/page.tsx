@@ -33,6 +33,11 @@ export default function DashboardPage() {
 
   return (
     <div className="flex w-full flex-col gap-6">
+      {/* ARIA live region for screen reader status updates (SSOT §11.8) */}
+      <div className="sr-only" aria-live="polite" role="status">
+        {isRefreshing ? "Updating dashboard metrics..." : "Dashboard metrics up to date."}
+      </div>
+
       <PageHeader
         title="Dashboard"
         description="GenLink KH Admin Portal Overview (Asia/Phnom_Penh)"

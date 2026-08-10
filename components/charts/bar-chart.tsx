@@ -12,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { CHART_PALETTE, CHART_THEME_COLORS, getChartColor } from "./chart-colors";
 
 export interface BarChartProps {
@@ -58,6 +59,8 @@ export function BarChart({
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
   const themeColors = isDark ? CHART_THEME_COLORS.dark : CHART_THEME_COLORS.light;
+
+  const shouldReduceMotion = useReducedMotion();
 
   if (!data || data.length === 0) {
     return null;
@@ -124,6 +127,7 @@ export function BarChart({
                 fill={color}
                 radius={[4, 4, 0, 0]}
                 stackId={stacked ? "stack" : undefined}
+                isAnimationActive={!shouldReduceMotion}
               />
             );
           })}

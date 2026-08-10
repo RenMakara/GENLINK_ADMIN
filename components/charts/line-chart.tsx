@@ -12,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { CHART_PALETTE, CHART_THEME_COLORS, getChartColor } from "./chart-colors";
 
 export interface LineChartProps {
@@ -55,6 +56,8 @@ export function LineChart({
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
   const themeColors = isDark ? CHART_THEME_COLORS.dark : CHART_THEME_COLORS.light;
+
+  const shouldReduceMotion = useReducedMotion();
 
   if (!data || data.length === 0) {
     return null;
@@ -123,6 +126,7 @@ export function LineChart({
                 strokeWidth={2}
                 dot={{ r: 3, fill: color }}
                 activeDot={{ r: 5, strokeWidth: 1 }}
+                isAnimationActive={!shouldReduceMotion}
               />
             );
           })}

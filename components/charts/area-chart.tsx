@@ -12,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { CHART_PALETTE, CHART_THEME_COLORS, getChartColor } from "./chart-colors";
 
 export interface AreaChartProps {
@@ -58,6 +59,8 @@ export function AreaChart({
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
   const themeColors = isDark ? CHART_THEME_COLORS.dark : CHART_THEME_COLORS.light;
+
+  const shouldReduceMotion = useReducedMotion();
 
   if (!data || data.length === 0) {
     return null;
@@ -146,6 +149,7 @@ export function AreaChart({
                 fillOpacity={1}
                 fill={`url(#area-gradient-${category.replace(/\s+/g, "-")})`}
                 stackId={stacked ? "stack" : undefined}
+                isAnimationActive={!shouldReduceMotion}
               />
             );
           })}
