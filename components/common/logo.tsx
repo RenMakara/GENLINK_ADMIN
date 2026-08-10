@@ -1,5 +1,7 @@
-import Image from "next/image";
+"use client";
+
 import { cn } from "@/lib/utils";
+import { env } from "@/lib/config/env";
 
 export interface LogoProps {
   /** Size variant: "sm" (24px), "md" (32px), "lg" (44px) */
@@ -20,6 +22,8 @@ const SIZE_MAP = {
 
 /**
  * GenLink KH Brand Logo component displaying the official GenLink logo icon (public/genlink_logo.png).
+ *
+ * <p>Supports Next.js `basePath` resolution (`/admin/genlink_logo.png`) so image requests do not 404.
  */
 export function GenLinkLogo({
   size = "md",
@@ -28,16 +32,18 @@ export function GenLinkLogo({
   className,
 }: LogoProps) {
   const config = SIZE_MAP[size];
+  const basePath = env.NEXT_PUBLIC_BASE_PATH || "";
+  const logoSrc = `${basePath}/genlink_logo.png`;
 
   return (
     <div className={cn("flex items-center gap-2.5 shrink-0 select-none", className)}>
-      <Image
-        src="/genlink_logo.png"
+      <img
+        src={logoSrc}
         alt="GenLink KH Logo"
         width={config.dimensions}
         height={config.dimensions}
         className="object-contain shrink-0"
-        priority
+        style={{ width: config.dimensions, height: config.dimensions }}
       />
       {!iconOnly && (
         <div className="flex items-center gap-1.5 min-w-0">
