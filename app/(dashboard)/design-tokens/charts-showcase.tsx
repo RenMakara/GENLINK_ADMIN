@@ -7,6 +7,7 @@ import {
   DonutChart,
   LineChart,
 } from "@/components/charts";
+import { KpiCardRow } from "@/components/dashboard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -37,10 +38,16 @@ export function ChartsShowcase() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Chart Component Library (ADM-050)</CardTitle>
+        <CardTitle>KPI Card Row (ADM-051)</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
-        <div className="grid gap-6 md:grid-cols-2">
+        <KpiCardRow />
+
+        <div className="border-t pt-6">
+          <h3 className="text-sm font-semibold text-muted-foreground mb-4">
+            Chart Component Library (ADM-050)
+          </h3>
+          <div className="grid gap-6 md:grid-cols-2">
           {/* Area Chart */}
           <ChartCard
             title="User Growth (AreaChart)"
@@ -117,6 +124,7 @@ export function ChartsShowcase() {
             emptyMessage="No analytics events recorded for this timeframe"
             minHeight={200}
           />
+        </div>
         </div>
       </CardContent>
     </Card>
