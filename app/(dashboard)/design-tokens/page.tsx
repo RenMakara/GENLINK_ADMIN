@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PrimitivesShowcase } from "./primitives-showcase";
 
 /**
  * Placeholder home page, doubling as the theme proof for ADM-013.
@@ -81,6 +82,8 @@ export default function Home() {
           </table>
         </CardContent>
       </Card>
+
+      <PrimitivesShowcase />
     </div>
   );
 }
