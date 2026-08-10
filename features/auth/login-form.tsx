@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { AuthErrorAlert } from "@/features/auth/auth-error-alert";
 import { useAuth } from "@/features/auth/auth-provider";
 import { loginSchema, type LoginValues } from "@/features/auth/schemas";
+import { returnToFrom, withReturnTo } from "@/lib/auth/routes";
 
 /**
  * The password step (ADM-036).
@@ -44,7 +45,14 @@ export function LoginForm() {
     }
     // Enrolment is forced on first sign-in (SSOT §10.8): the challenge is the only credential
     // an unenrolled admin holds, and it is what the enrolment routes accept.
-    router.push(result.enrolmentRequired ? "/enrol" : "/mfa");
+    if (result.enrolmentRequired) {
+      router.push("/enrol");
+      return;
+    }
+    // Carry the destination across to the code step (ADM-039 AC#1). It has to travel in the URL
+    // because that is the only thing surviving between two pages here — the challenge lives in
+    // memory, but adding a field to it would tie a routing concern to a credential.
+    router.push(withReturnTo("/mfa", returnToFrom(window.location.search)));
   }
 
   return (

@@ -12,12 +12,14 @@ import { AuthErrorAlert } from "@/features/auth/auth-error-alert";
 import { useAuth } from "@/features/auth/auth-provider";
 import { redirectsToEnrolment } from "@/features/auth/error-messages";
 import { mfaSchema, normaliseCode, type MfaValues } from "@/features/auth/schemas";
+import { returnToFrom } from "@/lib/auth/routes";
 
 /**
  * The second factor (ADM-036).
  *
  * <p>Accepts a 6-digit TOTP code or a recovery code; the server decides which. On success the
- * session exists and the admin lands on the dashboard.
+ * session exists and the admin lands wherever they were headed — the dashboard, unless a guard
+ * intercepted them on the way to somewhere else (ADM-039).
  */
 export function MfaForm() {
   const { challenge, completeSignIn } = useAuth();
@@ -46,7 +48,10 @@ export function MfaForm() {
     const result = await completeSignIn(normaliseCode(values.code));
 
     if (result.ok) {
-      router.replace("/dashboard");
+      // Back to whatever they were trying to open when the guard intercepted them, or the
+      // dashboard (ADM-039 AC#1). Re-validated here rather than trusted from `/login`: the value
+      // travelled through a URL the visitor controls.
+      router.replace(returnToFrom(window.location.search));
       return;
     }
     if (redirectsToEnrolment(result.errorCode)) {
