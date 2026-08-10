@@ -1,19 +1,18 @@
 /**
- * MSW request handlers for the endpoints that exist on the backend today (SSOT §8.1).
+ * MSW request handlers for the endpoints that exist on the backend and frontend today (SSOT §8.1).
  *
  * <p>Isomorphic: imports only the `msw` core (`http` / `HttpResponse`), the pure factories and
  * `lib/api`. No `msw/browser` or `msw/node` here, so the same handlers feed both the browser
  * worker (`browser.ts`) and the Node server (`server.ts`) without either pulling the other's
  * platform code.
  *
- * <p>Only the auth surface is mocked — the only admin endpoints wired into `endpoints.ts` so
- * far. Later feature tasks add their own handlers alongside these as their endpoints land; an
- * exhaustive map of unbuilt routes would be indistinguishable from a working one.
+ * <p>Scope covers the core auth surface (`/auth/me`, `/auth/login`, `/auth/sudo`, etc.) as well as
+ * Phase 2 dashboard summary (`/dashboard/summary`, ADM-052) and system health (`/system/health`, ADM-055)
+ * endpoints.
  *
- * <p>The response *data* is illustrative fixture content; the response *shapes* are the pinned
- * contract (the `ApiResponse` envelope, the error-code catalogue). No DTO field is invented
- * that the SSOT or existing code has not already fixed — the two session shapes below are the
- * real types the client already consumes.
+ * <p>The response *data* is illustrative fixture content wrapped in the standard `ApiResponse` envelope.
+ * Note: While the auth response shapes mirror pinned backend contracts, the dashboard summary and system health
+ * fixture DTOs are frontend provisional shapes pending final backend API contracts.
  */
 
 import { http, HttpResponse } from "msw";
