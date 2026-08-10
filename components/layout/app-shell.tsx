@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 
+import { GenLinkLogo } from "@/components/common";
 import { CommandPalette } from "@/components/layout/command-palette";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
 import { Topbar } from "@/components/layout/topbar";
@@ -41,19 +42,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         )}
       >
         <div className="flex h-14 items-center border-b px-4">
-          <span
-            className={cn(
-              "truncate text-sm font-semibold",
-              collapsed && "sr-only",
-            )}
-          >
-            GenLink KH
-          </span>
-          {collapsed && (
-            <span aria-hidden className="w-full text-center text-sm font-semibold">
-              G
-            </span>
-          )}
+          <GenLinkLogo size="sm" iconOnly={collapsed} />
         </div>
         <SidebarNav collapsed={collapsed} />
       </aside>
@@ -61,7 +50,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
         <SheetContent side="left" className="w-72 p-0">
           <div className="flex h-14 items-center border-b px-4">
-            <SheetTitle className="text-sm font-semibold">GenLink KH</SheetTitle>
+            <SheetTitle className="sr-only">GenLink KH Navigation</SheetTitle>
+            <GenLinkLogo size="sm" />
           </div>
           {/* Never collapsed in the sheet: it has the room, and icons alone are a poor
               touch target with no hover to reveal a tooltip. */}
