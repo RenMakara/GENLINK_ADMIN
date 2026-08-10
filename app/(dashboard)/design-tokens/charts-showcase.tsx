@@ -7,7 +7,7 @@ import {
   DonutChart,
   LineChart,
 } from "@/components/charts";
-import { KpiCardRow, DashboardCharts } from "@/components/dashboard";
+import { KpiCardRow, DashboardCharts, RecentActivityPanels } from "@/components/dashboard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -42,6 +42,57 @@ export function ChartsShowcase() {
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
         <KpiCardRow />
+
+        <div className="border-t pt-6">
+          <h3 className="text-sm font-semibold text-muted-foreground mb-4">
+            Recent Activity Panels (ADM-053)
+          </h3>
+          <RecentActivityPanels
+            data={{
+              adminActions: [
+                {
+                  id: "act-1",
+                  actorEmail: "sok.dara@genlink.kh",
+                  action: "USER_SUSPEND",
+                  target: "chan.vibol@gmail.com",
+                  timestamp: "2026-08-10T08:15:00.000Z",
+                },
+                {
+                  id: "act-2",
+                  actorEmail: "admin@genlink.kh",
+                  action: "ROLE_UPDATE",
+                  target: "leang.sovon@genlink.kh",
+                  timestamp: "2026-08-10T07:45:00.000Z",
+                },
+                {
+                  id: "act-3",
+                  actorEmail: "sok.dara@genlink.kh",
+                  action: "VERIFY_EMAIL",
+                  target: "morm.rotana@rupp.edu.kh",
+                  timestamp: "2026-08-10T06:30:00.000Z",
+                },
+              ],
+              registrations: [
+                {
+                  id: "reg-1",
+                  fullName: "Morm Rotana",
+                  email: "morm.rotana@rupp.edu.kh",
+                  universityName: "Royal University of Phnom Penh",
+                  status: "PENDING",
+                  joinedAt: "2026-08-10T08:30:00.000Z",
+                },
+                {
+                  id: "reg-2",
+                  fullName: "Keo Bopha",
+                  email: "keo.bopha@itc.edu.kh",
+                  universityName: "Institute of Technology of Cambodia",
+                  status: "ACTIVE",
+                  joinedAt: "2026-08-10T08:00:00.000Z",
+                },
+              ],
+            }}
+          />
+        </div>
 
         <div className="border-t pt-6">
           <h3 className="text-sm font-semibold text-muted-foreground mb-4">
