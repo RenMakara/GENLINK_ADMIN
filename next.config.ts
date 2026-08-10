@@ -56,6 +56,28 @@ const nextConfig: NextConfig = {
     ];
   },
 
+  /**
+   * Lets the MSW worker register at root scope (ADM-041), in development only.
+   *
+   * <p>The portal is served under `/admin` but the API is at `/api/v1` — a different root. A
+   * Service Worker's default scope is the path it is served from (`/admin/…`), which would not
+   * see the API calls. Broadening it to `/` requires this header on the worker's own response;
+   * the browser rejects the wider scope without it.
+   *
+   * <p>Development only: mocking is never enabled in production, so the header would sit on a
+   * script nothing registers. `source` is matched under the base path like the app's other
+   * routes, so it resolves to `/admin/mockServiceWorker.js` — where `public/` is served.
+   */
+  async headers() {
+    if (!isDevelopment) return [];
+    return [
+      {
+        source: "/mockServiceWorker.js",
+        headers: [{ key: "Service-Worker-Allowed", value: "/" }],
+      },
+    ];
+  },
+
   async redirects() {
     if (!env.NEXT_PUBLIC_BASE_PATH) return [];
     return [

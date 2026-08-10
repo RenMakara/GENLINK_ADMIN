@@ -207,6 +207,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated verbatim by the MSW CLI (ADM-041) and marked "do NOT modify" — vendored, not
+    // our source, so it is not ours to lint.
+    "public/mockServiceWorker.js",
   ]),
 ]);
 

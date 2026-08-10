@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { AuthProvider } from "@/features/auth/auth-provider";
 
 import { Devtools } from "./devtools";
+import { MockingProvider } from "./mocking-provider";
 import { QueryProvider } from "./query-provider";
 import { ThemeProvider } from "./theme-provider";
 import { ToastProvider } from "./toast-provider";
@@ -22,6 +23,9 @@ import { ToastProvider } from "./toast-provider";
  *   <li>{@link QueryProvider} next, so anything below can call `useQuery`.
  * </ul>
  *
+ *   <li>{@link MockingProvider} wraps the app subtree (ADM-041): when mocking is enabled it holds
+ *       rendering until the MSW worker is intercepting, so the auth bootstrap below does not race
+ *       it. A no-op wrapper when disabled — which is always, in production.
  *   <li>{@link AuthProvider} innermost (ADM-035): it fetches `/admin/auth/me`, so it needs the
  *       query client above it, and everything that gates on a session needs to sit inside it.
  * </ul>
@@ -33,7 +37,9 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider>
       <QueryProvider>
-        <AuthProvider>{children}</AuthProvider>
+        <MockingProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </MockingProvider>
         <ToastProvider />
         <Devtools />
       </QueryProvider>

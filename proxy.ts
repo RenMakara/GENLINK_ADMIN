@@ -92,5 +92,5 @@ export const config = {
    * excluded because without a matcher the proxy runs on every request including CSS and
    * JavaScript, and redirecting those to `/login` breaks the sign-in page it redirects to.
    */
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|mockServiceWorker.js).*)"],
 };

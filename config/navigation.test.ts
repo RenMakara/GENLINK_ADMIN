@@ -58,6 +58,20 @@ describe("navigation — permission filtering", () => {
     expect(labels).toEqual(["Users", "Audit Logs"]);
   });
 
+  it("an ANALYTICS_VIEWER sees only Dashboard and Analytics among shipped routes (AC#1)", () => {
+    const analyticsViewerPermissions = [
+      "dashboard:view",
+      "analytics:view",
+      "analytics:export",
+      "event:read",
+    ];
+    const labels = visibleGroups(analyticsViewerPermissions).flatMap((group) =>
+      group.items.map((item) => item.label),
+    );
+
+    expect(labels).toEqual(["Dashboard", "Analytics"]);
+  });
+
   it("hides a group whose children are all filtered out by permission", () => {
     expect(visibleGroups(["audit:read"]).map((group) => group.label)).toEqual(["System"]);
   });

@@ -25,6 +25,7 @@ const raw = {
   NEXT_PUBLIC_BASE_PATH: process.env.NEXT_PUBLIC_BASE_PATH,
   NEXT_PUBLIC_TIMEZONE: process.env.NEXT_PUBLIC_TIMEZONE,
   NEXT_PUBLIC_ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT,
+  NEXT_PUBLIC_API_MOCKING: process.env.NEXT_PUBLIC_API_MOCKING,
   ADMIN_COOKIE_SECURE: process.env.ADMIN_COOKIE_SECURE,
   ADMIN_API_ORIGIN: process.env.ADMIN_API_ORIGIN,
 } as const;
@@ -90,6 +91,17 @@ const clientSchema = z.object({
   NEXT_PUBLIC_ENVIRONMENT: z
     .enum(["development", "staging", "production"])
     .default("development"),
+
+  /**
+   * The one flag that turns the MSW mock layer on (ADM-041). Off by default and in production,
+   * so the portal talks to the real API unless a developer opts in — the mocks let the frontend
+   * run ahead of unbuilt endpoints (SSOT §8), they are not a shipping mode.
+   *
+   * <p>`booleanish` accepts the `true`/`false`/`1`/`0` a shell or `.env` actually produces. As a
+   * `NEXT_PUBLIC_*` value it is inlined into the browser bundle, which is required: the worker
+   * that reads it starts in the browser.
+   */
+  NEXT_PUBLIC_API_MOCKING: booleanish.default(false),
 });
 
 /**
