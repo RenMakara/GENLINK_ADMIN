@@ -201,3 +201,19 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+/*
+  Reduce non-essential CSS motion for users who request it at the OS/browser level (ADM-058).
+  Recharts receives the same preference through useReducedMotion; this covers the remaining
+  loading, refresh, dialog, sheet, and transition utilities without removing motion for others.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

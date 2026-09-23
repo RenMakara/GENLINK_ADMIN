@@ -9,6 +9,7 @@ import {
   Moon,
   Search,
   Sun,
+  UserRound,
 } from "lucide-react";
 import type { LucideProps } from "lucide-react";
 
@@ -17,14 +18,17 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { visibleGroups } from "@/config/navigation";
 import { useAuth } from "@/features/auth/auth-provider";
 import { cn } from "@/lib/utils";
+import { useUserSearch } from "@/services/users";
+import type { AdminUserTableRow } from "@/features/users/types";
 
 export interface CommandPaletteItem {
   id: string;
   label: string;
-  category: "Navigation" | "Quick Actions" | "Theme";
+  category: "Navigation" | "Quick Actions" | "Theme" | "Users";
   icon: ComponentType<LucideProps>;
   onSelect: () => void;
   keywords?: string;
+  description?: string;
 }
 
 export interface CommandPaletteProps {
@@ -47,6 +51,7 @@ export function CommandPalette({ open, onOpenChange, userPermissions }: CommandP
   const { setTheme } = useTheme();
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [debouncedUserQuery, setDebouncedUserQuery] = useState("");
 
   // Read permissions from context if not passed explicitly
   let activePermissions: string[] | null = null;
@@ -57,14 +62,50 @@ export function CommandPalette({ open, onOpenChange, userPermissions }: CommandP
     activePermissions = userPermissions ?? null;
   }
 
-  // 1. Navigation items (Permission-filtered via visibleGroups)
-  const navGroups = useMemo(() => visibleGroups(activePermissions), [activePermissions]);
-
   const close = useCallback(() => {
     onOpenChange(false);
     setQuery("");
     setSelectedIndex(0);
   }, [onOpenChange]);
+
+  // 1. Navigation items (Permission-filtered via visibleGroups)
+  const navGroups = useMemo(() => visibleGroups(activePermissions), [activePermissions]);
+  const canSearchUsers = activePermissions?.includes("user:read") ?? false;
+
+  // ADM-076: keep command filtering immediate, but delay the network-backed user search.
+  useEffect(() => {
+    const normalized = query.trim();
+    const timer = window.setTimeout(() => setDebouncedUserQuery(normalized), 300);
+    return () => window.clearTimeout(timer);
+  }, [query]);
+
+  const userSearch = useUserSearch(debouncedUserQuery, open && canSearchUsers);
+  const normalizedQuery = query.trim();
+  const showUserResults =
+    canSearchUsers && normalizedQuery.length > 0 && debouncedUserQuery === normalizedQuery;
+
+  const userItems = useMemo<CommandPaletteItem[]>(() => {
+    if (!showUserResults) return [];
+
+    return (userSearch.data?.content ?? []).map((user: AdminUserTableRow) => {
+      const username = user.username ? `@${user.username.replace(/^@/, "")}` : "";
+      const description = [user.email, username].filter(Boolean).join(" · ");
+      const label = user.fullName || username || user.email || "Unnamed user";
+
+      return {
+        id: `user-${user.userId}`,
+        label,
+        description,
+        category: "Users",
+        icon: UserRound,
+        keywords: `${user.fullName} ${user.email} ${user.username}`,
+        onSelect: () => {
+          close();
+          router.push(`/users/${encodeURIComponent(user.userId)}`);
+        },
+      };
+    });
+  }, [close, router, showUserResults, userSearch.data?.content]);
 
   const items = useMemo<CommandPaletteItem[]>(() => {
     const list: CommandPaletteItem[] = [];
@@ -85,6 +126,9 @@ export function CommandPalette({ open, onOpenChange, userPermissions }: CommandP
         });
       });
     });
+
+    // User results are gated on user:read and are populated by the debounced ADM-060 search.
+    list.push(...userItems);
 
     const activePerms = activePermissions ?? [];
 
@@ -143,7 +187,7 @@ export function CommandPalette({ open, onOpenChange, userPermissions }: CommandP
     );
 
     return list;
-  }, [navGroups, activePermissions, router, setTheme, close]);
+  }, [navGroups, activePermissions, router, setTheme, close, userItems]);
 
   // Filter items by search query
   const filteredItems = useMemo(() => {
@@ -220,9 +264,22 @@ export function CommandPalette({ open, onOpenChange, userPermissions }: CommandP
 
           {/* Action List */}
           <div className="max-h-80 overflow-y-auto p-2">
+            {canSearchUsers && normalizedQuery.length > 0 && !showUserResults ? (
+              <div role="status" className="px-3 pb-2 text-xs text-muted-foreground">
+                Searching users…
+              </div>
+            ) : null}
+            {canSearchUsers && showUserResults && userSearch.isLoading ? (
+              <div role="status" className="px-3 pb-2 text-xs text-muted-foreground">
+                Searching users…
+              </div>
+            ) : null}
             {filteredItems.length === 0 ? (
+              canSearchUsers && showUserResults && userSearch.isLoading ? null :
               <div className="p-4 text-center text-sm text-muted-foreground">
-                No matching commands or pages found
+                {canSearchUsers && showUserResults
+                  ? "No matching users or commands found"
+                  : "No matching commands or pages found"}
               </div>
             ) : (
               <div className="flex flex-col gap-1">
@@ -238,6 +295,7 @@ export function CommandPalette({ open, onOpenChange, userPermissions }: CommandP
                       onMouseEnter={() => setSelectedIndex(index)}
                       className={cn(
                         "flex items-center justify-between w-full px-3 py-2 rounded-md text-sm text-left transition-colors",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                         isSelected
                           ? "bg-accent text-accent-foreground font-medium"
                           : "hover:bg-accent/50 text-foreground",
@@ -245,7 +303,14 @@ export function CommandPalette({ open, onOpenChange, userPermissions }: CommandP
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-                        <span className="truncate">{item.label}</span>
+                        <span className="flex min-w-0 flex-col">
+                          <span className="truncate">{item.label}</span>
+                          {item.description ? (
+                            <span className="truncate text-xs font-normal text-muted-foreground">
+                              {item.description}
+                            </span>
+                          ) : null}
+                        </span>
                       </div>
                       <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-mono">
                         {item.category}

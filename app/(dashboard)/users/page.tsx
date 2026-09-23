@@ -1,5 +1,12 @@
-import { PageStub } from "@/components/layout/page-stub";
+import { Suspense } from "react";
+
+import { UsersPage } from "@/features/users/users-page";
+import { UsersPageSkeleton } from "@/features/users/users-page-skeleton";
 
 export default function Page() {
-  return <PageStub title="Users" task="ADM-045" />;
+  return (
+    <Suspense fallback={<UsersPageSkeleton />}>
+      <UsersPage />
+    </Suspense>
+  );
 }

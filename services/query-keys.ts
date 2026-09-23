@@ -42,6 +42,20 @@ export const queryKeys = {
     /** Aggregate BFF-lite summary endpoint (ADM-045, ADM-051, ADM-052). */
     summary: () => ["dashboard", "summary"] as const,
   },
+  users: {
+    all: () => ["users"] as const,
+    lists: () => ["users", "list"] as const,
+    list: (params: ListKeyParams) => ["users", "list", params] as const,
+    search: (query: string) => ["users", "search", query] as const,
+    detail: (userId: string) => ["users", "detail", userId] as const,
+    activity: (userId: string) => ["users", "activity", userId] as const,
+    sessions: (userId: string, page: number, size: number) =>
+      ["users", "sessions", userId, { page, size }] as const,
+    loginHistory: (userId: string, page: number, size: number) =>
+      ["users", "login-history", userId, { page, size }] as const,
+    xp: (userId: string, page: number, size: number) =>
+      ["users", "xp", userId, { page, size }] as const,
+  },
   system: {
     all: () => ["system"] as const,
     /** System health summary endpoint (ADM-047, ADM-055). */

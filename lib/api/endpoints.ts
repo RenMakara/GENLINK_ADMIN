@@ -34,6 +34,20 @@ export const endpoints = {
     /** ADM-045: aggregate BFF-lite dashboard summary endpoint. */
     summary: `${ADMIN}/dashboard/summary`,
   },
+  users: {
+    /** ADM-059: filterable, sortable and paginated user summary list. */
+    list: `${ADMIN}/users`,
+    /** ADM-062: read-only profile and account detail for the user detail shell. */
+    detail: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}`,
+    /** ADM-065: read-only cross-domain activity counters for one user. */
+    activity: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/activity`,
+    /** ADM-063: active, non-revoked sessions for one user. */
+    sessions: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/sessions`,
+    /** ADM-064: newest-first login/security history for one user. */
+    loginHistory: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/login-history`,
+    /** ADM-063: level, source breakdown, paginated ledger and badges for one user. */
+    xp: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/xp`,
+  },
   system: {
     /** ADM-047: Spring Boot Actuator & system health status endpoint. */
     health: `${ADMIN}/system/health`,

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 
 import { shippedItems } from "@/config/navigation";
+import { useUserDetail } from "@/services/users";
 
 /** Segments that are route-group or id noise rather than something to show. */
 const UUID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -24,12 +25,20 @@ const UUID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
 export function Breadcrumbs() {
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
+  const userSegmentIndex = segments.findIndex(
+    (segment, index) => segment === "users" && UUID_LIKE.test(segments[index + 1] ?? ""),
+  );
+  const userId = userSegmentIndex >= 0 ? segments[userSegmentIndex + 1] : "";
+  const { data: userDetail } = useUserDetail(userId);
 
   if (segments.length === 0) {
     return null;
   }
 
-  const labelFor = (segment: string, href: string): string => {
+  const labelFor = (segment: string, href: string, index: number): string => {
+    if (index === userSegmentIndex + 1 && userDetail?.fullName) {
+      return userDetail.fullName;
+    }
     const item = shippedItems().find((candidate) => candidate.href === href);
     if (item) {
       return item.label;
@@ -45,7 +54,7 @@ export function Breadcrumbs() {
 
   const crumbs = segments.map((segment, index) => {
     const href = `/${segments.slice(0, index + 1).join("/")}`;
-    return { href, label: labelFor(segment, href), last: index === segments.length - 1 };
+    return { href, label: labelFor(segment, href, index), last: index === segments.length - 1 };
   });
 
   return (

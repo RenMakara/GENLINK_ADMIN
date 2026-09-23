@@ -4,14 +4,7 @@ import { Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-/**
- * Placeholder for the ⌘K palette (SSOT §3).
- *
- * <p>Deliberately inert and deliberately visible. Disabled rather than hidden so the shell shows
- * its intended shape, and `title`/`aria-label` say why, so nobody files a bug about a button that
- * does nothing. Search is a later phase; a trigger that opened an empty dialog would be worse
- * than one that plainly says "not yet".
- */
+/** Trigger for the global ⌘K / Ctrl+K command palette (SSOT §3, ADM-057). */
 interface CommandPaletteTriggerProps {
   /** Optional click handler to open the command palette */
   onClick?: () => void;

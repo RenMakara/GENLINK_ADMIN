@@ -169,6 +169,22 @@ const eslintConfig = defineConfig([
 
   {
     /**
+     * Table density and column visibility are non-sensitive UI preferences. They may be
+     * persisted under an admin-scoped key, but this exception must not expand to auth state.
+     */
+    files: ["hooks/use-data-table-preferences.ts"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        NO_LOCAL_TIMEZONE,
+        ...NO_RAW_INTL_DATE,
+        NO_INLINE_QUERY_KEY,
+      ],
+    },
+  },
+
+  {
+    /**
      * The one file allowed to touch web storage.
      *
      * <p>Sidebar collapse is a display preference, not a credential. Exempted narrowly rather
