@@ -23,7 +23,7 @@ export function useDashboardSummary() {
   });
 }
 
-/** Fetches backend actuator and system health status (ADM-047). */
+/** Fetches backend actuator and system health status (ADM-047, ADM-055). */
 export function useSystemHealth() {
   return useQuery({
     queryKey: queryKeys.system.health(),

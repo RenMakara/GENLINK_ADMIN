@@ -11,28 +11,25 @@ afterEach(() => {
 describe("SystemHealthPanel (ADM-055)", () => {
   const healthyData: SystemHealthData = {
     status: "UP",
-    api: { status: "UP", details: "All routes 200" },
-    database: { status: "UP", details: "PG pool active" },
-    storage: { status: "UP", details: "S3 ping 20ms" },
-    mail: { status: "UP", details: "SMTP active" },
-    jobs: [
+    api: { status: "UP" },
+    database: { status: "UP" },
+    storage: { status: "UP" },
+    mail: { status: "UP", enabled: true, lastOutcome: "SUCCESS" },
+    scheduledJobs: [
       {
         name: "AccountAnonymizationJob",
-        displayName: "Account Anonymization Job",
-        lastRunAt: "2026-08-10T02:00:00.000Z",
-        outcome: "SUCCESS",
+        lastRun: "2026-08-10T02:00:00.000Z",
+        lastOutcome: "SUCCESS",
       },
       {
         name: "MediaCleanupJob",
-        displayName: "Media Cleanup Job",
-        lastRunAt: null,
-        outcome: "NEVER_RUN",
+        lastRun: null,
+        lastOutcome: "NEVER_RUN",
       },
       {
         name: "RecurringFinanceJob",
-        displayName: "Recurring Finance Job",
-        lastRunAt: "2026-08-10T01:00:00.000Z",
-        outcome: "FAILURE",
+        lastRun: "2026-08-10T01:00:00.000Z",
+        lastOutcome: "FAILURE",
       },
     ],
   };
@@ -61,7 +58,7 @@ describe("SystemHealthPanel (ADM-055)", () => {
     const degradedData: SystemHealthData = {
       ...healthyData,
       status: "DEGRADED",
-      mail: { status: "DOWN", details: "SMTP timeout" },
+      mail: { status: "DOWN", enabled: true, lastOutcome: "FAILURE" },
     };
 
     render(<SystemHealthPanel data={degradedData} />);
@@ -71,5 +68,30 @@ describe("SystemHealthPanel (ADM-055)", () => {
       screen.getByText(/One or more core subsystems are degraded or unresponsive/i),
     ).toBeDefined();
     expect(screen.getByText("Unhealthy")).toBeDefined();
+  });
+
+  it("renders the backend scheduledJobs contract without fixture fallback dates", () => {
+    render(
+      <SystemHealthPanel
+        data={{
+          status: "UP",
+          api: { status: "UP" },
+          database: { status: "UP" },
+          storage: { status: "UP" },
+          mail: { status: "UP", enabled: true, lastOutcome: "NEVER_RUN" },
+          scheduledJobs: [
+            {
+              name: "MediaCleanupJob",
+              lastRun: null,
+              lastOutcome: "NEVER_RUN",
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Media Cleanup Job")).toBeDefined();
+    expect(screen.getAllByText("Never run since restart")).toHaveLength(2);
+    expect(screen.queryByText("Account Anonymization Job")).toBeNull();
   });
 });

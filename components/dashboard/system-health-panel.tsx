@@ -27,15 +27,19 @@ export type JobOutcome = "SUCCESS" | "FAILURE" | "NEVER_RUN";
 
 export interface ComponentHealthItem {
   status: SubsystemStatus;
-  details?: string;
+}
+
+export type MailOutcome = "SUCCESS" | "FAILURE" | "NEVER_RUN";
+
+export interface MailHealthItem extends ComponentHealthItem {
+  enabled: boolean;
+  lastOutcome: MailOutcome;
 }
 
 export interface JobHealthItem {
   name: string;
-  displayName: string;
-  lastRunAt?: string | null;
-  outcome: JobOutcome;
-  details?: string;
+  lastRun: string | null;
+  lastOutcome: JobOutcome;
 }
 
 export interface SystemHealthData {
@@ -43,9 +47,10 @@ export interface SystemHealthData {
   api?: ComponentHealthItem;
   database?: ComponentHealthItem;
   storage?: ComponentHealthItem;
-  mail?: ComponentHealthItem;
-  jobs?: JobHealthItem[];
-  updatedAt?: string;
+  mail?: MailHealthItem;
+  checkedAt?: string;
+  uptimeSeconds?: number;
+  scheduledJobs?: JobHealthItem[];
 }
 
 export interface SystemHealthPanelProps {
@@ -134,6 +139,34 @@ function getJobOutcomeUI(outcome: JobOutcome | undefined): StatusUI {
   }
 }
 
+const JOB_DISPLAY_NAMES: Record<string, string> = {
+  AccountAnonymizationJob: "Account Anonymization Job",
+  RecurringFinanceJob: "Recurring Finance Job",
+  MediaCleanupJob: "Media Cleanup Job",
+};
+
+function getJobDisplayName(name: string): string {
+  return JOB_DISPLAY_NAMES[name] ?? name.replace(/([a-z])([A-Z])/g, "$1 $2");
+}
+
+function getMailDetails(mail: MailHealthItem | undefined): string {
+  if (!mail) return "Status unavailable";
+  if (!mail.enabled) return "Disabled by configuration";
+
+  switch (mail.lastOutcome) {
+    case "SUCCESS":
+      return "Last delivery succeeded";
+    case "FAILURE":
+      return "Last delivery failed";
+    case "NEVER_RUN":
+      return "No delivery since restart";
+  }
+}
+
+function needsAttention(status: SubsystemStatus): boolean {
+  return status === "DOWN" || status === "DEGRADED" || status === "UNKNOWN";
+}
+
 /**
  * System Health Summary Panel (SSOT §2.5, ADM-055).
  *
@@ -182,68 +215,53 @@ export function SystemHealthPanel({
     );
   }
 
-  const apiStatus = data?.api?.status ?? "UP";
-  const dbStatus = data?.database?.status ?? "UP";
-  const storageStatus = data?.storage?.status ?? "UP";
-  const mailStatus = data?.mail?.status ?? "UP";
+  const apiStatus = data?.api?.status ?? "UNKNOWN";
+  const dbStatus = data?.database?.status ?? "UNKNOWN";
+  const storageStatus = data?.storage?.status ?? "UNKNOWN";
+  const mailStatus: SubsystemStatus = !data?.mail
+    ? "UNKNOWN"
+    : data.mail.enabled
+      ? data.mail.status
+      : "DISABLED";
+  const jobs = data?.scheduledJobs ?? [];
 
   const hasDegradedSubsystem =
     data?.status === "DOWN" ||
     data?.status === "DEGRADED" ||
-    apiStatus !== "UP" ||
-    dbStatus !== "UP" ||
-    storageStatus !== "UP" ||
-    mailStatus !== "UP";
+    needsAttention(apiStatus) ||
+    needsAttention(dbStatus) ||
+    needsAttention(storageStatus) ||
+    needsAttention(mailStatus) ||
+    jobs.some((job) => job.lastOutcome === "FAILURE");
 
   const indicators = [
     {
       id: "api",
       label: "API Uptime",
-      details: data?.api?.details ?? "Spring Boot Actuator",
+      details: "Spring Boot API",
       status: apiStatus,
       icon: Server,
     },
     {
       id: "db",
       label: "Database",
-      details: data?.database?.details ?? "PostgreSQL connection pool",
+      details: "PostgreSQL",
       status: dbStatus,
       icon: Database,
     },
     {
       id: "storage",
       label: "Object Storage (S3)",
-      details: data?.storage?.details ?? "Media bucket ping",
+      details: "S3 object storage",
       status: storageStatus,
       icon: HardDrive,
     },
     {
       id: "mail",
       label: "Mail Delivery",
-      details: data?.mail?.details ?? "SMTP server status",
+      details: getMailDetails(data?.mail),
       status: mailStatus,
       icon: Mail,
-    },
-  ];
-
-  const jobs = data?.jobs ?? [
-    {
-      name: "AccountAnonymizationJob",
-      displayName: "Account Anonymization Job",
-      lastRunAt: "2026-08-10T02:00:00.000Z",
-      outcome: "SUCCESS" as JobOutcome,
-    },
-    {
-      name: "RecurringFinanceJob",
-      displayName: "Recurring Finance Job",
-      lastRunAt: "2026-08-10T01:30:00.000Z",
-      outcome: "SUCCESS" as JobOutcome,
-    },
-    {
-      name: "MediaCleanupJob",
-      displayName: "Media Cleanup Job",
-      lastRunAt: null,
-      outcome: "NEVER_RUN" as JobOutcome,
     },
   ];
 
@@ -253,6 +271,11 @@ export function SystemHealthPanel({
         <div>
           <CardTitle className="text-base font-semibold">System Health Summary</CardTitle>
           <p className="text-xs text-muted-foreground">Actuator & infrastructure status (SSOT §2.5)</p>
+          {data?.checkedAt ? (
+            <p className="text-[11px] text-muted-foreground mt-1">
+              Checked {formatDateTime(data.checkedAt)}
+            </p>
+          ) : null}
         </div>
         <Server className="size-4 text-muted-foreground" aria-hidden />
       </CardHeader>
@@ -309,24 +332,29 @@ export function SystemHealthPanel({
           </div>
 
           <div className="divide-y divide-border/50 text-sm">
+            {jobs.length === 0 ? (
+              <p className="py-2.5 text-xs text-muted-foreground" role="status">
+                No scheduled job status is available.
+              </p>
+            ) : null}
             {jobs.map((job) => {
-              const outcomeUI = getJobOutcomeUI(job.outcome);
+              const outcomeUI = getJobOutcomeUI(job.lastOutcome);
               const OutcomeIcon = outcomeUI.icon;
 
-              const isNeverRun = job.outcome === "NEVER_RUN" || !job.lastRunAt;
+              const isNeverRun = job.lastOutcome === "NEVER_RUN" || !job.lastRun;
               const relTime = isNeverRun
                 ? "Never run since restart"
-                : formatRelative(job.lastRunAt);
+                : formatRelative(job.lastRun);
               const fullTime = isNeverRun
                 ? "Job has not executed since application restart"
-                : formatDateTime(job.lastRunAt);
+                : formatDateTime(job.lastRun);
 
               return (
                 <div key={job.name} className="flex items-center justify-between gap-3 py-2.5">
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     <OutcomeIcon className={`size-4 shrink-0 ${outcomeUI.colorClass}`} aria-hidden />
                     <span className="font-medium text-foreground text-xs truncate">
-                      {job.displayName}
+                      {getJobDisplayName(job.name)}
                     </span>
                     <Badge variant={outcomeUI.badgeVariant} className="text-[10px] px-1.5 py-0 font-normal">
                       {outcomeUI.label}
@@ -334,7 +362,7 @@ export function SystemHealthPanel({
                   </div>
 
                   <time
-                    dateTime={job.lastRunAt ?? undefined}
+                    dateTime={job.lastRun ?? undefined}
                     title={fullTime}
                     className="text-xs text-muted-foreground shrink-0 cursor-help underline decoration-dotted underline-offset-2"
                   >

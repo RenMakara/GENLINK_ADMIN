@@ -60,3 +60,5 @@ Thumbs.db
 # local tooling output
 /playwright-report/
 /test-results/
+
+.vercel

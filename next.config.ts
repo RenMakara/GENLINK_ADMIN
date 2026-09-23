@@ -30,7 +30,7 @@ const nextConfig: NextConfig = {
    * a development convenience, and harmless outside development.
    */
   /**
-   * Development-only proxy from `/api/v1/**` to the Spring API.
+   * Proxy from `/api/v1/**` to the Spring API.
    *
    * <p>`NEXT_PUBLIC_API_BASE_URL` is a *relative* path because, in production, nginx serves the
    * portal and the API from one origin (SSOT §1.7) — which is what removes CORS from the MVP.
@@ -38,19 +38,21 @@ const nextConfig: NextConfig = {
    * relative path resolves to Next and answers 404.
    *
    * <p>This rewrite makes development behave the way production does, so the API base URL stays
-   * relative in both and no code branches on environment. It is registered **only** in
-   * development — in production nginx does this, and a second proxy in front of it would add a
-   * hop for nothing.
+   * relative in both and no code branches on environment. In the Vercel deployment it replaces
+   * the nginx hop by forwarding to the configured public Spring API origin. If the production
+   * origin is not configured, leave rewrites disabled rather than accidentally forwarding to
+   * the localhost default.
    *
    * <p>`basePath: false` because the client builds `/api/v1/...` from the origin root, not from
    * under `/admin`; prefixing the rule would mean it never matched.
-   */
+  */
   async rewrites() {
-    if (!isDevelopment) return [];
+    const apiOrigin = serverEnv().ADMIN_API_ORIGIN;
+    if (!isDevelopment && apiOrigin === "http://localhost:8888") return [];
     return [
       {
         source: "/api/v1/:path*",
-        destination: `${serverEnv().ADMIN_API_ORIGIN}/api/v1/:path*`,
+        destination: `${apiOrigin}/api/v1/:path*`,
         basePath: false,
       },
     ];

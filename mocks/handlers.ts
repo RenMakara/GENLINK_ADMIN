@@ -11,8 +11,8 @@
  * endpoints.
  *
  * <p>The response *data* is illustrative fixture content wrapped in the standard `ApiResponse` envelope.
- * Note: While the auth response shapes mirror pinned backend contracts, the dashboard summary and system health
- * fixture DTOs are frontend provisional shapes pending final backend API contracts.
+ * The system-health fixture mirrors the backend ADM-047 response contract so the panel exercises
+ * the same field names in local development and production.
  */
 
 import { http, HttpResponse } from "msw";
@@ -261,34 +261,29 @@ export const handlers = [
     HttpResponse.json(
       apiResponse({
         status: "UP",
-        api: { status: "UP", details: "All API routes operational (Uptime 99.98%)" },
-        database: { status: "UP", details: "PostgreSQL connection pool healthy" },
-        storage: { status: "UP", details: "S3 object storage ping 24ms" },
-        mail: { status: "UP", details: "SMTP server reachable (Last send: SUCCESS)" },
-        jobs: [
+        checkedAt: "2026-08-10T16:50:00.000Z",
+        uptimeSeconds: 86400,
+        api: { status: "UP" },
+        database: { status: "UP" },
+        storage: { status: "UP" },
+        mail: { status: "UP", enabled: true, lastOutcome: "SUCCESS" },
+        scheduledJobs: [
           {
             name: "AccountAnonymizationJob",
-            displayName: "Account Anonymization Job",
-            lastRunAt: "2026-08-10T02:00:00.000Z",
-            outcome: "SUCCESS",
-            details: "Processed scheduled account purges",
+            lastRun: "2026-08-10T02:00:00.000Z",
+            lastOutcome: "SUCCESS",
           },
           {
             name: "RecurringFinanceJob",
-            displayName: "Recurring Finance Job",
-            lastRunAt: "2026-08-10T01:30:00.000Z",
-            outcome: "SUCCESS",
-            details: "Reconciled ledger transactions",
+            lastRun: "2026-08-10T01:30:00.000Z",
+            lastOutcome: "SUCCESS",
           },
           {
             name: "MediaCleanupJob",
-            displayName: "Media Cleanup Job",
-            lastRunAt: null,
-            outcome: "NEVER_RUN",
-            details: "Never run since restart",
+            lastRun: null,
+            lastOutcome: "NEVER_RUN",
           },
         ],
-        updatedAt: "2026-08-10T16:50:00.000Z",
       }),
     ),
   ),

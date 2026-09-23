@@ -120,7 +120,7 @@ These are the ones that are expensive to unpick later. The full list is in
 - **`'use client'` goes on the leaf**, not the page. Pushing it to the top of a route throws
   away the App Router's main benefit.
 - **No hostname, IP, port or scheme in code.** `lib/config/env.ts` is the only file that reads
-  `process.env`. A search for the droplet's IP must return nothing.
+  `process.env`. A search for the EC2 instance's IP must return nothing.
 - **Every timestamp renders through one `Asia/Phnom_Penh` formatter.** `toLocaleString()`
   elsewhere silently uses the *browser's* zone, and the bug is invisible when reviewed from
   Phnom Penh — where the two agree.
