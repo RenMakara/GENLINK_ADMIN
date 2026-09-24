@@ -215,12 +215,45 @@ describe("api client", () => {
       expect(vi.mocked(fetch).mock.calls[0][1]?.credentials).toBe("include");
     });
 
-    it("returns undefined for 204 rather than failing to parse", async () => {
+  it("returns undefined for 204 rather than failing to parse", async () => {
       vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 204 }));
 
-      await expect(api.delete("/admin/users/u1/sessions/s1")).resolves.toBeUndefined();
-    });
+    await expect(api.delete("/admin/users/u1/sessions/s1")).resolves.toBeUndefined();
   });
+
+  it("downloads a CSV response and preserves the server filename", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response("userId,fullName\r\nu1,Sok Dara\r\n", {
+        status: 200,
+        headers: {
+          "Content-Type": "text/csv;charset=UTF-8",
+          "Content-Disposition": 'attachment; filename="genlink-users.csv"',
+        },
+      }),
+    );
+
+    const result = await api.download("/admin/users/export", {
+      accept: "text/csv",
+      query: { status: "ACTIVE", reason: "Quarterly review" },
+    });
+
+    expect(result.filename).toBe("genlink-users.csv");
+    await expect(result.blob.text()).resolves.toContain("userId,fullName");
+    const init = vi.mocked(fetch).mock.calls[0][1];
+    expect((init?.headers as Record<string, string>).Accept).toBe("text/csv");
+    expect(String(vi.mocked(fetch).mock.calls[0][0])).toContain("reason=Quarterly+review");
+  });
+
+  it("keeps CSV error envelopes typed so export limits can be explained safely", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(failure(413, "EXPORT_TOO_LARGE", "internal detail"));
+
+    const error = await expectApiError(api.download("/admin/users/export"));
+
+    expect(error.code).toBe("EXPORT_TOO_LARGE");
+    expect(error.status).toBe(413);
+    expect(error.serverMessage).toBe("internal detail");
+  });
+});
 
   /**
    * AC#3. These field names mirror `shared/response/PageResponse.java`; a rename on either

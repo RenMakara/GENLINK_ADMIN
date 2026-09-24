@@ -6,7 +6,7 @@ import {
 } from "@/features/users/user-table-columns";
 import { createDefaultUserFilters } from "@/features/users/user-filters";
 
-import { buildUserListQuery, buildUserSearchQuery } from "./users";
+import { buildUserExportQuery, buildUserListQuery, buildUserSearchQuery } from "./users";
 
 describe("buildUserListQuery (ADM-072)", () => {
   it("maps URL-owned table state to the documented list query", () => {
@@ -64,6 +64,29 @@ describe("buildUserSearchQuery (ADM-076)", () => {
       q: "dara@example.com",
       page: 0,
       size: 5,
+    });
+  });
+});
+
+describe("buildUserExportQuery (ADM-099)", () => {
+  it("reuses the active filters and sort without exporting only the current page", () => {
+    const filters = createDefaultUserFilters();
+    filters.status = ["ACTIVE"];
+    filters.includeDeleted = true;
+
+    expect(
+      buildUserExportQuery({
+        search: "  dara  ",
+        filters,
+        sorting: [{ id: "createdAt", desc: true }],
+        pageIndex: 4,
+        pageSize: 100,
+      }),
+    ).toEqual({
+      q: "dara",
+      sort: ["createdAt,desc"],
+      status: "ACTIVE",
+      includeDeleted: "true",
     });
   });
 });

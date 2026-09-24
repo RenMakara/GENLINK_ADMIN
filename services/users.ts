@@ -55,6 +55,26 @@ export function buildUserListQuery(state: UserListTableState): UserListQuery {
   return query;
 }
 
+/**
+ * Converts the same URL-owned table state to the ADM-087 export contract.
+ * Pagination is deliberately omitted: the backend exports the complete filtered result, while
+ * sorting and every active filter remain identical to the visible Users table.
+ */
+export function buildUserExportQuery(state: UserListTableState): UserListQuery {
+  const query = buildUserListQuery(state);
+  delete query.page;
+  delete query.size;
+  return query;
+}
+
+/** Requests the audited CSV stream for the current filtered Users view (ADM-099). */
+export function exportUsersCsv(query: UserListQuery, reason: string) {
+  return api.download(endpoints.users.export, {
+    accept: "text/csv",
+    query: { ...query, reason },
+  });
+}
+
 /** ADM-076's fixed five-result query for the permission-gated command palette. */
 export function buildUserSearchQuery(search: string): UserListQuery {
   return { q: search.trim(), page: 0, size: 5 };

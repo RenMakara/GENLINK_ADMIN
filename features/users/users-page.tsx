@@ -19,12 +19,17 @@ import { UserFilterBar } from "@/features/users/user-filter-bar";
 import { UserSearchInput } from "@/features/users/user-search-input";
 import { BulkActionBar } from "@/features/users/bulk-action-bar";
 import {
+  UserExportButton,
+  UserExportDialog,
+} from "@/features/users/user-export-dialog";
+import {
   createDefaultUserFilters,
   USER_FILTER_CODECS,
   type UserFilters,
 } from "@/features/users/user-filters";
 import { useTableState, type UseTableStateOptions } from "@/hooks/use-table-state";
-import { useUserList, buildUserListQuery } from "@/services/users";
+import { useUserList, buildUserExportQuery, buildUserListQuery } from "@/services/users";
+import { usePermissions } from "@/hooks/use-permission";
 
 const USER_PAGE_SIZE_OPTIONS = [25, 50, 100] as const;
 
@@ -71,6 +76,8 @@ function userListErrorDescription(error: unknown): string {
 export function UsersPage() {
   const router = useRouter();
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [exportOpen, setExportOpen] = useState(false);
+  const { has } = usePermissions();
   const tableState = useTableState<UserFilters>(USER_TABLE_STATE_OPTIONS);
   const listQueryParams = useMemo(
     () =>
@@ -90,6 +97,23 @@ export function UsersPage() {
     ],
   );
   const usersQuery = useUserList(listQueryParams);
+  const exportQuery = useMemo(
+    () =>
+      buildUserExportQuery({
+        search: tableState.search,
+        filters: tableState.filters,
+        sorting: tableState.sorting,
+        pageIndex: tableState.pageIndex,
+        pageSize: tableState.pageSize,
+      }),
+    [
+      tableState.filters,
+      tableState.pageIndex,
+      tableState.pageSize,
+      tableState.search,
+      tableState.sorting,
+    ],
+  );
   const columns = useMemo(() => createUserTableColumns(), []);
   const users = useMemo(() => usersQuery.data?.content ?? [], [usersQuery.data?.content]);
   const selectedUserIds = useMemo(
@@ -101,6 +125,10 @@ export function UsersPage() {
     [selectedUserIds, users],
   );
   const hasFilters = hasActiveUserFilters(tableState.filters);
+  const canExport = has("user:export");
+  const piiIncluded = has("user:export:pii");
+  const exportDisabled =
+    !usersQuery.data || usersQuery.isLoading || usersQuery.isFetching || usersQuery.isError;
   const { setFilters } = tableState;
 
   const clearFilters = useCallback(() => {
@@ -124,20 +152,25 @@ export function UsersPage() {
         title="Users"
         description="Search, filter, and inspect GenLink KH accounts."
         actions={
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => void usersQuery.refetch()}
-            disabled={usersQuery.isFetching}
-            aria-label="Refresh users"
-          >
-            <RefreshCw
-              className={`mr-1.5 size-3.5 ${usersQuery.isFetching ? "motion-safe:animate-spin" : ""} motion-reduce:animate-none`}
-              aria-hidden="true"
-            />
-            Refresh
-          </Button>
+          <>
+            {canExport ? (
+              <UserExportButton disabled={exportDisabled} onClick={() => setExportOpen(true)} />
+            ) : null}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => void usersQuery.refetch()}
+              disabled={usersQuery.isFetching}
+              aria-label="Refresh users"
+            >
+              <RefreshCw
+                className={`mr-1.5 size-3.5 ${usersQuery.isFetching ? "motion-safe:animate-spin" : ""} motion-reduce:animate-none`}
+                aria-hidden="true"
+              />
+              Refresh
+            </Button>
+          </>
         }
       />
 
@@ -196,6 +229,17 @@ export function UsersPage() {
         selectedUserIds={selectedUserIds}
         selectedUsers={selectedUsers}
         onClearSelection={() => setRowSelection({})}
+        onExport={() => setExportOpen(true)}
+      />
+
+      <UserExportDialog
+        open={exportOpen}
+        onOpenChange={setExportOpen}
+        query={exportQuery}
+        filters={tableState.filters}
+        search={tableState.search}
+        rowCount={usersQuery.data?.totalElements ?? 0}
+        piiIncluded={piiIncluded}
       />
     </div>
   );

@@ -24,6 +24,8 @@ export interface BulkActionBarProps {
   selectedUserIds: readonly string[];
   selectedUsers: readonly AdminUserTableRow[];
   onClearSelection: () => void;
+  /** Opens the shared filtered-list export confirmation owned by UsersPage. */
+  onExport?: () => void;
 }
 
 function bulkActionErrorMessage(error: unknown): string | null {
@@ -382,6 +384,7 @@ function BulkActionBarContent({
   selectedUserIds,
   selectedUsers,
   onClearSelection,
+  onExport,
   result,
   resultUsers,
   setResult,
@@ -392,6 +395,7 @@ function BulkActionBarContent({
   const canBan = has("user:ban");
   const canNotify = has("notification:send");
   const canBadge = has("badge:assign");
+  const canExport = has("user:export");
   const canSuggestTemplates = has("notification:template:manage");
   const [dialog, setDialog] = useState<DialogAction>(null);
   const selectedCount = selectedUserIds.length;
@@ -467,11 +471,19 @@ function BulkActionBarContent({
                 Assign badge
               </Button>
             ) : null}
-            <Button type="button" variant="outline" size="sm" disabled title="CSV export is implemented in ADM-099">
-              <Download aria-hidden="true" />
-              Export
-              <span className="sr-only">available in ADM-099</span>
-            </Button>
+            {canExport ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onExport}
+                disabled={!onExport || bulk.pending}
+                title={!onExport ? "Export is unavailable in this context" : undefined}
+              >
+                <Download aria-hidden="true" />
+                Export
+              </Button>
+            ) : null}
             <Button type="button" variant="ghost" size="sm" onClick={dismiss} disabled={bulk.pending}>
               <X aria-hidden="true" />
               Clear selection

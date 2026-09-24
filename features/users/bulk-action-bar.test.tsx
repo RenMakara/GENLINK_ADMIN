@@ -13,7 +13,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/hooks/use-permission", () => ({
   usePermissions: () => ({
     has: (permission: string) =>
-      ["user:ban", "notification:send", "badge:assign", "notification:template:manage"].includes(permission),
+      ["user:ban", "notification:send", "badge:assign", "notification:template:manage", "user:export"].includes(permission),
   }),
 }));
 

@@ -37,6 +37,8 @@ export const endpoints = {
   users: {
     /** ADM-059: filterable, sortable and paginated user summary list. */
     list: `${ADMIN}/users`,
+    /** ADM-087/099: audited, permission-gated CSV export of the filtered user directory. */
+    export: `${ADMIN}/users/export`,
     /** ADM-062: read-only profile and account detail for the user detail shell. */
     detail: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}`,
     /** ADM-065: read-only cross-domain activity counters for one user. */

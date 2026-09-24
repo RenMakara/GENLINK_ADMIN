@@ -36,6 +36,12 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(navigation.getSearch()),
 }));
 
+vi.mock("@/hooks/use-permission", () => ({
+  usePermissions: () => ({
+    has: (permission: string) => permission === "user:export" || permission === "user:export:pii",
+  }),
+}));
+
 vi.mock("@/services/users", async () => {
   const actual = await vi.importActual<typeof import("@/services/users")>("@/services/users");
   return { ...actual, useUserList: service.useUserList };

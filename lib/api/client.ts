@@ -65,6 +65,8 @@ export interface RequestOptions {
   body?: unknown;
   query?: Record<string, unknown>;
   signal?: AbortSignal;
+  /** The endpoint's response format. JSON remains the default for normal API calls. */
+  accept?: string;
   /** Skips the refresh-and-retry. Used by the refresh call itself, to avoid recursion. */
   skipAuthRetry?: boolean;
 }
@@ -79,7 +81,7 @@ async function send(path: string, options: RequestOptions): Promise<Response> {
   return fetch(url(path, options.query), {
     method: options.method ?? "GET",
     headers: {
-      Accept: "application/json",
+      Accept: options.accept ?? "application/json",
       ...(options.body !== undefined ? { "Content-Type": "application/json" } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
@@ -125,6 +127,77 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   return unwrap<T>(response);
 }
 
+export interface DownloadResult {
+  blob: Blob;
+  filename: string;
+}
+
+/**
+ * Downloads a non-JSON API response while retaining the normal auth refresh and typed API error
+ * behaviour. This is intentionally separate from `request`: CSV is a file, not an ApiResponse
+ * envelope, so attempting to unwrap it as JSON would turn a successful export into an error.
+ */
+export async function download(
+  path: string,
+  options: Omit<RequestOptions, "method" | "body"> = {},
+): Promise<DownloadResult> {
+  let response: Response;
+
+  try {
+    response = await send(path, { ...options, method: "GET" });
+  } catch (cause) {
+    if (cause instanceof DOMException && cause.name === "AbortError") throw cause;
+    throw new ApiError({
+      status: 0,
+      rawCode: "NETWORK",
+      serverMessage: cause instanceof Error ? cause.message : String(cause),
+    });
+  }
+
+  if (response.status === 401 && !options.skipAuthRetry) {
+    const refreshed = await refreshOnce();
+    if (refreshed) {
+      response = await send(path, { ...options, method: "GET", skipAuthRetry: true });
+    } else {
+      auth.onSessionExpired?.();
+    }
+  }
+
+  const contentType = response.headers.get("Content-Type")?.toLowerCase() ?? "";
+  if (!response.ok || contentType.includes("application/json")) {
+    throw await apiErrorFromResponse(response);
+  }
+
+  return {
+    blob: await response.blob(),
+    filename: filenameFromContentDisposition(response.headers.get("Content-Disposition")),
+  };
+}
+
+async function apiErrorFromResponse(response: Response): Promise<ApiError> {
+  try {
+    const envelope = (await response.json()) as ApiResponse<unknown>;
+    return new ApiError({
+      status: response.status,
+      rawCode: envelope?.errorCode,
+      serverMessage: envelope?.message,
+    });
+  } catch {
+    return new ApiError({
+      status: response.status,
+      rawCode: response.ok ? "API_ERROR" : undefined,
+      serverMessage: `Response was not JSON (HTTP ${response.status})`,
+    });
+  }
+}
+
+function filenameFromContentDisposition(value: string | null): string {
+  const match = value?.match(/filename\*?=(?:UTF-8''|)?["']?([^;"']+)["']?/i);
+  const candidate = match?.[1]?.trim() ?? "genlink-users.csv";
+  const filename = candidate.split(/[\\/]/).at(-1) ?? "genlink-users.csv";
+  return /^[a-zA-Z0-9._-]+$/.test(filename) ? filename : "genlink-users.csv";
+}
+
 async function unwrap<T>(response: Response): Promise<T> {
   // 204, or any empty body. Nothing to parse and nothing the caller expects.
   if (response.status === 204) return undefined as T;
@@ -166,4 +239,6 @@ export const api = {
     request<T>(path, { ...options, method: "PATCH", body }),
   delete: <T>(path: string, options?: Omit<RequestOptions, "method" | "body">) =>
     request<T>(path, { ...options, method: "DELETE" }),
+  download: (path: string, options?: Omit<RequestOptions, "method" | "body">) =>
+    download(path, options),
 };
