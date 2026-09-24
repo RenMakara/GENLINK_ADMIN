@@ -302,6 +302,77 @@ export const handlers = [
     ),
   ),
 
+  // ADM-098 bulk-action contracts. The fixture returns the same fixed C-3 shape as the backend;
+  // feature tests override these handlers when they need a partial-success response.
+  http.get(apiPattern(endpoints.badges.list), () =>
+    HttpResponse.json(
+      apiResponse([
+        {
+          badgeId: "mock-badge-1",
+          nameEn: "Helpful",
+          nameKm: "មានប្រយោជន៍",
+          descriptionEn: "Helpful contribution",
+          descriptionKm: null,
+          requirement: "Verified contribution",
+          iconUrl: null,
+        },
+      ]),
+    ),
+  ),
+
+  http.get(apiPattern(endpoints.notifications.templates), () =>
+    HttpResponse.json(
+      apiResponse([
+        {
+          id: "mock-template-1",
+          templateKey: "ADMIN_ACCOUNT_REVIEW",
+          titleEn: "Account review",
+          titleKm: "ពិនិត្យគណនី",
+          messageEn: "Please review your account.",
+          messageKm: "សូមពិនិត្យគណនីរបស់អ្នក។",
+          createdAt: "2026-08-10T02:00:00.000Z",
+          updatedAt: "2026-08-10T02:00:00.000Z",
+        },
+      ]),
+    ),
+  ),
+
+  http.post(apiPattern(endpoints.users.bulk.ban), async ({ request }) => {
+    const body = (await request.json()) as { batchId: string; userIds: string[] };
+    return HttpResponse.json(
+      apiResponse({
+        batchId: body.batchId,
+        requested: body.userIds.length,
+        succeeded: body.userIds.length,
+        failed: [],
+      }),
+    );
+  }),
+
+  http.post(apiPattern(endpoints.users.bulk.notify), async ({ request }) => {
+    const body = (await request.json()) as { batchId: string; userIds: string[] };
+    return HttpResponse.json(
+      apiResponse({
+        batchId: body.batchId,
+        requested: body.userIds.length,
+        succeeded: body.userIds.length,
+        failed: [],
+      }),
+    );
+  }),
+
+  http.post(apiPattern(endpoints.users.bulk.badges), async ({ request }) => {
+    const body = (await request.json()) as { batchId: string; userIds: string[] };
+    return HttpResponse.json(
+      apiResponse({
+        batchId: body.batchId,
+        requested: body.userIds.length,
+        succeeded: body.userIds.length,
+        failed: [],
+      }),
+    );
+  }),
+
   http.get(apiPattern(endpoints.dashboard.summary), () =>
     HttpResponse.json(
       apiResponse({

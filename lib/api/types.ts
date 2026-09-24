@@ -68,6 +68,29 @@ export interface BulkResult {
   failed: BulkFailure[];
 }
 
+/** Safe metadata returned by the Admin badge catalogue projection. */
+export interface AdminBadgeOption {
+  badgeId: string;
+  nameEn: string;
+  nameKm?: string | null;
+  descriptionEn?: string | null;
+  descriptionKm?: string | null;
+  requirement?: string | null;
+  iconUrl?: string | null;
+}
+
+/** Existing Admin-managed notification template projection used by the bulk notifier. */
+export interface AdminNotificationTemplate {
+  id: string;
+  templateKey: string;
+  titleEn: string;
+  titleKm?: string | null;
+  messageEn: string;
+  messageKm?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
 /** Query parameters accepted by every paginated endpoint. */
 export interface PageParams {
   page?: number;

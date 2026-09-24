@@ -73,6 +73,14 @@ export const queryKeys = {
     /** System health summary endpoint (ADM-047, ADM-055). */
     health: () => ["system", "health"] as const,
   },
+  badges: {
+    all: () => ["badges"] as const,
+    list: () => ["badges", "list"] as const,
+  },
+  notifications: {
+    all: () => ["notifications"] as const,
+    templates: () => ["notifications", "templates"] as const,
+  },
 } as const;
 
 /**

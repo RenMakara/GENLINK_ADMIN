@@ -71,6 +71,12 @@ export const endpoints = {
     warnings: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/warnings`,
     /** ADM-083 staff-only notes read/create contract consumed by ADM-096. */
     notes: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/notes`,
+    /** ADM-086/098 bounded, audited bulk actions over selected users. */
+    bulk: {
+      ban: `${ADMIN}/users/bulk/ban`,
+      notify: `${ADMIN}/users/bulk/notify`,
+      badges: `${ADMIN}/users/bulk/badges`,
+    },
   },
   sanctions: {
     /** ADM-084 global enforcement list consumed by ADM-097. */
@@ -81,6 +87,14 @@ export const endpoints = {
   system: {
     /** ADM-047: Spring Boot Actuator & system health status endpoint. */
     health: `${ADMIN}/system/health`,
+  },
+  badges: {
+    /** ADM-098 permission-gated catalogue projection for the bulk badge picker. */
+    list: `${ADMIN}/badges`,
+  },
+  notifications: {
+    /** Existing admin template catalogue used to suggest valid bulk-notification keys. */
+    templates: `${ADMIN}/notifications/templates`,
   },
 } as const;
 

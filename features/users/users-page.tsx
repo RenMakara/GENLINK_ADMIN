@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
+import type { RowSelectionState } from "@tanstack/react-table";
 import { RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -16,6 +17,7 @@ import {
 } from "@/features/users/user-table-columns";
 import { UserFilterBar } from "@/features/users/user-filter-bar";
 import { UserSearchInput } from "@/features/users/user-search-input";
+import { BulkActionBar } from "@/features/users/bulk-action-bar";
 import {
   createDefaultUserFilters,
   USER_FILTER_CODECS,
@@ -68,6 +70,7 @@ function userListErrorDescription(error: unknown): string {
 
 export function UsersPage() {
   const router = useRouter();
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const tableState = useTableState<UserFilters>(USER_TABLE_STATE_OPTIONS);
   const listQueryParams = useMemo(
     () =>
@@ -88,7 +91,15 @@ export function UsersPage() {
   );
   const usersQuery = useUserList(listQueryParams);
   const columns = useMemo(() => createUserTableColumns(), []);
-  const users = usersQuery.data?.content ?? [];
+  const users = useMemo(() => usersQuery.data?.content ?? [], [usersQuery.data?.content]);
+  const selectedUserIds = useMemo(
+    () => Object.entries(rowSelection).filter(([, selected]) => selected).map(([userId]) => userId),
+    [rowSelection],
+  );
+  const selectedUsers = useMemo(
+    () => users.filter((user) => selectedUserIds.includes(user.userId)),
+    [selectedUserIds, users],
+  );
   const hasFilters = hasActiveUserFilters(tableState.filters);
   const { setFilters } = tableState;
 
@@ -157,6 +168,8 @@ export function UsersPage() {
           onPageSizeChange: tableState.setPageSize,
         }}
         enableRowSelection
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
         onRowClick={(user) => openUserDetails(user.userId)}
         rowAriaLabel={(user) => `Open details for ${user.fullName}`}
         rowActions={(user) => (
@@ -177,6 +190,12 @@ export function UsersPage() {
         stickyHeader
         columnVisibilityStorageKey="genlink-admin-users-columns"
         densityStorageKey="genlink-admin-users-density"
+      />
+
+      <BulkActionBar
+        selectedUserIds={selectedUserIds}
+        selectedUsers={selectedUsers}
+        onClearSelection={() => setRowSelection({})}
       />
     </div>
   );
