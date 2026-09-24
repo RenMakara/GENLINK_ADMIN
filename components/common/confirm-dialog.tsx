@@ -46,6 +46,8 @@ export interface ConfirmDialogProps {
   destructive?: boolean;
   /** The action is in flight — disables the button and shows a working label. */
   pending?: boolean;
+  /** Additional feature-specific validation can disable confirmation while keeping the form open. */
+  confirmDisabled?: boolean;
   /** Optional action-specific form content rendered before the reason field. */
   children?: ReactNode;
   /** Maps a typed API error to safe, user-facing copy; raw server details are never rendered. */
@@ -126,6 +128,7 @@ function ConfirmDialogBody({
   confirmTargetLabel = "value",
   destructive,
   pending = false,
+  confirmDisabled = false,
   children,
   errorMessageFor,
   onConfirm,
@@ -190,7 +193,7 @@ function ConfirmDialogBody({
   };
 
   const handleConfirm = () => {
-    if (!gate.canConfirm || busy) return;
+    if (!gate.canConfirm || confirmDisabled || busy) return;
     void executeAction();
   };
 
@@ -361,7 +364,7 @@ function ConfirmDialogBody({
         <Button
           type="button"
           variant={isDestructive ? "destructive" : "default"}
-          disabled={!gate.canConfirm || busy}
+          disabled={!gate.canConfirm || confirmDisabled || busy}
           onClick={handleConfirm}
         >
           {actionPending ? "Working…" : confirmLabel}

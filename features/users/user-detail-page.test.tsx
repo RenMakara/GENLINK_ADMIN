@@ -154,6 +154,69 @@ vi.mock("./user-enforcement", async () => {
   };
 });
 
+vi.mock("./user-recovery", async () => {
+  const actual = await vi.importActual<typeof import("./user-recovery")>("./user-recovery");
+
+  return {
+    ...actual,
+    useUserRecovery: () => ({
+      execute: vi.fn().mockResolvedValue(undefined),
+      pending: false,
+      pendingAction: null,
+    }),
+  };
+});
+
+vi.mock("./user-lifecycle", async () => {
+  const actual = await vi.importActual<typeof import("./user-lifecycle")>("./user-lifecycle");
+
+  return {
+    ...actual,
+    useUserLifecycle: () => ({
+      execute: vi.fn().mockResolvedValue(undefined),
+      pending: false,
+      pendingAction: null,
+    }),
+  };
+});
+
+vi.mock("./user-xp-adjustment", async () => {
+  const actual = await vi.importActual<typeof import("./user-xp-adjustment")>("./user-xp-adjustment");
+
+  return {
+    ...actual,
+    useUserXpAdjustment: () => ({
+      execute: vi.fn().mockResolvedValue(undefined),
+      pending: false,
+      pendingAction: null,
+    }),
+  };
+});
+
+vi.mock("./user-warning", async () => {
+  const actual = await vi.importActual<typeof import("./user-warning")>("./user-warning");
+
+  return {
+    ...actual,
+    useUserWarning: () => ({
+      execute: vi.fn().mockResolvedValue(undefined),
+      pending: false,
+    }),
+  };
+});
+
+vi.mock("./user-note", async () => {
+  const actual = await vi.importActual<typeof import("./user-note")>("./user-note");
+
+  return {
+    ...actual,
+    useUserNote: () => ({
+      execute: vi.fn().mockResolvedValue(undefined),
+      pending: false,
+    }),
+  };
+});
+
 afterEach(() => {
   cleanup();
   userQuery.value.isLoading = false;

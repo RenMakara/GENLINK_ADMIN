@@ -53,6 +53,30 @@ export const endpoints = {
     unban: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/unban`,
     /** ADM-078 contract consumed by the ADM-091 enforcement dialogs. */
     suspend: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/suspend`,
+    /** ADM-080 contract consumed by the ADM-092 recovery dialogs. */
+    verifyEmail: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/verify-email`,
+    /** ADM-080 contract consumed by the ADM-092 recovery dialogs. */
+    resetPassword: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/reset-password`,
+    /** ADM-080 contract consumed by the ADM-092 recovery dialogs. */
+    forceLogout: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/force-logout`,
+    /** ADM-081 contract consumed by the ADM-093 lifecycle dialogs. */
+    delete: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}`,
+    /** ADM-081 contract consumed by the ADM-093 lifecycle dialogs. */
+    restore: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/restore`,
+    /** ADM-082 contract consumed by the ADM-094 XP adjustment dialog. */
+    xpAdjustment: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/xp`,
+    /** ADM-084 read contract consumed by the ADM-095 per-user enforcement timeline. */
+    sanctions: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/sanctions`,
+    /** ADM-083 warning contract consumed by the ADM-096 warning dialog. */
+    warnings: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/warnings`,
+    /** ADM-083 staff-only notes read/create contract consumed by ADM-096. */
+    notes: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/notes`,
+  },
+  sanctions: {
+    /** ADM-084 global enforcement list consumed by ADM-097. */
+    list: `${ADMIN}/sanctions`,
+    /** ADM-084 lift contract consumed by the ADM-095 enforcement timeline. */
+    lift: (sanctionId: string) => `${ADMIN}/sanctions/${encodeURIComponent(sanctionId)}/lift`,
   },
   system: {
     /** ADM-047: Spring Boot Actuator & system health status endpoint. */

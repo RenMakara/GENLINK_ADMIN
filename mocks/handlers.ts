@@ -140,6 +140,168 @@ export const handlers = [
 
   http.post(apiPattern(endpoints.auth.logout), () => HttpResponse.json(apiResponse(null))),
 
+  // ADM-092 recovery actions. The real endpoints are permission-gated; the local fixture keeps
+  // the happy path available so the detail action dialogs can be exercised without a backend.
+  http.post(apiPattern("/admin/users/:userId/verify-email"), () =>
+    HttpResponse.json(apiResponse(null)),
+  ),
+
+  http.post(apiPattern("/admin/users/:userId/reset-password"), () =>
+    HttpResponse.json(apiResponse(null)),
+  ),
+
+  http.post(apiPattern("/admin/users/:userId/force-logout"), () =>
+    HttpResponse.json(apiResponse(null)),
+  ),
+
+  // ADM-093 lifecycle actions. Delete and restore are still protected by the real API's
+  // permission and sudo gates; the local fixture only supplies the successful transport shape.
+  http.delete(apiPattern("/admin/users/:userId"), () =>
+    HttpResponse.json(apiResponse(null)),
+  ),
+
+  http.post(apiPattern("/admin/users/:userId/restore"), () =>
+    HttpResponse.json(apiResponse(null)),
+  ),
+
+  // ADM-094 XP adjustment action. The real endpoint remains permission-gated by XP direction;
+  // local development uses a successful signed-adjustment fixture for the dialog flow.
+  http.post(apiPattern("/admin/users/:userId/xp"), ({ params }) =>
+    HttpResponse.json(
+      apiResponse({
+        userId: String(params.userId),
+        requestedAmount: 100,
+        appliedAmount: 100,
+        totalXp: 100,
+        level: 2,
+      }),
+    ),
+  ),
+
+  // ADM-095 per-user enforcement timeline and sanction lift contract.
+  http.get(apiPattern("/admin/users/:userId/sanctions"), ({ params }) =>
+    HttpResponse.json(
+      apiResponse({
+        content: [
+          {
+            sanctionId: "mock-sanction-1",
+            userId: String(params.userId),
+            userFullName: "Dara Sok",
+            type: "WARNING",
+            severity: "MEDIUM",
+            reason: "Repeatedly posted content outside the community guidelines",
+            messageEn: "Please review the community guidelines before posting again.",
+            messageKm: null,
+            previousStatus: "ACTIVE",
+            startsAt: "2026-09-23T03:00:00Z",
+            expiresAt: null,
+            acknowledgedAt: null,
+            liftedAt: null,
+            liftReason: null,
+            issuedByAdminId: "mock-admin-1",
+            issuedByAdminName: "Sok Dara",
+            liftedByAdminId: null,
+            liftedByAdminName: null,
+            active: true,
+          },
+        ],
+        page: 0,
+        size: 25,
+        totalElements: 1,
+        totalPages: 1,
+        hasNext: false,
+      }),
+    ),
+  ),
+
+  http.post(apiPattern("/admin/sanctions/:sanctionId/lift"), () =>
+    HttpResponse.json(apiResponse(null)),
+  ),
+
+  // ADM-096 warning recording and staff-only append-only notes contracts.
+  http.post(apiPattern("/admin/users/:userId/warnings"), ({ params }) =>
+    HttpResponse.json(
+      apiResponse({
+        warningId: "mock-warning-1",
+        userId: String(params.userId),
+        severity: "MEDIUM",
+        messageEn: "Please review the community guidelines before posting again.",
+        messageKm: "សូមពិនិត្យគោលការណ៍សហគមន៍ មុនពេលបង្ហោះម្តងទៀត។",
+        delivered: false,
+        deliveryStatus: "NOT_DELIVERED",
+        recordedAt: "2026-09-24T03:00:00Z",
+      }),
+    ),
+  ),
+
+  http.get(apiPattern("/admin/users/:userId/notes"), ({ params }) =>
+    HttpResponse.json(
+      apiResponse({
+        content: [
+          {
+            noteId: "mock-note-1",
+            userId: String(params.userId),
+            adminUserId: "mock-admin-1",
+            note: "Follow-up requested after the account review.",
+            createdAt: "2026-09-24T03:00:00Z",
+          },
+        ],
+        page: 0,
+        size: 25,
+        totalElements: 1,
+        totalPages: 1,
+        hasNext: false,
+      }),
+    ),
+  ),
+
+  http.post(apiPattern("/admin/users/:userId/notes"), ({ params }) =>
+    HttpResponse.json(
+      apiResponse({
+        noteId: "mock-note-2",
+        userId: String(params.userId),
+        adminUserId: "mock-admin-1",
+        note: "New internal note.",
+        createdAt: "2026-09-24T04:00:00Z",
+      }),
+    ),
+  ),
+
+  http.get(apiPattern("/admin/sanctions"), () =>
+    HttpResponse.json(
+      apiResponse({
+        content: [
+          {
+            sanctionId: "mock-global-sanction-1",
+            userId: "397939ea-0e71-4bb5-9b4a-3d2707296630",
+            userFullName: "Dara Sok",
+            type: "WARNING",
+            severity: "MEDIUM",
+            reason: "Repeatedly posted content outside the community guidelines",
+            messageEn: "Please review the community guidelines before posting again.",
+            messageKm: "សូមពិនិត្យគោលការណ៍សហគមន៍ មុនពេលបង្ហោះម្តងទៀត។",
+            previousStatus: "ACTIVE",
+            startsAt: "2026-09-23T03:00:00Z",
+            expiresAt: null,
+            acknowledgedAt: null,
+            liftedAt: null,
+            liftReason: null,
+            issuedByAdminId: "mock-admin-1",
+            issuedByAdminName: "Sok Dara",
+            liftedByAdminId: null,
+            liftedByAdminName: null,
+            active: true,
+          },
+        ],
+        page: 0,
+        size: 25,
+        totalElements: 1,
+        totalPages: 1,
+        hasNext: false,
+      }),
+    ),
+  ),
+
   http.get(apiPattern(endpoints.dashboard.summary), () =>
     HttpResponse.json(
       apiResponse({

@@ -56,6 +56,17 @@ export const queryKeys = {
       ["users", "login-history", userId, { page, size }] as const,
     xp: (userId: string, page: number, size: number) =>
       ["users", "xp", userId, { page, size }] as const,
+    xpAll: (userId: string) => ["users", "xp", userId] as const,
+    sanctions: (userId: string, params: ListKeyParams) =>
+      ["users", "sanctions", userId, params] as const,
+    sanctionsAll: (userId: string) => ["users", "sanctions", userId] as const,
+    notes: (userId: string, page: number, size: number) =>
+      ["users", "notes", userId, { page, size }] as const,
+    notesAll: (userId: string) => ["users", "notes", userId] as const,
+  },
+  sanctions: {
+    all: () => ["sanctions"] as const,
+    list: (params: ListKeyParams) => ["sanctions", "list", params] as const,
   },
   system: {
     all: () => ["system"] as const,

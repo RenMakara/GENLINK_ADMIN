@@ -1,6 +1,8 @@
 import type { UserStatus } from "@/lib/ui/status";
 import type { PageResponse } from "@/lib/api/types";
 
+export type { AdminUserSanction } from "@/types/admin-sanction";
+
 /**
  * Work-status codes persisted by the user module. Keeping the labels in the table feature
  * avoids leaking backend enum formatting into every cell that displays one.
@@ -68,6 +70,27 @@ export interface AdminUserCurrentSanction {
   startsAt: string;
   expiresAt: string | null;
   acknowledgedAt: string | null;
+}
+
+/** ADM-083 staff-only note projection used by the user-detail Notes tab. */
+export interface AdminUserNote {
+  noteId: string;
+  userId: string;
+  adminUserId: string;
+  note: string;
+  createdAt: string;
+}
+
+/** ADM-083 warning response projection, including the explicit delivery gap. */
+export interface AdminUserWarningResult {
+  warningId: string;
+  userId: string;
+  severity: "LOW" | "MEDIUM" | "HIGH";
+  messageEn: string;
+  messageKm: string;
+  delivered: boolean;
+  deliveryStatus: string;
+  recordedAt: string;
 }
 
 export interface AdminUserDetail {

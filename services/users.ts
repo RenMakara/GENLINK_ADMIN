@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
-import { api } from "@/lib/api/client";
+import { api, request as apiRequest } from "@/lib/api/client";
 import { endpoints } from "@/lib/api/endpoints";
 import type { TableFilterCodec, TableState } from "@/hooks/use-table-state";
 import type { PageResponse } from "@/lib/api/types";
@@ -11,10 +11,13 @@ import type {
   AdminUserActivity,
   AdminUserDetail,
   AdminUserLoginHistory,
+  AdminUserNote,
   AdminUserSession,
   AdminUserTableRow,
+  AdminUserWarningResult,
   AdminUserXp,
 } from "@/features/users/types";
+import type { AdminUserSanction } from "@/types/admin-sanction";
 
 export type UserListTableState = Pick<
   TableState<UserFilters>,
@@ -113,6 +116,116 @@ export function unbanUser(userId: string, request: UserReasonRequest) {
 /** ADM-078 contract calls used by ADM-091; server authorization remains authoritative. */
 export function suspendUser(userId: string, request: UserSuspendRequest) {
   return api.post<void>(endpoints.users.suspend(userId), request);
+}
+
+/** ADM-080 contract call used by the ADM-092 recovery dialogs. */
+export function verifyUserEmail(userId: string) {
+  return api.post<void>(endpoints.users.verifyEmail(userId));
+}
+
+/** ADM-080 contract call used by the ADM-092 recovery dialogs. */
+export function resetUserPassword(userId: string) {
+  return api.post<void>(endpoints.users.resetPassword(userId));
+}
+
+/** ADM-080 contract call used by the ADM-092 recovery dialogs. */
+export function forceLogoutUser(userId: string) {
+  return api.post<void>(endpoints.users.forceLogout(userId));
+}
+
+export type UserLifecycleRequest = UserReasonRequest;
+
+/** ADM-081 contract call used by the ADM-093 lifecycle dialogs. */
+export function deleteUser(userId: string, request: UserLifecycleRequest) {
+  return apiRequest<void>(endpoints.users.delete(userId), {
+    method: "DELETE",
+    body: request,
+  });
+}
+
+/** ADM-081 contract call used by the ADM-093 lifecycle dialogs. */
+export function restoreUser(userId: string, request: UserLifecycleRequest) {
+  return api.post<void>(endpoints.users.restore(userId), request);
+}
+
+export interface UserXpAdjustmentRequest extends UserReasonRequest {
+  amount: number;
+}
+
+export interface UserXpAdjustmentResponse {
+  userId: string;
+  requestedAmount: number;
+  appliedAmount: number;
+  totalXp: number;
+  level: number;
+}
+
+/** ADM-082 contract call used by the ADM-094 XP adjustment dialog. */
+export function adjustUserXp(userId: string, request: UserXpAdjustmentRequest) {
+  return api.post<UserXpAdjustmentResponse>(endpoints.users.xpAdjustment(userId), request);
+}
+
+export type UserSanctionType = AdminUserSanction["type"];
+
+export type UserSanctionListQuery = Record<string, unknown> & {
+  page: number;
+  size: number;
+  type?: UserSanctionType;
+};
+
+/** Fetches one newest-first page of the per-user ADM-084 enforcement timeline. */
+export function useUserSanctions(userId: string, query: UserSanctionListQuery) {
+  return useQuery<PageResponse<AdminUserSanction>>({
+    queryKey: queryKeys.users.sanctions(userId, query),
+    queryFn: ({ signal }) =>
+      api.get<PageResponse<AdminUserSanction>>(endpoints.users.sanctions(userId), {
+        query,
+        signal,
+      }),
+    enabled: Boolean(userId),
+    placeholderData: keepPreviousData,
+  });
+}
+
+/** ADM-084 lift contract used by the ADM-095 timeline action. */
+export function liftUserSanction(sanctionId: string, request: UserReasonRequest) {
+  return api.post<void>(endpoints.sanctions.lift(sanctionId), request);
+}
+
+export type UserWarningSeverity = AdminUserWarningResult["severity"];
+
+export interface UserWarningRequest extends UserReasonRequest {
+  severity: UserWarningSeverity;
+  messageEn: string;
+  messageKm: string;
+}
+
+/** ADM-083 warning contract used by the ADM-096 warning dialog. */
+export function createUserWarning(userId: string, request: UserWarningRequest) {
+  return api.post<AdminUserWarningResult>(endpoints.users.warnings(userId), request);
+}
+
+/** Fetches the append-only staff-only Notes tab projection. */
+export function useUserNotes(userId: string, page: number, size: number) {
+  return useQuery<PageResponse<AdminUserNote>>({
+    queryKey: queryKeys.users.notes(userId, page, size),
+    queryFn: ({ signal }) =>
+      api.get<PageResponse<AdminUserNote>>(endpoints.users.notes(userId), {
+        query: { page, size },
+        signal,
+      }),
+    enabled: Boolean(userId),
+    placeholderData: keepPreviousData,
+  });
+}
+
+export interface UserNoteRequest {
+  note: string;
+}
+
+/** ADM-083 staff-only append operation used by the ADM-096 note dialog. */
+export function createUserNote(userId: string, request: UserNoteRequest) {
+  return api.post<AdminUserNote>(endpoints.users.notes(userId), request);
 }
 
 /** Fetches ADM-065 activity counters only when the Activity tab is mounted. */

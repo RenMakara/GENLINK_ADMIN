@@ -27,13 +27,25 @@ import {
   UserSessionsTab,
   UserXpTab,
 } from "./user-detail-security-panels";
+import { UserEnforcementTab } from "./user-enforcement-tab";
 import { UserDetailPageSkeleton } from "./user-detail-page-skeleton";
 import { UserActionCluster, type UserAction } from "./user-action-cluster";
+import { UserNoteDialog } from "./user-note-dialog";
+import { useUserNote } from "./user-note";
+import { UserNotesTab } from "./user-notes-tab";
 import {
   useUserEnforcement,
   type UserEnforcementAction,
 } from "./user-enforcement";
 import { UserEnforcementDialogs } from "./user-enforcement-dialogs";
+import { UserRecoveryDialogs } from "./user-recovery-dialogs";
+import { useUserRecovery, type UserRecoveryAction } from "./user-recovery";
+import { UserLifecycleDialogs } from "./user-lifecycle-dialogs";
+import { useUserLifecycle, type UserLifecycleAction } from "./user-lifecycle";
+import { UserXpAdjustmentDialogs } from "./user-xp-adjustment-dialogs";
+import { useUserXpAdjustment, type UserXpAdjustmentAction } from "./user-xp-adjustment";
+import { UserWarningDialog } from "./user-warning-dialog";
+import { useUserWarning } from "./user-warning";
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -97,11 +109,76 @@ export function UserDetailPage({ userId }: { userId: string }) {
   const searchParams = useSearchParams();
   const userQuery = useUserDetail(userId);
   const [enforcementAction, setEnforcementAction] = useState<UserEnforcementAction | null>(null);
+  const [recoveryAction, setRecoveryAction] = useState<UserRecoveryAction | null>(null);
+  const [lifecycleAction, setLifecycleAction] = useState<UserLifecycleAction | null>(null);
+  const [xpAction, setXpAction] = useState<UserXpAdjustmentAction | null>(null);
+  const [warningOpen, setWarningOpen] = useState(false);
+  const [noteOpen, setNoteOpen] = useState(false);
   const enforcement = useUserEnforcement(userId);
+  const recovery = useUserRecovery(userId);
+  const lifecycle = useUserLifecycle(userId);
+  const xpAdjustment = useUserXpAdjustment(userId);
+  const warning = useUserWarning(userId);
+  const note = useUserNote(userId);
 
   const handleUserAction = useCallback((action: UserAction) => {
     if (action === "ban" || action === "unban" || action === "suspend") {
       setEnforcementAction(action);
+      setRecoveryAction(null);
+      setLifecycleAction(null);
+      setXpAction(null);
+      setWarningOpen(false);
+      setNoteOpen(false);
+      return;
+    }
+
+    if (action === "verify-email" || action === "reset-password" || action === "force-logout") {
+      setRecoveryAction(action);
+      setEnforcementAction(null);
+      setLifecycleAction(null);
+      setXpAction(null);
+      setWarningOpen(false);
+      setNoteOpen(false);
+      return;
+    }
+
+    if (action === "delete" || action === "restore") {
+      setLifecycleAction(action);
+      setEnforcementAction(null);
+      setRecoveryAction(null);
+      setXpAction(null);
+      setWarningOpen(false);
+      setNoteOpen(false);
+      return;
+    }
+
+    if (action === "grant-xp" || action === "revoke-xp") {
+      setXpAction(action);
+      setEnforcementAction(null);
+      setRecoveryAction(null);
+      setLifecycleAction(null);
+      setWarningOpen(false);
+      setNoteOpen(false);
+      return;
+    }
+
+    if (action === "warn") {
+      setWarningOpen(true);
+      setNoteOpen(false);
+      setEnforcementAction(null);
+      setRecoveryAction(null);
+      setLifecycleAction(null);
+      setXpAction(null);
+      return;
+    }
+
+    if (action === "add-note") {
+      setNoteOpen(true);
+      setWarningOpen(false);
+      setEnforcementAction(null);
+      setRecoveryAction(null);
+      setLifecycleAction(null);
+      setXpAction(null);
     }
   }, []);
 
@@ -172,6 +249,10 @@ export function UserDetailPage({ userId }: { userId: string }) {
         <UserSessionsTab userId={userId} />
       ) : activeTab === "login-history" ? (
         <UserLoginHistoryTab userId={userId} />
+      ) : activeTab === "enforcement" ? (
+        <UserEnforcementTab userId={userId} />
+      ) : activeTab === "notes" ? (
+        <UserNotesTab userId={userId} onAddNote={() => setNoteOpen(true)} />
       ) : (
       <EmptyState
         title={`${tabLabel} tab ready`}
@@ -251,6 +332,62 @@ export function UserDetailPage({ userId }: { userId: string }) {
           enforcement.execute({ action, reason, durationHours })
         }
       />
+
+      <UserRecoveryDialogs
+        user={user}
+        action={recoveryAction}
+        pendingAction={recovery.pendingAction}
+        onOpenChange={(open) => {
+          if (!open) setRecoveryAction(null);
+        }}
+        onConfirm={(action, reason) => recovery.execute({ action, reason })}
+      />
+
+      <UserLifecycleDialogs
+        user={user}
+        action={lifecycleAction}
+        pendingAction={lifecycle.pendingAction}
+        onOpenChange={(open) => {
+          if (!open) setLifecycleAction(null);
+        }}
+        onConfirm={(action, reason) => lifecycle.execute({ action, reason })}
+      />
+
+      <UserXpAdjustmentDialogs
+        user={user}
+        action={xpAction}
+        pendingAction={xpAdjustment.pendingAction}
+        onOpenChange={(open) => {
+          if (!open) setXpAction(null);
+        }}
+        onConfirm={(action, amount, reason) =>
+          xpAdjustment.execute({ action, amount, reason })
+        }
+      />
+
+      {warningOpen ? (
+        <UserWarningDialog
+          user={user}
+          open
+          pending={warning.pending}
+          onOpenChange={(open) => {
+            if (!open) setWarningOpen(false);
+          }}
+          onConfirm={(request) => warning.execute(request)}
+        />
+      ) : null}
+
+      {noteOpen ? (
+        <UserNoteDialog
+          user={user}
+          open
+          pending={note.pending}
+          onOpenChange={(open) => {
+            if (!open) setNoteOpen(false);
+          }}
+          onConfirm={(noteText) => note.execute({ note: noteText })}
+        />
+      ) : null}
     </div>
   );
 }
