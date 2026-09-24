@@ -13,6 +13,7 @@ import {
 } from "react";
 
 import { endSession, refreshSession, requestChallenge, verifyMfa } from "@/features/auth/auth-client";
+import { clearSudoWindow } from "@/features/auth/sudo";
 import { api } from "@/lib/api/client";
 import { configureAuth } from "@/lib/api/client";
 import { endpoints } from "@/lib/api/endpoints";
@@ -94,6 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const clear = useCallback(() => {
     accessToken.current = null;
+    clearSudoWindow();
     setSession(null);
     setChallenge(null);
     setStatus("unauthenticated");
@@ -118,6 +120,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!result.success || !result.data) {
       return false;
     }
+    // Admin refresh issues a new access-token session id. A sudo window is scoped to the old
+    // token's session id on the server, so client-side knowledge must not survive the rotation.
+    clearSudoWindow();
     accessToken.current = result.data.accessToken;
     return true;
   }, []);
@@ -188,6 +193,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!result.success || !result.data) {
         return { ok: false, errorCode: result.errorCode };
       }
+      clearSudoWindow();
       accessToken.current = result.data.accessToken;
       setChallenge(null);
       await loadSession();

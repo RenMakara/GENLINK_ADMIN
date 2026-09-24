@@ -131,6 +131,29 @@ vi.mock("@/services/users", () => ({
   useUserXp: () => securityQueries.xp,
 }));
 
+vi.mock("@/hooks/use-permission", () => ({
+  usePermissions: () => ({
+    permissions: [],
+    ready: true,
+    has: () => false,
+    hasAll: () => false,
+    hasAny: () => false,
+  }),
+}));
+
+vi.mock("./user-enforcement", async () => {
+  const actual = await vi.importActual<typeof import("./user-enforcement")>("./user-enforcement");
+
+  return {
+    ...actual,
+    useUserEnforcement: () => ({
+      execute: vi.fn().mockResolvedValue(undefined),
+      pending: false,
+      pendingAction: null,
+    }),
+  };
+});
+
 afterEach(() => {
   cleanup();
   userQuery.value.isLoading = false;

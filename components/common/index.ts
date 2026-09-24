@@ -10,6 +10,9 @@ export { EmptyState } from "@/components/common/empty-state";
 export { ErrorState } from "@/components/common/error-state";
 export { StatCard } from "@/components/common/stat-card";
 export { StatusBadge } from "@/components/common/status-badge";
-export { ConfirmDialog } from "@/components/common/confirm-dialog";
+export {
+  ConfirmDialog,
+  type ConfirmDialogProps,
+  type SudoCredentials,
+} from "@/components/common/confirm-dialog";
 export { GenLinkLogo } from "@/components/common/logo";
-

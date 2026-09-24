@@ -92,6 +92,29 @@ export function useUserDetail(userId: string) {
   });
 }
 
+export interface UserReasonRequest {
+  reason: string;
+}
+
+export interface UserSuspendRequest extends UserReasonRequest {
+  durationHours: number;
+}
+
+/** ADM-078 contract calls used by ADM-091; server authorization remains authoritative. */
+export function banUser(userId: string, request: UserReasonRequest) {
+  return api.post<void>(endpoints.users.ban(userId), request);
+}
+
+/** ADM-078 contract calls used by ADM-091; server authorization remains authoritative. */
+export function unbanUser(userId: string, request: UserReasonRequest) {
+  return api.post<void>(endpoints.users.unban(userId), request);
+}
+
+/** ADM-078 contract calls used by ADM-091; server authorization remains authoritative. */
+export function suspendUser(userId: string, request: UserSuspendRequest) {
+  return api.post<void>(endpoints.users.suspend(userId), request);
+}
+
 /** Fetches ADM-065 activity counters only when the Activity tab is mounted. */
 export function useUserActivity(userId: string) {
   return useQuery<AdminUserActivity>({

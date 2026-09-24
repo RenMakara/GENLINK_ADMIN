@@ -51,6 +51,7 @@ export const queryKeys = {
     activity: (userId: string) => ["users", "activity", userId] as const,
     sessions: (userId: string, page: number, size: number) =>
       ["users", "sessions", userId, { page, size }] as const,
+    sessionsAll: (userId: string) => ["users", "sessions", userId] as const,
     loginHistory: (userId: string, page: number, size: number) =>
       ["users", "login-history", userId, { page, size }] as const,
     xp: (userId: string, page: number, size: number) =>

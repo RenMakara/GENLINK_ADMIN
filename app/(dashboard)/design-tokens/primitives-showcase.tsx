@@ -79,6 +79,7 @@ export function PrimitivesShowcase() {
           tier={tier ?? "low"}
           title="Ban this user?"
           description="They will lose access immediately."
+          consequence="This prevents the account from signing in while keeping the account and its content."
           confirmLabel="Ban user"
           confirmTarget="sok.dara@genlink.kh"
           confirmTargetLabel="email"

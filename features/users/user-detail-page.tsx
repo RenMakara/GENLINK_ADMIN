@@ -28,6 +28,12 @@ import {
   UserXpTab,
 } from "./user-detail-security-panels";
 import { UserDetailPageSkeleton } from "./user-detail-page-skeleton";
+import { UserActionCluster, type UserAction } from "./user-action-cluster";
+import {
+  useUserEnforcement,
+  type UserEnforcementAction,
+} from "./user-enforcement";
+import { UserEnforcementDialogs } from "./user-enforcement-dialogs";
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -90,6 +96,14 @@ export function UserDetailPage({ userId }: { userId: string }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const userQuery = useUserDetail(userId);
+  const [enforcementAction, setEnforcementAction] = useState<UserEnforcementAction | null>(null);
+  const enforcement = useUserEnforcement(userId);
+
+  const handleUserAction = useCallback((action: UserAction) => {
+    if (action === "ban" || action === "unban" || action === "suspend") {
+      setEnforcementAction(action);
+    }
+  }, []);
 
   const rawTab = searchParams.get("tab");
   const activeTab: UserDetailTab = isUserDetailTab(rawTab)
@@ -212,11 +226,7 @@ export function UserDetailPage({ userId }: { userId: string }) {
               <span className="text-lg font-semibold leading-none">{user.level}</span>
             </div>
 
-            <div
-              data-testid="user-detail-action-cluster"
-              aria-label="User actions"
-              className="min-h-9 min-w-12 shrink-0"
-            />
+            <UserActionCluster user={user} onAction={handleUserAction} />
           </div>
         </CardHeader>
         <CardContent className="pt-5">
@@ -229,6 +239,18 @@ export function UserDetailPage({ userId }: { userId: string }) {
           </UserDetailTabs>
         </CardContent>
       </Card>
+
+      <UserEnforcementDialogs
+        user={user}
+        action={enforcementAction}
+        pendingAction={enforcement.pendingAction}
+        onOpenChange={(open) => {
+          if (!open) setEnforcementAction(null);
+        }}
+        onConfirm={(action, reason, durationHours) =>
+          enforcement.execute({ action, reason, durationHours })
+        }
+      />
     </div>
   );
 }

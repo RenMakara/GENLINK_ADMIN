@@ -5,9 +5,9 @@
  * the set of things the portal talks to is readable at a glance. Paths are relative to
  * `NEXT_PUBLIC_API_BASE_URL`; nothing here names a host (SSOT §1.7).
  *
- * <p>Only the endpoints that exist on the backend today are listed. The rest arrive with
- * their tasks — an exhaustive map of unbuilt routes would be indistinguishable from a working
- * one at the call site.
+ * <p>Most entries are deployed backend endpoints. A small number of explicitly labelled contract
+ * routes are included when the frontend is intentionally working ahead of its backend task; the
+ * label keeps those routes distinguishable from live APIs at the call site.
  */
 
 const ADMIN = "/admin";
@@ -47,6 +47,12 @@ export const endpoints = {
     loginHistory: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/login-history`,
     /** ADM-063: level, source breakdown, paginated ledger and badges for one user. */
     xp: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/xp`,
+    /** ADM-078 contract consumed by the ADM-091 enforcement dialogs. */
+    ban: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/ban`,
+    /** ADM-078 contract consumed by the ADM-091 enforcement dialogs. */
+    unban: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/unban`,
+    /** ADM-078 contract consumed by the ADM-091 enforcement dialogs. */
+    suspend: (userId: string) => `${ADMIN}/users/${encodeURIComponent(userId)}/suspend`,
   },
   system: {
     /** ADM-047: Spring Boot Actuator & system health status endpoint. */

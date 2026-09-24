@@ -54,7 +54,19 @@ const SESSION: AdminSession = {
   fullName: "Sok Dara",
   roleCode: "SUPPORT",
   roleName: "Support",
-  permissions: ["dashboard:view", "user:read"],
+  // Keep the fixture aligned with the seeded SUPPORT role: recovery is allowed, enforcement is
+  // not. This lets the detail-header cluster exercise the real role boundary in local MSW runs.
+  permissions: [
+    "dashboard:view",
+    "user:read",
+    "user:verify_email",
+    "user:reset_password",
+    "user:force_logout",
+    "user:warn",
+    "user:note:write",
+    "event:read",
+    "report:read",
+  ],
   lastLoginAt: "2026-08-10T02:30:00.000Z",
   totpEnabled: true,
 };
@@ -115,9 +127,16 @@ export const handlers = [
     ),
   ),
 
-  // Opens the sudo window (SSOT §10.7). The response body is unspecified beyond success, so no
-  // fields are invented — the envelope carries no data.
-  http.post(apiPattern(endpoints.auth.sudo), () => HttpResponse.json(apiResponse(null))),
+  // Opens the sudo window (SSOT §10.7). Keep the expiry fields aligned with SudoResponse so the
+  // real ADM-089 client-side window service can be exercised in local development and tests.
+  http.post(apiPattern(endpoints.auth.sudo), () =>
+    HttpResponse.json(
+      apiResponse({
+        expiresInSeconds: 300,
+        expiresAt: new Date(Date.now() + 300_000).toISOString(),
+      }),
+    ),
+  ),
 
   http.post(apiPattern(endpoints.auth.logout), () => HttpResponse.json(apiResponse(null))),
 
