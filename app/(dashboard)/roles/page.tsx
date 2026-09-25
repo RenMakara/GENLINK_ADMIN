@@ -1,5 +1,12 @@
-import { PageStub } from "@/components/layout/page-stub";
+import { Suspense } from "react";
+
+import { RolesPage } from "@/features/roles/roles-page";
+import { RolesPageSkeleton } from "@/features/roles/roles-page-skeleton";
 
 export default function Page() {
-  return <PageStub title="Roles & Permissions" task="ADM-095" />;
+  return (
+    <Suspense fallback={<RolesPageSkeleton />}>
+      <RolesPage />
+    </Suspense>
+  );
 }

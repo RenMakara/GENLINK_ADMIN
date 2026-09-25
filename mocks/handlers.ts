@@ -373,6 +373,205 @@ export const handlers = [
     );
   }),
 
+  // ADM-107 roles list. The real endpoint remains gated by rbac:read; this fixture keeps the
+  // summary projection available for local table development and component tests.
+  http.get(apiPattern(endpoints.roles.list), () =>
+    HttpResponse.json(
+      apiResponse([
+        {
+          roleId: "mock-role-super-admin",
+          code: "SUPER_ADMIN",
+          name: "Super Admin",
+          description: "Owner. Manages admins and system settings.",
+          isSystem: true,
+          adminCount: 1,
+        },
+        {
+          roleId: "mock-role-support",
+          code: "SUPPORT",
+          name: "Support",
+          description: "Unblocks users; cannot punish them.",
+          isSystem: true,
+          adminCount: 2,
+        },
+      ]),
+    ),
+  ),
+
+  // ADM-108 role detail, permission catalogue, and whole-set replacement contracts. The live
+  // backend remains authoritative for rbac:read/rbac:manage, sudo, validation, and auditing.
+  http.get(apiPattern("/admin/roles/:roleId"), ({ params }) => {
+    const roleId = String(params.roleId);
+    const isSuperAdmin = roleId === "mock-role-super-admin";
+    const permissions = [
+      "dashboard:view",
+      "user:read",
+      "user:verify_email",
+      "user:reset_password",
+      "user:force_logout",
+    ];
+    const catalogue = [
+      "dashboard:view",
+      "analytics:view",
+      "analytics:export",
+      "user:read",
+      "user:update",
+      "user:export",
+      "user:ban",
+      "user:unban",
+      "user:verify_email",
+      "user:reset_password",
+      "user:force_logout",
+      "user:delete",
+      "rbac:read",
+      "rbac:manage",
+    ];
+
+    return HttpResponse.json(
+      apiResponse({
+        roleId,
+        code: isSuperAdmin ? "SUPER_ADMIN" : "SUPPORT",
+        name: isSuperAdmin ? "Super Admin" : "Support",
+        description: isSuperAdmin
+          ? "Owner. Manages admins and system settings."
+          : "Unblocks users; cannot punish them.",
+        isSystem: true,
+        adminCount: isSuperAdmin ? 1 : 2,
+        permissions: isSuperAdmin ? catalogue : permissions,
+      }),
+    );
+  }),
+
+  http.get(apiPattern(endpoints.roles.permissions), () =>
+    HttpResponse.json(
+      apiResponse([
+        {
+          resource: "dashboard",
+          permissions: [
+            {
+              code: "dashboard:view",
+              resource: "dashboard",
+              action: "view",
+              description: "View the admin dashboard",
+            },
+          ],
+        },
+        {
+          resource: "analytics",
+          permissions: [
+            {
+              code: "analytics:view",
+              resource: "analytics",
+              action: "view",
+              description: "View analytics dashboards",
+            },
+            {
+              code: "analytics:export",
+              resource: "analytics",
+              action: "export",
+              description: "Export analytics series as CSV",
+            },
+          ],
+        },
+        {
+          resource: "user",
+          permissions: [
+            {
+              code: "user:read",
+              resource: "user",
+              action: "read",
+              description: "View user records",
+            },
+            {
+              code: "user:update",
+              resource: "user",
+              action: "update",
+              description: "Correct user profile fields",
+            },
+            {
+              code: "user:export",
+              resource: "user",
+              action: "export",
+              description: "Export the user list as CSV",
+            },
+            {
+              code: "user:ban",
+              resource: "user",
+              action: "ban",
+              description: "Ban a user permanently",
+            },
+            {
+              code: "user:unban",
+              resource: "user",
+              action: "unban",
+              description: "Lift a ban",
+            },
+            {
+              code: "user:verify_email",
+              resource: "user",
+              action: "verify_email",
+              description: "Manually mark an email verified",
+            },
+            {
+              code: "user:reset_password",
+              resource: "user",
+              action: "reset_password",
+              description: "Trigger a password-reset email",
+            },
+            {
+              code: "user:force_logout",
+              resource: "user",
+              action: "force_logout",
+              description: "Revoke a user's sessions",
+            },
+            {
+              code: "user:delete",
+              resource: "user",
+              action: "delete",
+              description: "Soft-delete and restore a user account",
+            },
+          ],
+        },
+        {
+          resource: "rbac",
+          permissions: [
+            {
+              code: "rbac:read",
+              resource: "rbac",
+              action: "read",
+              description: "View roles, permissions and admin users",
+            },
+            {
+              code: "rbac:manage",
+              resource: "rbac",
+              action: "manage",
+              description: "Change roles, permissions and admin users",
+            },
+          ],
+        },
+      ]),
+    ),
+  ),
+
+  http.put(apiPattern("/admin/roles/:roleId/permissions"), async ({ params, request }) => {
+    const roleId = String(params.roleId);
+    const body = (await request.json()) as { permissions?: string[] };
+    const isSuperAdmin = roleId === "mock-role-super-admin";
+    return HttpResponse.json(
+      apiResponse({
+        roleId,
+        code: isSuperAdmin ? "SUPER_ADMIN" : "SUPPORT",
+        name: isSuperAdmin ? "Super Admin" : "Support",
+        description: isSuperAdmin
+          ? "Owner. Manages admins and system settings."
+          : "Unblocks users; cannot punish them.",
+        isSystem: true,
+        adminCount: isSuperAdmin ? 1 : 2,
+        permissions: body.permissions ?? [],
+      }),
+    );
+  }),
+
   http.get(apiPattern(endpoints.dashboard.summary), () =>
     HttpResponse.json(
       apiResponse({

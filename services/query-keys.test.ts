@@ -20,6 +20,9 @@ describe("query key factory", () => {
     expect(Object.isFrozen(key) || Array.isArray(key)).toBe(true);
     expect(key).toEqual(["auth", "me"]);
     expect(queryKeys.dashboard.summary()).toEqual(["dashboard", "summary"]);
+    expect(queryKeys.roles.list()).toEqual(["roles", "list"]);
+    expect(queryKeys.roles.detail("role-1")).toEqual(["roles", "detail", "role-1"]);
+    expect(queryKeys.roles.permissions()).toEqual(["roles", "permissions"]);
     expect(queryKeys.system.health()).toEqual(["system", "health"]);
   });
 });

@@ -34,6 +34,17 @@ export const endpoints = {
     /** ADM-045: aggregate BFF-lite dashboard summary endpoint. */
     summary: `${ADMIN}/dashboard/summary`,
   },
+  roles: {
+    /** ADM-101/107: role metadata and active admin counts for the roles list. */
+    list: `${ADMIN}/roles`,
+    /** ADM-101/108: one role and its effective permission codes. */
+    detail: (roleId: string) => `${ADMIN}/roles/${encodeURIComponent(roleId)}`,
+    /** ADM-101/108: enum-backed permission catalogue grouped by resource. */
+    permissions: `${ADMIN}/permissions`,
+    /** ADM-102/108: audited whole-set permission replacement. */
+    updatePermissions: (roleId: string) =>
+      `${ADMIN}/roles/${encodeURIComponent(roleId)}/permissions`,
+  },
   users: {
     /** ADM-059: filterable, sortable and paginated user summary list. */
     list: `${ADMIN}/users`,

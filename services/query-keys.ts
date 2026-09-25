@@ -42,6 +42,15 @@ export const queryKeys = {
     /** Aggregate BFF-lite summary endpoint (ADM-045, ADM-051, ADM-052). */
     summary: () => ["dashboard", "summary"] as const,
   },
+  roles: {
+    all: () => ["roles"] as const,
+    /** Role metadata and active admin counts (ADM-101/107). */
+    list: () => ["roles", "list"] as const,
+    /** One role's metadata and effective permission codes (ADM-101/108). */
+    detail: (roleId: string) => ["roles", "detail", roleId] as const,
+    /** Enum-backed permission catalogue grouped by resource (ADM-101/108). */
+    permissions: () => ["roles", "permissions"] as const,
+  },
   users: {
     all: () => ["users"] as const,
     lists: () => ["users", "list"] as const,
