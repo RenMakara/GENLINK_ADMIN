@@ -51,6 +51,11 @@ export const queryKeys = {
     /** Enum-backed permission catalogue grouped by resource (ADM-101/108). */
     permissions: () => ["roles", "permissions"] as const,
   },
+  admins: {
+    all: () => ["admins"] as const,
+    /** Paginated staff directory entries (ADM-103/109). */
+    list: (params: ListKeyParams) => ["admins", "list", params] as const,
+  },
   users: {
     all: () => ["users"] as const,
     lists: () => ["users", "list"] as const,

@@ -23,6 +23,7 @@ describe("query key factory", () => {
     expect(queryKeys.roles.list()).toEqual(["roles", "list"]);
     expect(queryKeys.roles.detail("role-1")).toEqual(["roles", "detail", "role-1"]);
     expect(queryKeys.roles.permissions()).toEqual(["roles", "permissions"]);
+    expect(queryKeys.admins.list({ page: 0, size: 25 })).toEqual(["admins", "list", { page: 0, size: 25 }]);
     expect(queryKeys.system.health()).toEqual(["system", "health"]);
   });
 });

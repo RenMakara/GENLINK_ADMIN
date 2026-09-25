@@ -15,6 +15,7 @@ describe("navigation — MVP filtering (ADM-034 AC#1)", () => {
       "Users",
       "Enforcement",
       "Roles & Permissions",
+      "Admin Users",
       "Analytics",
       "Audit Logs",
     ]);
@@ -151,6 +152,6 @@ describe("activeItem", () => {
 
 describe("shippedItems", () => {
   it("lists exactly the six MVP routes", () => {
-    expect(shippedItems()).toHaveLength(6);
+    expect(shippedItems()).toHaveLength(7);
   });
 });

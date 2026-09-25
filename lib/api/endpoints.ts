@@ -45,6 +45,16 @@ export const endpoints = {
     updatePermissions: (roleId: string) =>
       `${ADMIN}/roles/${encodeURIComponent(roleId)}/permissions`,
   },
+  admins: {
+    /** ADM-103/109: paginated staff directory, including active and revoked profiles. */
+    list: `${ADMIN}/admins`,
+    /** ADM-103/111: audited high-tier role replacement. */
+    changeRole: (adminId: string) => `${ADMIN}/admins/${encodeURIComponent(adminId)}/role`,
+    /** ADM-103/111: audited admin-access revocation. */
+    deactivate: (adminId: string) => `${ADMIN}/admins/${encodeURIComponent(adminId)}/deactivate`,
+    /** ADM-104/111: audited MFA reset and forced re-enrolment. */
+    resetMfa: (adminId: string) => `${ADMIN}/admins/${encodeURIComponent(adminId)}/reset-mfa`,
+  },
   users: {
     /** ADM-059: filterable, sortable and paginated user summary list. */
     list: `${ADMIN}/users`,

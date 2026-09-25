@@ -20,7 +20,7 @@ import { http, HttpResponse } from "msw";
 import { endpoints } from "@/lib/api/endpoints";
 import { env } from "@/lib/config/env";
 
-import { apiError, apiResponse } from "./factories";
+import { apiError, apiResponse, pageResponse } from "./factories";
 
 // Type-only imports (erased at build): they keep the fixtures honest against the shapes the app
 // already reads, without coupling this module to the feature's runtime code.
@@ -54,8 +54,9 @@ const SESSION: AdminSession = {
   fullName: "Sok Dara",
   roleCode: "SUPPORT",
   roleName: "Support",
-  // Keep the fixture aligned with the seeded SUPPORT role: recovery is allowed, enforcement is
-  // not. This lets the detail-header cluster exercise the real role boundary in local MSW runs.
+  // The fixture keeps the recovery boundary used by the user detail tests while also allowing
+  // the local Roles/Admin Users pages to exercise their read/manage states without a separate
+  // login fixture. The deployed backend remains authoritative for the real role permissions.
   permissions: [
     "dashboard:view",
     "user:read",
@@ -66,6 +67,8 @@ const SESSION: AdminSession = {
     "user:note:write",
     "event:read",
     "report:read",
+    "rbac:read",
+    "rbac:manage",
   ],
   lastLoginAt: "2026-08-10T02:30:00.000Z",
   totpEnabled: true,
@@ -571,6 +574,131 @@ export const handlers = [
       }),
     );
   }),
+
+  // ADM-109 staff directory and its existing ADM-103/104 action contracts. Mutation handlers
+  // return the same safe projection as the real backend; tests override them for failures.
+  http.get(apiPattern(endpoints.admins.list), () =>
+    HttpResponse.json(
+      apiResponse(
+        pageResponse([
+          {
+            adminId: "mock-admin-super",
+            userId: "mock-user-super",
+            fullName: "Sok Dara",
+            username: "sokdara",
+            email: "admin@genlink.kh",
+            roleId: "mock-role-super-admin",
+            roleCode: "SUPER_ADMIN",
+            roleName: "Super Admin",
+            active: true,
+            totpEnabled: true,
+            totpConfirmed: true,
+            lastLoginAt: "2026-09-24T02:30:00.000Z",
+            createdAt: "2026-01-10T02:30:00.000Z",
+            deletedAt: null,
+          },
+          {
+            adminId: "mock-admin-support",
+            userId: "mock-user-support",
+            fullName: "Malis Chan",
+            username: "malischan",
+            email: "malis@genlink.kh",
+            roleId: "mock-role-support",
+            roleCode: "SUPPORT",
+            roleName: "Support",
+            active: true,
+            totpEnabled: true,
+            totpConfirmed: false,
+            lastLoginAt: null,
+            createdAt: "2026-03-10T02:30:00.000Z",
+            deletedAt: null,
+          },
+          {
+            adminId: "mock-admin-revoked",
+            userId: "mock-user-revoked",
+            fullName: "Vannak Lim",
+            username: "vannaklim",
+            email: "vannak@genlink.kh",
+            roleId: "mock-role-support",
+            roleCode: "SUPPORT",
+            roleName: "Support",
+            active: false,
+            totpEnabled: false,
+            totpConfirmed: false,
+            lastLoginAt: "2026-04-10T02:30:00.000Z",
+            createdAt: "2026-02-10T02:30:00.000Z",
+            deletedAt: "2026-08-10T02:30:00.000Z",
+          },
+        ],
+        { totalElements: 3 },
+      ),
+    ),
+  ),
+  ),
+
+  http.put(apiPattern("/admin/admins/:adminId/role"), async ({ params, request }) => {
+    const body = (await request.json()) as { roleId?: string };
+    return HttpResponse.json(
+      apiResponse({
+        adminId: String(params.adminId),
+        userId: "mock-user-support",
+        fullName: "Malis Chan",
+        username: "malischan",
+        email: "malis@genlink.kh",
+        roleId: body.roleId ?? "mock-role-support",
+        roleCode: "ADMIN",
+        roleName: "Admin",
+        active: true,
+        totpEnabled: true,
+        totpConfirmed: true,
+        lastLoginAt: "2026-09-24T02:30:00.000Z",
+        createdAt: "2026-03-10T02:30:00.000Z",
+        deletedAt: null,
+      }),
+    );
+  }),
+
+  http.post(apiPattern("/admin/admins/:adminId/deactivate"), ({ params }) =>
+    HttpResponse.json(
+      apiResponse({
+        adminId: String(params.adminId),
+        userId: "mock-user-support",
+        fullName: "Malis Chan",
+        username: "malischan",
+        email: "malis@genlink.kh",
+        roleId: "mock-role-support",
+        roleCode: "SUPPORT",
+        roleName: "Support",
+        active: false,
+        totpEnabled: true,
+        totpConfirmed: true,
+        lastLoginAt: "2026-09-24T02:30:00.000Z",
+        createdAt: "2026-03-10T02:30:00.000Z",
+        deletedAt: "2026-09-25T02:30:00.000Z",
+      }),
+    ),
+  ),
+
+  http.post(apiPattern("/admin/admins/:adminId/reset-mfa"), ({ params }) =>
+    HttpResponse.json(
+      apiResponse({
+        adminId: String(params.adminId),
+        userId: "mock-user-support",
+        fullName: "Malis Chan",
+        username: "malischan",
+        email: "malis@genlink.kh",
+        roleId: "mock-role-support",
+        roleCode: "SUPPORT",
+        roleName: "Support",
+        active: true,
+        totpEnabled: false,
+        totpConfirmed: false,
+        lastLoginAt: "2026-09-24T02:30:00.000Z",
+        createdAt: "2026-03-10T02:30:00.000Z",
+        deletedAt: null,
+      }),
+    ),
+  ),
 
   http.get(apiPattern(endpoints.dashboard.summary), () =>
     HttpResponse.json(

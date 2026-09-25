@@ -15,6 +15,7 @@ import {
   Sparkles,
   Trophy,
   Users,
+  UserCog,
   type LucideIcon,
 } from "lucide-react";
 
@@ -72,6 +73,7 @@ export const NAVIGATION: readonly NavGroup[] = [
       // merged user_sanctions model (SSOT §9.2, §14 review).
       { label: "Enforcement", href: "/enforcement", icon: ShieldAlert, permission: "user:warn", phase: "mvp" },
       { label: "Roles & Permissions", href: "/roles", icon: KeyRound, permission: "rbac:read", phase: "mvp" },
+      { label: "Admin Users", href: "/admins", icon: UserCog, permission: "rbac:read", phase: "mvp" },
     ],
   },
   {
