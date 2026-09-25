@@ -31,6 +31,12 @@
  * call site.
  */
 
+import {
+  analyticsQueryKey,
+  type AnalyticsDashboardId,
+  type AnalyticsQuery,
+} from "@/features/analytics/analytics-state";
+
 export const queryKeys = {
   auth: {
     all: () => ["auth"] as const,
@@ -41,6 +47,14 @@ export const queryKeys = {
     all: () => ["dashboard"] as const,
     /** Aggregate BFF-lite summary endpoint (ADM-045, ADM-051, ADM-052). */
     summary: () => ["dashboard", "summary"] as const,
+  },
+  analytics: {
+    all: () => ["admin", "analytics"] as const,
+    /** One URL-scoped analytics series (ADM-117/118). */
+    series: (dashboard: AnalyticsDashboardId, query: AnalyticsQuery | null) =>
+      query
+        ? analyticsQueryKey(dashboard, query)
+        : (["admin", "analytics", dashboard, "disabled"] as const),
   },
   roles: {
     all: () => ["roles"] as const,

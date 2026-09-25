@@ -8,6 +8,7 @@ import {
   CHART_PALETTE,
   ChartCard,
   DonutChart,
+  HorizontalBarChart,
   LineChart,
   getChartColor,
 } from "./index";
@@ -117,6 +118,13 @@ describe("Chart Wrappers — Empty Data Safety", () => {
     const { container } = render(<DonutChart data={[]} />);
     expect(container.firstChild).toBeNull();
   });
+
+  it("HorizontalBarChart returns null on empty data", () => {
+    const { container } = render(
+      <HorizontalBarChart data={emptyData} index="name" categories={["count"]} />,
+    );
+    expect(container.firstChild).toBeNull();
+  });
 });
 
 describe("Chart Wrappers — Rendering with Sample Data", () => {
@@ -151,5 +159,16 @@ describe("Chart Wrappers — Rendering with Sample Data", () => {
     expect(screen.getByTestId("responsive-container")).toBeDefined();
     expect(screen.getByText("Total Users")).toBeDefined();
     expect(screen.getByText("440")).toBeDefined();
+  });
+
+  it("renders HorizontalBarChart with data", () => {
+    render(
+      <HorizontalBarChart
+        data={[{ name: "University", count: 12 }]}
+        index="name"
+        categories={["count"]}
+      />,
+    );
+    expect(screen.getByTestId("responsive-container")).toBeDefined();
   });
 });

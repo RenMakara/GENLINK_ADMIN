@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState, type ChangeEvent, type KeyboardEvent } from "react";
-import { BarChart3, CalendarRange, Info } from "lucide-react";
+import { CalendarRange, Info } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { PageHeader } from "@/components/common";
@@ -16,7 +16,6 @@ import {
   ANALYTICS_RANGE_PRESETS,
   ANALYTICS_TABS,
   analyticsQuery,
-  analyticsQueryKey,
   dashboardsForTab,
   parseAnalyticsState,
   presetAnalyticsRange,
@@ -26,6 +25,7 @@ import {
   type AnalyticsState,
   type AnalyticsTab,
 } from "./analytics-state";
+import { AnalyticsDashboard } from "./analytics-dashboards";
 
 const RANGE_LABELS: Record<AnalyticsRangePreset, string> = {
   "7d": "Last 7 days",
@@ -47,38 +47,6 @@ function selectClassName() {
 
 function tabLabel(tab: AnalyticsTab): string {
   return ANALYTICS_TABS.find((candidate) => candidate.value === tab)?.label ?? "Overview";
-}
-
-function AnalyticsDashboardSlot({
-  dashboard,
-  query,
-}: {
-  dashboard: ReturnType<typeof dashboardsForTab>[number];
-  query: ReturnType<typeof analyticsQuery>;
-}) {
-  const refreshKey = query
-    ? analyticsQueryKey(dashboard.id, query).join(":")
-    : `${dashboard.id}:invalid-range`;
-
-  return (
-    <div
-      key={refreshKey}
-      className="flex min-h-28 flex-col justify-between gap-3 rounded-xl border border-dashed border-border bg-muted/20 p-4"
-      data-analytics-dashboard={dashboard.id}
-      data-analytics-query-key={refreshKey}
-    >
-      <div className="flex items-start gap-3">
-        <BarChart3 className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-        <div className="min-w-0">
-          <h3 className="font-medium">{dashboard.label}</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Visualization will use the selected Phnom Penh date range and granularity.
-          </p>
-        </div>
-      </div>
-      <p className="text-xs text-muted-foreground">Dashboard visualization scheduled for ADM-118.</p>
-    </div>
-  );
 }
 
 export function AnalyticsPage() {
@@ -342,7 +310,7 @@ export function AnalyticsPage() {
             </CardHeader>
             <CardContent className="grid gap-4 pt-4 md:grid-cols-2">
               {dashboards.map((dashboard) => (
-                <AnalyticsDashboardSlot key={dashboard.id} dashboard={dashboard} query={query} />
+                <AnalyticsDashboard key={dashboard.id} dashboard={dashboard} query={query} />
               ))}
             </CardContent>
           </Card>
@@ -351,7 +319,7 @@ export function AnalyticsPage() {
 
       <p className="text-xs text-muted-foreground">
         Analytics values are scoped to the permissions of your current admin session. Active-user
-        metrics will be labelled as estimates when the visualisations are added.
+        metrics are labelled as estimates because they use login and refresh activity as a proxy.
       </p>
     </div>
   );

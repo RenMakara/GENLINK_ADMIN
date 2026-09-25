@@ -36,6 +36,18 @@ export const endpoints = {
     /** ADM-045: aggregate BFF-lite dashboard summary endpoint. */
     summary: `${ADMIN}/dashboard/summary`,
   },
+  analytics: {
+    /** ADM-113/118: fixed, permission-gated analytics series. */
+    userGrowth: `${ADMIN}/analytics/user-growth`,
+    activeUsers: `${ADMIN}/analytics/active-users`,
+    registrations: `${ADMIN}/analytics/registrations`,
+    userStatus: `${ADMIN}/analytics/user-status`,
+    universities: `${ADMIN}/analytics/universities`,
+    workStatus: `${ADMIN}/analytics/work-status`,
+    xpDistribution: `${ADMIN}/analytics/xp-distribution`,
+    languages: `${ADMIN}/analytics/languages`,
+    platforms: `${ADMIN}/analytics/platforms`,
+  },
   roles: {
     /** ADM-101/107: role metadata and active admin counts for the roles list. */
     list: `${ADMIN}/roles`,

@@ -15,6 +15,14 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(navigation.search),
 }));
 
+vi.mock("@/services/analytics", () => ({
+  useAnalyticsDashboard: () => ({
+    data: undefined,
+    error: null,
+    isLoading: false,
+  }),
+}));
+
 afterEach(() => {
   cleanup();
   navigation.search = "";
@@ -77,4 +85,3 @@ describe("AnalyticsPage (ADM-117)", () => {
     expect(screen.getByRole("tabpanel").getAttribute("tabindex")).toBe("0");
   });
 });
-
