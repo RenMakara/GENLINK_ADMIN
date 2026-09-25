@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 
 import { env } from "@/lib/config/env";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const NAV_ITEMS = [
   { label: "Home", href: "#home" },
@@ -149,8 +150,8 @@ function Brand() {
         priority
       />
       <span className="leading-none">
-        <span className="block text-[1.05rem] font-semibold tracking-[-0.04em] text-white">GenLink</span>
-        <span className="mt-1 block text-[0.58rem] font-semibold uppercase tracking-[0.28em] text-emerald-200/70">
+        <span className="block text-[1.05rem] font-semibold tracking-[-0.04em] text-foreground dark:text-white">GenLink</span>
+        <span className="mt-1 block text-[0.58rem] font-semibold uppercase tracking-[0.28em] text-primary/80 dark:text-emerald-200/70">
           Cambodia
         </span>
       </span>
@@ -250,43 +251,43 @@ function AppPreview() {
 function FeatureCard({ feature }: { feature: Feature }) {
   const Icon = feature.icon;
   return (
-    <article className="group relative overflow-hidden rounded-[1.8rem] border border-white/10 bg-white/[0.045] p-6 transition duration-500 hover:-translate-y-2 hover:border-white/20 hover:bg-white/[0.08]">
+    <article className="group relative overflow-hidden rounded-[1.8rem] border border-border bg-card/70 p-6 transition duration-500 hover:-translate-y-2 hover:border-primary/30 hover:bg-card dark:border-white/10 dark:bg-white/[0.045] dark:hover:border-white/20 dark:hover:bg-white/[0.08]">
       <div className={`absolute inset-x-0 top-0 h-32 bg-gradient-to-br ${feature.accent} opacity-70 blur-2xl transition duration-500 group-hover:opacity-100`} aria-hidden />
       <div className="relative flex items-start justify-between">
-        <span className="grid size-12 place-items-center rounded-2xl border border-white/10 bg-white/10 text-emerald-100 shadow-inner"><Icon className="size-5" aria-hidden /></span>
-        <span className="text-xs font-semibold tracking-[0.16em] text-white/25">{feature.number}</span>
+        <span className="grid size-12 place-items-center rounded-2xl border border-border bg-primary/10 text-primary shadow-inner dark:border-white/10 dark:bg-white/10 dark:text-emerald-100"><Icon className="size-5" aria-hidden /></span>
+        <span className="text-xs font-semibold tracking-[0.16em] text-muted-foreground/60 dark:text-white/25">{feature.number}</span>
       </div>
-      <p className="relative mt-8 text-[0.66rem] font-semibold uppercase tracking-[0.2em] text-emerald-200/65">{feature.eyebrow}</p>
-      <h3 className="relative mt-2 text-2xl font-semibold tracking-[-0.06em] text-white">{feature.title}</h3>
-      <p className="relative mt-3 text-sm leading-6 text-white/50">{feature.description}</p>
-      <span className="relative mt-6 inline-flex items-center gap-1 text-xs font-semibold text-white/70 transition group-hover:text-emerald-200">Explore <ArrowUpRight className="size-3.5" aria-hidden /></span>
+      <p className="relative mt-8 text-[0.66rem] font-semibold uppercase tracking-[0.2em] text-primary/80 dark:text-emerald-200/65">{feature.eyebrow}</p>
+      <h3 className="relative mt-2 text-2xl font-semibold tracking-[-0.06em] text-foreground dark:text-white">{feature.title}</h3>
+      <p className="relative mt-3 text-sm leading-6 text-muted-foreground dark:text-white/50">{feature.description}</p>
+      <span className="relative mt-6 inline-flex items-center gap-1 text-xs font-semibold text-foreground/70 transition group-hover:text-primary dark:text-white/70 dark:group-hover:text-emerald-200">Explore <ArrowUpRight className="size-3.5" aria-hidden /></span>
     </article>
   );
 }
 
 function TeamMemberCard({ member }: { member: TeamMember }) {
   return (
-    <article className="group overflow-hidden rounded-[1.8rem] border border-white/10 bg-white/[0.045] transition duration-500 hover:-translate-y-2 hover:border-white/20 hover:bg-white/[0.08]">
+    <article className="group overflow-hidden rounded-[1.8rem] border border-border bg-card/70 transition duration-500 hover:-translate-y-2 hover:border-primary/30 hover:bg-card dark:border-white/10 dark:bg-white/[0.045] dark:hover:border-white/20 dark:hover:bg-white/[0.08]">
       <div className={`relative flex aspect-[1.12] items-end overflow-hidden bg-gradient-to-br ${member.accent} p-5`}>
         <div className="absolute -right-8 -top-10 size-40 rounded-full border border-white/15 bg-white/10 blur-2xl transition duration-500 group-hover:scale-125" aria-hidden />
         {member.profile ? (
           <Image src={member.profile} alt={`${member.name} profile`} fill sizes="(min-width: 1024px) 240px, 50vw" className="object-cover" />
         ) : (
-          <div className="relative grid size-24 place-items-center rounded-[2rem] border border-white/25 bg-[#0a2420]/60 text-3xl font-semibold tracking-[-0.08em] text-white shadow-[0_20px_45px_rgba(0,0,0,0.2)] backdrop-blur-xl" aria-label={`${member.name} profile placeholder`}>
+          <div className="relative grid size-24 place-items-center rounded-[2rem] border border-primary/25 bg-primary/10 text-3xl font-semibold tracking-[-0.08em] text-foreground shadow-[0_20px_45px_rgba(0,0,0,0.2)] backdrop-blur-xl dark:border-white/25 dark:bg-[#0a2420]/60 dark:text-white" aria-label={`${member.name} profile placeholder`}>
             {member.initials}
           </div>
         )}
-        {!member.profile && <span className="absolute right-5 top-5 rounded-full border border-white/15 bg-[#071a19]/35 px-3 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-white/55 backdrop-blur-xl">Profile coming soon</span>}
+        {!member.profile && <span className="absolute right-5 top-5 rounded-full border border-border bg-background/75 px-3 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground backdrop-blur-xl dark:border-white/15 dark:bg-[#071a19]/35 dark:text-white/55">Profile coming soon</span>}
       </div>
       <div className="p-5">
-        <h4 className="text-lg font-semibold tracking-[-0.04em] text-white">{member.name}</h4>
-        <p className="mt-1 text-xs font-medium uppercase tracking-[0.16em] text-emerald-200/65">{member.role}</p>
-        <blockquote className="mt-5 min-h-12 text-sm leading-6 text-white/55">“{member.quote}”</blockquote>
+        <h4 className="text-lg font-semibold tracking-[-0.04em] text-foreground dark:text-white">{member.name}</h4>
+        <p className="mt-1 text-xs font-medium uppercase tracking-[0.16em] text-primary/80 dark:text-emerald-200/65">{member.role}</p>
+        <blockquote className="mt-5 min-h-12 text-sm leading-6 text-muted-foreground dark:text-white/55">“{member.quote}”</blockquote>
         <a
           href={member.github}
           target="_blank"
           rel="noreferrer"
-          className="mt-5 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] px-3 py-2 text-xs font-semibold text-white/75 transition hover:border-emerald-200/40 hover:bg-emerald-200/10 hover:text-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
+          className="mt-5 inline-flex items-center gap-2 rounded-xl border border-border bg-muted/60 px-3 py-2 text-xs font-semibold text-foreground/75 transition hover:border-primary/40 hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:border-emerald-200/40 dark:hover:bg-emerald-200/10 dark:hover:text-emerald-100 dark:focus-visible:ring-emerald-200"
           aria-label={`Open ${member.name}'s GitHub profile`}
         >
           <span className="text-[0.62rem] font-bold tracking-[-0.08em]" aria-hidden>GH</span>
@@ -302,38 +303,42 @@ export function AdminLandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <main className="landing-page min-h-screen overflow-hidden bg-[#061716] text-white selection:bg-emerald-200 selection:text-[#061716]">
+    <main className="landing-page min-h-screen overflow-hidden bg-background text-foreground selection:bg-emerald-200 selection:text-[#061716]">
       <a href="#home" className="sr-only z-[100] focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:rounded-xl focus:bg-white focus:px-4 focus:py-3 focus:text-sm focus:font-semibold focus:text-[#071a19]">Skip to content</a>
 
       <header className="landing-nav fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-7xl items-center justify-between rounded-[1.35rem] border border-white/15 bg-[#061716]/65 px-4 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.18)] backdrop-blur-2xl sm:px-5">
-          <Link href="/" aria-label="GenLink home" className="rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#061716]"><Brand /></Link>
+        <div className="mx-auto flex max-w-7xl items-center justify-between rounded-[1.35rem] border border-border bg-background/80 px-4 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.12)] backdrop-blur-2xl dark:border-white/15 dark:bg-[#061716]/65 sm:px-5">
+          <Link href="/" aria-label="GenLink home" className="rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:focus-visible:ring-emerald-200 dark:focus-visible:ring-offset-[#061716]"><Brand /></Link>
 
           <nav aria-label="Primary navigation" className="hidden items-center gap-8 md:flex">
             {NAV_ITEMS.map((item, index) => (
-              <a key={item.href} href={item.href} className={`text-sm transition hover:text-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200 ${index === 0 ? "text-white" : "text-white/55"}`}>
+              <a key={item.href} href={item.href} className={`text-sm transition hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:hover:text-emerald-200 dark:focus-visible:ring-emerald-200 ${index === 0 ? "text-foreground dark:text-white" : "text-foreground/60 dark:text-white/55"}`}>
                 {item.label}
               </a>
             ))}
           </nav>
 
           <div className="hidden items-center gap-3 md:flex">
-            <span className="hidden items-center gap-2 text-xs font-medium text-white/40 lg:flex"><span className="size-1.5 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(132,255,190,0.9)]" />For the next generation</span>
-            <Link href="/login" className="group inline-flex items-center gap-2 rounded-xl bg-emerald-300 px-4 py-2.5 text-sm font-semibold text-[#08251f] shadow-[0_10px_24px_rgba(111,239,161,0.18)] transition hover:-translate-y-0.5 hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#061716]">
+            <span className="hidden items-center gap-2 text-xs font-medium text-muted-foreground lg:flex dark:text-white/40"><span className="size-1.5 rounded-full bg-primary shadow-[0_0_12px_rgba(132,255,190,0.9)] dark:bg-emerald-300" />For the next generation</span>
+            <ThemeToggle />
+            <Link href="/login" className="group inline-flex items-center gap-2 rounded-xl bg-emerald-300 px-4 py-2.5 text-sm font-semibold text-[#08251f] shadow-[0_10px_24px_rgba(111,239,161,0.18)] transition hover:-translate-y-0.5 hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200 focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:focus-visible:ring-offset-[#061716]">
               Admin login <ArrowUpRight className="size-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden />
             </Link>
           </div>
 
-          <button type="button" className="grid size-10 place-items-center rounded-xl border border-white/15 bg-white/5 text-white md:hidden" aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={menuOpen} aria-controls="landing-mobile-nav" onClick={() => setMenuOpen((open) => !open)}>
-            {menuOpen ? <X className="size-5" aria-hidden /> : <Menu className="size-5" aria-hidden />}
-          </button>
+          <div className="flex items-center gap-2 md:hidden">
+            <ThemeToggle />
+            <button type="button" className="grid size-10 place-items-center rounded-xl border border-border bg-muted/60 text-foreground dark:border-white/15 dark:bg-white/5 dark:text-white" aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={menuOpen} aria-controls="landing-mobile-nav" onClick={() => setMenuOpen((open) => !open)}>
+              {menuOpen ? <X className="size-5" aria-hidden /> : <Menu className="size-5" aria-hidden />}
+            </button>
+          </div>
         </div>
 
         {menuOpen && (
-          <div id="landing-mobile-nav" className="mx-auto mt-2 max-w-7xl rounded-[1.35rem] border border-white/15 bg-[#061716]/90 p-3 shadow-2xl backdrop-blur-2xl md:hidden">
+          <div id="landing-mobile-nav" className="mx-auto mt-2 max-w-7xl rounded-[1.35rem] border border-border bg-background/95 p-3 shadow-2xl backdrop-blur-2xl dark:border-white/15 dark:bg-[#061716]/90 md:hidden">
             <nav aria-label="Mobile navigation" className="grid gap-1">
               {NAV_ITEMS.map((item) => (
-                <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-medium text-white/75 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200">{item.label}</a>
+                <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-medium text-foreground/75 transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:text-white/75 dark:hover:bg-white/10 dark:hover:text-white dark:focus-visible:ring-emerald-200">{item.label}</a>
               ))}
               <Link href="/login" onClick={() => setMenuOpen(false)} className="mt-1 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-300 px-4 py-3 text-sm font-semibold text-[#08251f]">Admin login <ArrowUpRight className="size-4" aria-hidden /></Link>
             </nav>
@@ -369,28 +374,28 @@ export function AdminLandingPage() {
         <div className="absolute bottom-7 left-1/2 hidden -translate-x-1/2 items-center gap-2 text-[0.62rem] font-semibold uppercase tracking-[0.25em] text-white/40 sm:flex"><span className="h-px w-10 bg-white/25" /> Scroll to explore <ChevronDown className="size-3.5 animate-bounce" aria-hidden /></div>
       </section>
 
-      <section id="features" className="relative scroll-mt-20 bg-[#061716] px-6 py-24 sm:py-32 lg:px-8">
+      <section id="features" className="relative scroll-mt-20 bg-background px-6 py-24 sm:py-32 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
-            <div className="max-w-2xl"><p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-200/70">A little more, every day</p><h2 className="mt-4 text-4xl font-semibold tracking-[-0.07em] text-white sm:text-6xl">Built around the things <span className="text-white/40">that matter.</span></h2></div>
-            <p className="max-w-sm text-sm leading-6 text-white/45">Not another app asking for more of your attention. A gentle toolkit for turning intention into a life that feels more like yours.</p>
+            <div className="max-w-2xl"><p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary/80 dark:text-emerald-200/70">A little more, every day</p><h2 className="mt-4 text-4xl font-semibold tracking-[-0.07em] text-foreground sm:text-6xl dark:text-white">Built around the things <span className="text-muted-foreground/60 dark:text-white/40">that matter.</span></h2></div>
+            <p className="max-w-sm text-sm leading-6 text-muted-foreground dark:text-white/45">Not another app asking for more of your attention. A gentle toolkit for turning intention into a life that feels more like yours.</p>
           </div>
           <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">{FEATURES.map((feature) => <FeatureCard key={feature.title} feature={feature} />)}</div>
         </div>
       </section>
 
-      <section id="about" className="relative scroll-mt-20 overflow-hidden bg-[#0a201d] px-6 py-24 sm:py-32 lg:px-8">
+      <section id="about" className="relative scroll-mt-20 overflow-hidden bg-muted px-6 py-24 sm:py-32 lg:px-8 dark:bg-[#0a201d]">
         <div className="absolute -right-40 top-0 size-[28rem] rounded-full bg-emerald-300/10 blur-3xl" aria-hidden />
         <div className="mx-auto grid max-w-7xl gap-16 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div><p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-200/70">About GenLink</p><h2 className="mt-4 text-4xl font-semibold tracking-[-0.07em] text-white sm:text-6xl">Technology with a <span className="text-emerald-200">human pulse.</span></h2><p className="mt-6 max-w-lg text-base leading-8 text-white/55">GenLink is a place to make progress feel personal. We are designing for ambitious people in Cambodia and beyond — people who want useful tools, warmer communities, and more confidence in the road ahead.</p><a href="#download" className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-emerald-200 transition hover:text-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200">Meet the GenLink idea <ArrowRight className="size-4" aria-hidden /></a></div>
+          <div><p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary/80 dark:text-emerald-200/70">About GenLink</p><h2 className="mt-4 text-4xl font-semibold tracking-[-0.07em] text-foreground sm:text-6xl dark:text-white">Technology with a <span className="text-primary dark:text-emerald-200">human pulse.</span></h2><p className="mt-6 max-w-lg text-base leading-8 text-muted-foreground dark:text-white/55">GenLink is a place to make progress feel personal. We are designing for ambitious people in Cambodia and beyond — people who want useful tools, warmer communities, and more confidence in the road ahead.</p><a href="#download" className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-primary transition hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:text-emerald-200 dark:hover:text-emerald-100 dark:focus-visible:ring-emerald-200">Meet the GenLink idea <ArrowRight className="size-4" aria-hidden /></a></div>
           <div className="grid gap-4 sm:grid-cols-2">
-            {[{ title: "Human first", body: "Useful beats noisy. Every detail should help you make a better next move.", icon: HeartHandshake }, { title: "Progress over perfection", body: "We celebrate consistency, curiosity, and the small wins that compound.", icon: TrendingUp }, { title: "Local context", body: "Built with Cambodia's pace, ambitions, and communities in mind.", icon: Landmark }, { title: "Open possibility", body: "Learning, opportunity, and connection should feel closer to everyone.", icon: Compass }].map(({ title, body, icon: Icon }) => <div key={title} className="rounded-[1.6rem] border border-white/10 bg-white/[0.045] p-6 backdrop-blur-xl"><span className="grid size-11 place-items-center rounded-2xl bg-white/10 text-emerald-200"><Icon className="size-5" aria-hidden /></span><h3 className="mt-7 text-lg font-semibold tracking-[-0.04em] text-white">{title}</h3><p className="mt-2 text-sm leading-6 text-white/45">{body}</p></div>)}
+            {[{ title: "Human first", body: "Useful beats noisy. Every detail should help you make a better next move.", icon: HeartHandshake }, { title: "Progress over perfection", body: "We celebrate consistency, curiosity, and the small wins that compound.", icon: TrendingUp }, { title: "Local context", body: "Built with Cambodia's pace, ambitions, and communities in mind.", icon: Landmark }, { title: "Open possibility", body: "Learning, opportunity, and connection should feel closer to everyone.", icon: Compass }].map(({ title, body, icon: Icon }) => <div key={title} className="rounded-[1.6rem] border border-border bg-card/70 p-6 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.045]"><span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary dark:bg-white/10 dark:text-emerald-200"><Icon className="size-5" aria-hidden /></span><h3 className="mt-7 text-lg font-semibold tracking-[-0.04em] text-foreground dark:text-white">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground dark:text-white/45">{body}</p></div>)}
           </div>
         </div>
         <div className="relative mx-auto mt-24 max-w-7xl sm:mt-32">
           <div className="flex flex-col justify-between gap-7 sm:flex-row sm:items-end">
-            <div><p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-200/70">The people behind the progress</p><h3 className="mt-4 text-3xl font-semibold tracking-[-0.07em] text-white sm:text-5xl">Meet the <span className="text-white/40">GenLink team.</span></h3></div>
-            <p className="max-w-sm text-sm leading-6 text-white/45">A small team building a more connected way to grow, learn, and find what comes next.</p>
+            <div><p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary/80 dark:text-emerald-200/70">The people behind the progress</p><h3 className="mt-4 text-3xl font-semibold tracking-[-0.07em] text-foreground sm:text-5xl dark:text-white">Meet the <span className="text-muted-foreground/60 dark:text-white/40">GenLink team.</span></h3></div>
+            <p className="max-w-sm text-sm leading-6 text-muted-foreground dark:text-white/45">A small team building a more connected way to grow, learn, and find what comes next.</p>
           </div>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{TEAM_MEMBERS.map((member) => <TeamMemberCard key={member.name} member={member} />)}</div>
         </div>
@@ -403,10 +408,10 @@ export function AdminLandingPage() {
         </div>
       </section>
 
-      <footer className="border-t border-white/10 bg-[#061716] px-6 py-10 lg:px-8">
+      <footer className="border-t border-border bg-background px-6 py-10 lg:px-8 dark:border-white/10 dark:bg-[#061716]">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
-          <div><Link href="/" aria-label="GenLink home" className="inline-flex rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"><Brand /></Link><p className="mt-4 max-w-xs text-sm leading-6 text-white/35">Grow with intention. Learn in public. Find your people. Build what is next.</p></div>
-          <div className="flex flex-col gap-4 sm:items-end"><nav aria-label="Footer navigation" className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/45"><a href="#home" className="transition hover:text-emerald-200">Home</a><a href="#features" className="transition hover:text-emerald-200">Features</a><a href="#about" className="transition hover:text-emerald-200">About</a><Link href="/login" className="transition hover:text-emerald-200">Admin login</Link></nav><p className="text-xs text-white/25">© 2026 GenLink KH · Built for Cambodia, open to the world.</p></div>
+          <div><Link href="/" aria-label="GenLink home" className="inline-flex rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:focus-visible:ring-emerald-200"><Brand /></Link><p className="mt-4 max-w-xs text-sm leading-6 text-muted-foreground dark:text-white/35">Grow with intention. Learn in public. Find your people. Build what is next.</p></div>
+          <div className="flex flex-col gap-4 sm:items-end"><nav aria-label="Footer navigation" className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground"><a href="#home" className="transition hover:text-primary dark:hover:text-emerald-200">Home</a><a href="#features" className="transition hover:text-primary dark:hover:text-emerald-200">Features</a><a href="#about" className="transition hover:text-primary dark:hover:text-emerald-200">About</a><Link href="/login" className="transition hover:text-primary dark:hover:text-emerald-200">Admin login</Link></nav><p className="text-xs text-muted-foreground/70 dark:text-white/25">© 2026 GenLink KH · Built for Cambodia, open to the world.</p></div>
         </div>
       </footer>
     </main>
