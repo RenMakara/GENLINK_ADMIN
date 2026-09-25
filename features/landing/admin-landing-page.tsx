@@ -84,6 +84,55 @@ const FEATURES: Feature[] = [
   },
 ];
 
+type TeamMember = {
+  name: string;
+  role: string;
+  quote: string;
+  github: string;
+  initials: string;
+  profile: string | null;
+  accent: string;
+};
+
+const TEAM_MEMBERS: TeamMember[] = [
+  {
+    name: "Ren Makara",
+    role: "Full Stack Developer",
+    quote: "Build with curiosity, ship with purpose.",
+    github: "https://github.com/RenMakara",
+    initials: "RM",
+    profile: null,
+    accent: "from-emerald-200/30 via-emerald-400/10 to-cyan-300/10",
+  },
+  {
+    name: "Heng Chansela",
+    role: "Full Stack Developer",
+    quote: "Every challenge is a chance to make something better.",
+    github: "https://github.com/TommmyBoizzz",
+    initials: "HC",
+    profile: null,
+    accent: "from-violet-200/30 via-violet-400/10 to-cyan-300/10",
+  },
+  {
+    name: "Sokny Enat",
+    role: "Full Stack Developer",
+    quote: "Good technology should feel useful, human, and shared.",
+    github: "https://github.com/E-Nat",
+    initials: "SE",
+    profile: null,
+    accent: "from-amber-200/30 via-amber-400/10 to-rose-300/10",
+  },
+  {
+    name: "Chhaeng Sokuntheara",
+    role: "Full Stack Developer",
+    quote: "Keep learning, keep building, keep opening doors.",
+    github: "https://github.com/rabengbek",
+    initials: "CS",
+    profile: null,
+    accent: "from-cyan-200/30 via-cyan-400/10 to-emerald-300/10",
+  },
+];
+
 const BASE_PATH = env.NEXT_PUBLIC_BASE_PATH || "";
 const LOGO_SRC = `${BASE_PATH}/genlink_logo.png`;
 const HERO_SRC = `${BASE_PATH}/angkor-wat-hero.png`;
@@ -215,6 +264,40 @@ function FeatureCard({ feature }: { feature: Feature }) {
   );
 }
 
+function TeamMemberCard({ member }: { member: TeamMember }) {
+  return (
+    <article className="group overflow-hidden rounded-[1.8rem] border border-white/10 bg-white/[0.045] transition duration-500 hover:-translate-y-2 hover:border-white/20 hover:bg-white/[0.08]">
+      <div className={`relative flex aspect-[1.12] items-end overflow-hidden bg-gradient-to-br ${member.accent} p-5`}>
+        <div className="absolute -right-8 -top-10 size-40 rounded-full border border-white/15 bg-white/10 blur-2xl transition duration-500 group-hover:scale-125" aria-hidden />
+        {member.profile ? (
+          <Image src={member.profile} alt={`${member.name} profile`} fill sizes="(min-width: 1024px) 240px, 50vw" className="object-cover" />
+        ) : (
+          <div className="relative grid size-24 place-items-center rounded-[2rem] border border-white/25 bg-[#0a2420]/60 text-3xl font-semibold tracking-[-0.08em] text-white shadow-[0_20px_45px_rgba(0,0,0,0.2)] backdrop-blur-xl" aria-label={`${member.name} profile placeholder`}>
+            {member.initials}
+          </div>
+        )}
+        {!member.profile && <span className="absolute right-5 top-5 rounded-full border border-white/15 bg-[#071a19]/35 px-3 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-white/55 backdrop-blur-xl">Profile coming soon</span>}
+      </div>
+      <div className="p-5">
+        <h4 className="text-lg font-semibold tracking-[-0.04em] text-white">{member.name}</h4>
+        <p className="mt-1 text-xs font-medium uppercase tracking-[0.16em] text-emerald-200/65">{member.role}</p>
+        <blockquote className="mt-5 min-h-12 text-sm leading-6 text-white/55">“{member.quote}”</blockquote>
+        <a
+          href={member.github}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-5 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] px-3 py-2 text-xs font-semibold text-white/75 transition hover:border-emerald-200/40 hover:bg-emerald-200/10 hover:text-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
+          aria-label={`Open ${member.name}'s GitHub profile`}
+        >
+          <span className="text-[0.62rem] font-bold tracking-[-0.08em]" aria-hidden>GH</span>
+          GitHub
+          <ArrowUpRight className="size-3.5" aria-hidden />
+        </a>
+      </div>
+    </article>
+  );
+}
+
 export function AdminLandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -299,10 +382,17 @@ export function AdminLandingPage() {
       <section id="about" className="relative scroll-mt-20 overflow-hidden bg-[#0a201d] px-6 py-24 sm:py-32 lg:px-8">
         <div className="absolute -right-40 top-0 size-[28rem] rounded-full bg-emerald-300/10 blur-3xl" aria-hidden />
         <div className="mx-auto grid max-w-7xl gap-16 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div><p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-200/70">Rooted here. Ready anywhere.</p><h2 className="mt-4 text-4xl font-semibold tracking-[-0.07em] text-white sm:text-6xl">Technology with a <span className="text-emerald-200">human pulse.</span></h2><p className="mt-6 max-w-lg text-base leading-8 text-white/55">GenLink is a place to make progress feel personal. We are designing for ambitious people in Cambodia and beyond — people who want useful tools, warmer communities, and more confidence in the road ahead.</p><a href="#download" className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-emerald-200 transition hover:text-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200">Meet the GenLink idea <ArrowRight className="size-4" aria-hidden /></a></div>
+          <div><p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-200/70">About GenLink</p><h2 className="mt-4 text-4xl font-semibold tracking-[-0.07em] text-white sm:text-6xl">Technology with a <span className="text-emerald-200">human pulse.</span></h2><p className="mt-6 max-w-lg text-base leading-8 text-white/55">GenLink is a place to make progress feel personal. We are designing for ambitious people in Cambodia and beyond — people who want useful tools, warmer communities, and more confidence in the road ahead.</p><a href="#download" className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-emerald-200 transition hover:text-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200">Meet the GenLink idea <ArrowRight className="size-4" aria-hidden /></a></div>
           <div className="grid gap-4 sm:grid-cols-2">
             {[{ title: "Human first", body: "Useful beats noisy. Every detail should help you make a better next move.", icon: HeartHandshake }, { title: "Progress over perfection", body: "We celebrate consistency, curiosity, and the small wins that compound.", icon: TrendingUp }, { title: "Local context", body: "Built with Cambodia's pace, ambitions, and communities in mind.", icon: Landmark }, { title: "Open possibility", body: "Learning, opportunity, and connection should feel closer to everyone.", icon: Compass }].map(({ title, body, icon: Icon }) => <div key={title} className="rounded-[1.6rem] border border-white/10 bg-white/[0.045] p-6 backdrop-blur-xl"><span className="grid size-11 place-items-center rounded-2xl bg-white/10 text-emerald-200"><Icon className="size-5" aria-hidden /></span><h3 className="mt-7 text-lg font-semibold tracking-[-0.04em] text-white">{title}</h3><p className="mt-2 text-sm leading-6 text-white/45">{body}</p></div>)}
           </div>
+        </div>
+        <div className="relative mx-auto mt-24 max-w-7xl sm:mt-32">
+          <div className="flex flex-col justify-between gap-7 sm:flex-row sm:items-end">
+            <div><p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-200/70">The people behind the progress</p><h3 className="mt-4 text-3xl font-semibold tracking-[-0.07em] text-white sm:text-5xl">Meet the <span className="text-white/40">GenLink team.</span></h3></div>
+            <p className="max-w-sm text-sm leading-6 text-white/45">A small team building a more connected way to grow, learn, and find what comes next.</p>
+          </div>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{TEAM_MEMBERS.map((member) => <TeamMemberCard key={member.name} member={member} />)}</div>
         </div>
       </section>
 
