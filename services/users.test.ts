@@ -58,12 +58,12 @@ describe("buildUserListQuery (ADM-072)", () => {
   });
 });
 
-describe("buildUserSearchQuery (ADM-076)", () => {
-  it("uses the fixed five-result page required by the command palette", () => {
+describe("buildUserSearchQuery (ADM-076/110)", () => {
+  it("uses the backend's supported minimum page size", () => {
     expect(buildUserSearchQuery("  dara@example.com  ")).toEqual({
       q: "dara@example.com",
       page: 0,
-      size: 5,
+      size: 25,
     });
   });
 });

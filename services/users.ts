@@ -75,9 +75,9 @@ export function exportUsersCsv(query: UserListQuery, reason: string) {
   });
 }
 
-/** ADM-076's fixed five-result query for the permission-gated command palette. */
+/** ADM-076/110's bounded user search query using the backend's supported minimum page size. */
 export function buildUserSearchQuery(search: string): UserListQuery {
-  return { q: search.trim(), page: 0, size: 5 };
+  return { q: search.trim(), page: 0, size: 25 };
 }
 
 /** Fetches the read-only Users list described by ADM-059 and consumed by ADM-072. */
