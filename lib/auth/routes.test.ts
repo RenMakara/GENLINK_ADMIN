@@ -22,12 +22,12 @@ import {
  */
 
 describe("classification", () => {
-  it.each(["/login", "/mfa", "/enrol"])("%s is public", (path) => {
+  it.each(["/", "/login", "/mfa", "/enrol"])("%s is public", (path) => {
     expect(isPublicRoute(path)).toBe(true);
     expect(isProtectedRoute(path)).toBe(false);
   });
 
-  it.each(["/dashboard", "/users", "/users/123", "/audit-logs", "/roles", "/"])(
+  it.each(["/dashboard", "/users", "/users/123", "/audit-logs", "/roles"])(
     "%s is protected",
     (path) => {
       expect(isProtectedRoute(path)).toBe(true);

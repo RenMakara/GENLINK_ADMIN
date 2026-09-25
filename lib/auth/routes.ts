@@ -28,7 +28,7 @@ export const RETURN_TO_PARAM = "next";
  * protected the moment it exists, and the mistake in the other direction (a public page
  * accidentally guarded) is loud and immediate.
  */
-const PUBLIC_ROUTES = ["/login", "/mfa", "/enrol"] as const;
+const PUBLIC_ROUTES = ["/", "/login", "/mfa", "/enrol"] as const;
 
 export function isPublicRoute(pathname: string): boolean {
   return PUBLIC_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));

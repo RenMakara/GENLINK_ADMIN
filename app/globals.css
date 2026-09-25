@@ -217,3 +217,89 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Public GenLink landing page ------------------------------------------------ */
+.landing-page {
+  --landing-green: #a7f3c5;
+  --landing-ink: #061716;
+}
+
+.landing-nav {
+  animation: landing-nav-in 700ms ease both;
+}
+
+.landing-phone {
+  animation: landing-phone-float 8s ease-in-out infinite;
+  transform-origin: center center;
+}
+
+.landing-preview-orbit {
+  animation: landing-orbit 10s linear infinite;
+}
+
+.landing-preview-orbit--delayed {
+  animation-delay: -4s;
+  animation-duration: 13s;
+}
+
+.landing-hero-glow {
+  animation: landing-glow 8s ease-in-out infinite alternate;
+}
+
+.landing-download-panel {
+  position: relative;
+}
+
+.landing-download-panel::before,
+.landing-download-panel::after {
+  position: absolute;
+  content: "";
+  pointer-events: none;
+  border-radius: 9999px;
+  filter: blur(1px);
+}
+
+.landing-download-panel::before {
+  right: -8rem;
+  top: -10rem;
+  width: 24rem;
+  height: 24rem;
+  background: radial-gradient(circle, rgb(167 243 197 / 0.18), transparent 68%);
+}
+
+.landing-download-panel::after {
+  bottom: -12rem;
+  left: 35%;
+  width: 30rem;
+  height: 20rem;
+  background: radial-gradient(circle, rgb(79 209 197 / 0.12), transparent 68%);
+}
+
+@keyframes landing-nav-in {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes landing-phone-float {
+  0%, 100% { transform: translateY(0) rotate(3deg); }
+  50% { transform: translateY(-14px) rotate(1deg); }
+}
+
+@keyframes landing-orbit {
+  from { transform: rotate(0deg) translateX(8px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(8px) rotate(-360deg); }
+}
+
+@keyframes landing-glow {
+  from { opacity: 0.45; transform: scale(0.94); }
+  to { opacity: 0.9; transform: scale(1.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-nav,
+  .landing-phone,
+  .landing-preview-orbit,
+  .landing-hero-glow {
+    animation: none;
+  }
+}

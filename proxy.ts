@@ -88,9 +88,13 @@ export const config = {
    * Everything except Next's own assets and the auth route handlers.
    *
    * <p>`api` has to be excluded or the refresh call itself would be redirected — it runs before
-   * a cookie exists, which is the entire point of it. `_next/static` and `_next/image` are
-   * excluded because without a matcher the proxy runs on every request including CSS and
-   * JavaScript, and redirecting those to `/login` breaks the sign-in page it redirects to.
+   * a cookie exists, which is the entire point of it. `_next/static`, `_next/image`, and public
+   * static assets are excluded because without a matcher the proxy runs on every request
+   * including CSS, JavaScript, images, and fonts, and redirecting those to `/login` breaks the
+   * sign-in page it redirects to. Public assets are intentionally non-sensitive; application
+   * data remains protected by the API.
    */
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|mockServiceWorker.js).*)"],
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|mockServiceWorker.js|.*\\.(?:png|jpg|jpeg|gif|svg|webp|avif|ico|woff2?|ttf|eot)$).*)",
+  ],
 };

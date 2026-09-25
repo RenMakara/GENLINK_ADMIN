@@ -1,12 +1,17 @@
-import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+
+import { AdminLandingPage } from "@/features/landing/admin-landing-page";
 
 /**
- * The portal has no content of its own at the root.
- *
- * <p>Redirects to the dashboard, which is the first thing in the sidebar and the only sensible
- * landing page for a signed-in admin. Once ADM-035 adds the auth guard, an unauthenticated
- * visitor bounces from there to sign-in rather than needing a second rule here.
+ * Public GenLink introduction page. The staff portal remains protected under `/dashboard`, while
+ * the root is intentionally useful to unauthenticated visitors who discover the Admin host.
  */
+export const metadata: Metadata = {
+  title: "GenLink KH — Grow together",
+  description:
+    "GenLink brings learning, community, finance, and opportunity into one place for Cambodia's next generation.",
+};
+
 export default function RootPage() {
-  redirect("/dashboard");
+  return <AdminLandingPage />;
 }
