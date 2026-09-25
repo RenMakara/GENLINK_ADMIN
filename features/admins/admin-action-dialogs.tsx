@@ -160,11 +160,13 @@ function ResetMfaDialog({
     <ConfirmDialog
       open
       onOpenChange={onOpenChange}
-      tier="medium"
+      tier="high"
       title={`Reset MFA for ${admin.fullName || "this admin"}?`}
       description="Use this only when the administrator cannot complete their current two-factor sign-in."
       consequence="The current authenticator and recovery codes will be cleared, active sessions will be revoked, and the administrator must enrol MFA again at the next sign-in."
       confirmLabel="Reset MFA"
+      confirmTarget={targetFor(admin)}
+      confirmTargetLabel="email"
       pending={pending}
       errorMessageFor={adminActionErrorMessage}
       onConfirm={onConfirm}
@@ -172,7 +174,7 @@ function ResetMfaDialog({
   );
 }
 
-/** The three ADM-109 row-action confirmations share the audited confirmation primitive. */
+/** The three ADM-111 row-action confirmations share the audited confirmation primitive. */
 export function AdminActionDialogs({
   action,
   admin,
