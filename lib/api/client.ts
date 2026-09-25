@@ -141,10 +141,23 @@ export async function download(
   path: string,
   options: Omit<RequestOptions, "method" | "body"> = {},
 ): Promise<DownloadResult> {
+  return downloadResponse(path, { ...options, method: "GET" });
+}
+
+/** Downloads a non-JSON response from a JSON POST endpoint, such as audited CSV exports. */
+export async function downloadPost(
+  path: string,
+  body: unknown,
+  options: Omit<RequestOptions, "method" | "body"> = {},
+): Promise<DownloadResult> {
+  return downloadResponse(path, { ...options, method: "POST", body });
+}
+
+async function downloadResponse(path: string, options: RequestOptions): Promise<DownloadResult> {
   let response: Response;
 
   try {
-    response = await send(path, { ...options, method: "GET" });
+    response = await send(path, options);
   } catch (cause) {
     if (cause instanceof DOMException && cause.name === "AbortError") throw cause;
     throw new ApiError({
@@ -157,7 +170,7 @@ export async function download(
   if (response.status === 401 && !options.skipAuthRetry) {
     const refreshed = await refreshOnce();
     if (refreshed) {
-      response = await send(path, { ...options, method: "GET", skipAuthRetry: true });
+      response = await send(path, { ...options, skipAuthRetry: true });
     } else {
       auth.onSessionExpired?.();
     }
@@ -241,4 +254,9 @@ export const api = {
     request<T>(path, { ...options, method: "DELETE" }),
   download: (path: string, options?: Omit<RequestOptions, "method" | "body">) =>
     download(path, options),
+  downloadPost: (
+    path: string,
+    body: unknown,
+    options?: Omit<RequestOptions, "method" | "body">,
+  ) => downloadPost(path, body, options),
 };

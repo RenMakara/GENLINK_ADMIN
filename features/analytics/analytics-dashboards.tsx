@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import {
   AreaChart,
   BarChart,
@@ -21,6 +20,7 @@ import type {
   AnalyticsDistributionPoint,
   AnalyticsTrendPoint,
 } from "./analytics-types";
+import { AnalyticsExportButton } from "./analytics-export";
 
 interface AnalyticsDashboardProps {
   dashboard: {
@@ -109,6 +109,7 @@ function UserGrowthDashboard({ query }: { query: AnalyticsQuery | null }) {
     <ChartCard
       title="User growth"
       description="Cumulative registered users by Phnom Penh calendar bucket"
+      action={<AnalyticsExportButton series="user-growth" title="User growth" query={query} />}
       loading={result.isLoading}
       error={analyticsError(result.error)}
       empty={!result.isLoading && !result.error && pausedOrEmpty(query, points.length > 0)}
@@ -139,7 +140,14 @@ function ActiveUsersDashboard({ query }: { query: AnalyticsQuery | null }) {
     <ChartCard
       title="Daily and monthly active users"
       description="Distinct users with successful login or refresh activity"
-      action={estimated ? <Badge variant="secondary">Estimated</Badge> : undefined}
+      action={
+        <AnalyticsExportButton
+          series="active-users"
+          title="Daily and monthly active users"
+          query={query}
+          estimated={estimated}
+        />
+      }
       loading={result.isLoading}
       error={analyticsError(result.error)}
       empty={!result.isLoading && !result.error && pausedOrEmpty(query, points.length > 0)}
@@ -176,6 +184,7 @@ function RegistrationsDashboard({ query }: { query: AnalyticsQuery | null }) {
     <ChartCard
       title="Registration trend"
       description="New signups split by authentication provider"
+      action={<AnalyticsExportButton series="registrations" title="Registration trend" query={query} />}
       loading={result.isLoading}
       error={analyticsError(result.error)}
       empty={!result.isLoading && !result.error && pausedOrEmpty(query, points.length > 0)}
@@ -230,6 +239,7 @@ function DistributionDashboard({
     <ChartCard
       title={title}
       description={description}
+      action={<AnalyticsExportButton series={id} title={title} query={query} />}
       loading={result.isLoading}
       error={analyticsError(result.error)}
       empty={!result.isLoading && !result.error && (query === null || empty)}
@@ -285,6 +295,7 @@ function XpDistributionDashboard({ query }: { query: AnalyticsQuery | null }) {
     <ChartCard
       title="XP distribution"
       description="XP buckets with the corresponding level pyramid"
+      action={<AnalyticsExportButton series="xp-distribution" title="XP distribution" query={query} />}
       loading={result.isLoading}
       error={analyticsError(result.error)}
       empty={!result.isLoading && !result.error && (query === null || empty)}

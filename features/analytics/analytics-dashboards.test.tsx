@@ -80,6 +80,10 @@ vi.mock("@/services/analytics", () => ({
   useAnalyticsDashboard: useAnalyticsDashboardMock,
 }));
 
+vi.mock("@/hooks/use-permission", () => ({
+  usePermissions: () => ({ ready: true, has: () => true }),
+}));
+
 vi.mock("recharts", async () => {
   const original = await vi.importActual<typeof import("recharts")>("recharts");
   return {

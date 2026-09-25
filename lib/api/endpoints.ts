@@ -47,6 +47,8 @@ export const endpoints = {
     xpDistribution: `${ADMIN}/analytics/xp-distribution`,
     languages: `${ADMIN}/analytics/languages`,
     platforms: `${ADMIN}/analytics/platforms`,
+    /** ADM-115/119: audited CSV export for one analytics series. */
+    export: `${ADMIN}/analytics/export`,
   },
   roles: {
     /** ADM-101/107: role metadata and active admin counts for the roles list. */

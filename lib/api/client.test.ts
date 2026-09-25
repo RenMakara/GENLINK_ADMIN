@@ -244,6 +244,30 @@ describe("api client", () => {
     expect(String(vi.mocked(fetch).mock.calls[0][0])).toContain("reason=Quarterly+review");
   });
 
+  it("downloads a CSV response from a JSON POST request", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response("bucket,count\r\n2026-08-01,42\r\n", {
+        status: 200,
+        headers: {
+          "Content-Type": "text/csv;charset=UTF-8",
+          "Content-Disposition": 'attachment; filename="genlink-analytics-user-growth.csv"',
+        },
+      }),
+    );
+
+    const result = await api.downloadPost(
+      "/admin/analytics/export",
+      { series: "user-growth", from: "2026-08-01", to: "2026-08-31", granularity: "day", reason: "Monthly review" },
+      { accept: "text/csv" },
+    );
+
+    expect(result.filename).toBe("genlink-analytics-user-growth.csv");
+    const init = vi.mocked(fetch).mock.calls[0][1];
+    expect(init?.method).toBe("POST");
+    expect((init?.headers as Record<string, string>)["Content-Type"]).toBe("application/json");
+    expect(JSON.parse(String(init?.body))).toMatchObject({ series: "user-growth", reason: "Monthly review" });
+  });
+
   it("keeps CSV error envelopes typed so export limits can be explained safely", async () => {
     vi.mocked(fetch).mockResolvedValueOnce(failure(413, "EXPORT_TOO_LARGE", "internal detail"));
 

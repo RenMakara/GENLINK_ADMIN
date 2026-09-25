@@ -23,6 +23,10 @@ vi.mock("@/services/analytics", () => ({
   }),
 }));
 
+vi.mock("@/hooks/use-permission", () => ({
+  usePermissions: () => ({ ready: true, has: () => false }),
+}));
+
 afterEach(() => {
   cleanup();
   navigation.search = "";

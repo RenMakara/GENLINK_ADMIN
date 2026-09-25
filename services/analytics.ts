@@ -31,6 +31,18 @@ export function analyticsQueryParams(query: AnalyticsQuery) {
   };
 }
 
+export interface AnalyticsExportRequest extends AnalyticsQuery {
+  series: AnalyticsDashboardId;
+  reason: string;
+}
+
+/** Requests the audited CSV export for the exact series and range currently on screen. */
+export function exportAnalyticsCsv(request: AnalyticsExportRequest) {
+  return api.downloadPost(endpoints.analytics.export, request, {
+    accept: "text/csv",
+  });
+}
+
 /** Fetches one ADM-118 series using the shared URL-owned date and granularity state. */
 export function useAnalyticsDashboard<Dashboard extends AnalyticsDashboardId>(
   dashboard: Dashboard,
