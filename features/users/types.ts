@@ -1,50 +1,10 @@
 import type { UserStatus } from "@/lib/ui/status";
 import type { PageResponse } from "@/lib/api/types";
+import type { UserWorkStatus } from "@/types/admin-user";
 
 export type { AdminUserSanction } from "@/types/admin-sanction";
-
-/**
- * Work-status codes persisted by the user module. Keeping the labels in the table feature
- * avoids leaking backend enum formatting into every cell that displays one.
- */
-export const USER_WORK_STATUSES = [
-  "STUDENT",
-  "FRESH_GRADUATE",
-  "YOUNG_PROFESSIONAL",
-  "CREATOR",
-  "FREELANCER",
-  "ENTREPRENEUR",
-  "OTHER",
-] as const;
-
-export type UserWorkStatus = (typeof USER_WORK_STATUSES)[number];
-
-/**
- * The frontend row contract for ADM-069.
- *
- * The eventual ADM-059 API adapter should map its `userId` and admin-role fields to this shape.
- * The table deliberately does not expose a backend entity or accept a password/account-secret
- * field. Optional display values are rendered as an explicit em dash instead of an empty cell.
- */
-export interface AdminUserTableRow {
-  userId: string;
-  fullName: string;
-  username: string;
-  email: string;
-  avatarUrl?: string | null;
-  emailVerified: boolean;
-  accountStatus: UserStatus;
-  /** Human-readable staff role; ordinary users have no admin role. */
-  adminRoleName?: string | null;
-  universityName?: string | null;
-  workStatus?: UserWorkStatus | null;
-  level: number;
-  totalXp: number;
-  /** ISO-8601 UTC timestamp from the API. */
-  createdAt: string;
-  /** ISO-8601 UTC timestamp from the API; null means no successful activity is known. */
-  lastActiveAt?: string | null;
-}
+export { USER_WORK_STATUSES } from "@/types/admin-user";
+export type { AdminUserTableRow, UserWorkStatus } from "@/types/admin-user";
 
 /**
  * The ADM-062 detail projection consumed by the ADM-073 header. It intentionally mirrors the

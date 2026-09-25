@@ -6,7 +6,7 @@ import { RefreshCw } from "lucide-react";
 import { DataTable } from "@/components/data-table";
 import { ErrorState, PageHeader } from "@/components/common";
 import { Button } from "@/components/ui/button";
-import { useCurrentAdminId } from "@/hooks/use-current-admin";
+import { useCurrentAdmin } from "@/hooks/use-current-admin";
 import { usePermissions } from "@/hooks/use-permission";
 import { useTableState, type UseTableStateOptions } from "@/hooks/use-table-state";
 import { ApiError } from "@/lib/api/errors";
@@ -17,11 +17,13 @@ import {
   useAdminStaff,
   useChangeAdminRole,
   useDeactivateAdmin,
+  usePromoteAdmin,
   useResetAdminMfa,
 } from "@/services/admins";
 import type { AdminStaff } from "@/types/admin-staff";
 
 import { AdminActionDialogs, type AdminAction } from "./admin-action-dialogs";
+import { AdminInviteDialog } from "./admin-invite-dialog";
 import { AdminTableRowActions } from "./admin-table-actions";
 import { createAdminTableColumns } from "./admin-table-columns";
 import { AdminsPageSkeleton } from "./admins-page-skeleton";
@@ -44,8 +46,10 @@ function adminListErrorDescription(error: unknown): string {
 }
 
 export function AdminsPage() {
-  const currentAdminId = useCurrentAdminId();
+  const currentAdmin = useCurrentAdmin();
+  const currentAdminId = currentAdmin?.adminUserId ?? null;
   const { has, ready } = usePermissions();
+  const [inviteOpen, setInviteOpen] = useState(false);
   const [actionState, setActionState] = useState<{
     action: AdminAction;
     admin: AdminStaff;
@@ -61,9 +65,11 @@ export function AdminsPage() {
   const rolesQuery = useAdminRoles(canRead);
   const changeRole = useChangeAdminRole();
   const deactivate = useDeactivateAdmin();
+  const promote = usePromoteAdmin();
   const resetMfa = useResetAdminMfa();
   const columns = useMemo(() => createAdminTableColumns(), []);
   const admins = adminsQuery.data?.content ?? [];
+  const canSearchUsers = ready && has("user:read");
 
   const openAction = useCallback((action: AdminAction, admin: AdminStaff) => {
     setActionState({ action, admin });
@@ -131,20 +137,36 @@ export function AdminsPage() {
         title="Admin users"
         description="Review staff access, role assignments, and two-factor security status."
         actions={
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => void adminsQuery.refetch()}
-            disabled={adminsQuery.isFetching}
-            aria-label="Refresh administrator accounts"
-          >
-            <RefreshCw
-              className={`mr-1.5 size-3.5 ${adminsQuery.isFetching ? "motion-safe:animate-spin" : ""} motion-reduce:animate-none`}
-              aria-hidden="true"
-            />
-            Refresh
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            {canManage ? (
+              <Button
+                type="button"
+                onClick={() => setInviteOpen(true)}
+                disabled={!canSearchUsers}
+                title={
+                  canSearchUsers
+                    ? undefined
+                    : "The user:read permission is required to search eligible users."
+                }
+              >
+                Invite admin
+              </Button>
+            ) : null}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => void adminsQuery.refetch()}
+              disabled={adminsQuery.isFetching}
+              aria-label="Refresh administrator accounts"
+            >
+              <RefreshCw
+                className={`mr-1.5 size-3.5 ${adminsQuery.isFetching ? "motion-safe:animate-spin" : ""} motion-reduce:animate-none`}
+                aria-hidden="true"
+              />
+              Refresh
+            </Button>
+          </div>
         }
       />
 
@@ -197,6 +219,18 @@ export function AdminsPage() {
         onChangeRole={handleChangeRole}
         onDeactivate={handleDeactivate}
         onResetMfa={handleResetMfa}
+      />
+
+      <AdminInviteDialog
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+        roles={rolesQuery.data ?? []}
+        rolesLoading={rolesQuery.isLoading}
+        rolesError={rolesQuery.isError}
+        currentRoleCode={currentAdmin?.roleCode ?? null}
+        canReadUsers={canSearchUsers}
+        pending={promote.isPending}
+        onPromote={(input) => promote.mutateAsync(input).then(() => undefined)}
       />
     </div>
   );

@@ -38,7 +38,24 @@ function invalidateAdminDirectory(queryClient: ReturnType<typeof useQueryClient>
   return Promise.all([
     queryClient.invalidateQueries({ queryKey: queryKeys.admins.all() }),
     queryClient.invalidateQueries({ queryKey: queryKeys.roles.list() }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.users.all() }),
   ]).then(() => undefined);
+}
+
+export interface PromoteAdminInput {
+  userId: string;
+  roleId: string;
+  reason: string;
+}
+
+/** Promotes one existing, email-verified user through the audited ADM-103 endpoint. */
+export function usePromoteAdmin() {
+  const queryClient = useQueryClient();
+
+  return useMutation<AdminStaff, unknown, PromoteAdminInput>({
+    mutationFn: (input) => api.post<AdminStaff>(endpoints.admins.promote, input),
+    onSuccess: () => invalidateAdminDirectory(queryClient),
+  });
 }
 
 /** Reassigns one staff profile through the audited ADM-103 endpoint. */

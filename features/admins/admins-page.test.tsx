@@ -12,9 +12,13 @@ const permissionState = vi.hoisted(() => ({ canRead: true, canManage: true }));
 const service = vi.hoisted(() => ({
   useAdminStaff: vi.fn(),
   useAdminRoles: vi.fn(),
+  useAdminRole: vi.fn(),
+  useAdminPermissionGroups: vi.fn(),
   useChangeAdminRole: vi.fn(),
   useDeactivateAdmin: vi.fn(),
+  usePromoteAdmin: vi.fn(),
   useResetAdminMfa: vi.fn(),
+  useUserSearch: vi.fn(),
 }));
 const mutations = vi.hoisted(() => ({
   changeRole: { mutateAsync: vi.fn(), isPending: false },
@@ -48,11 +52,18 @@ vi.mock("@/services/admins", () => ({
   useAdminStaff: service.useAdminStaff,
   useChangeAdminRole: service.useChangeAdminRole,
   useDeactivateAdmin: service.useDeactivateAdmin,
+  usePromoteAdmin: service.usePromoteAdmin,
   useResetAdminMfa: service.useResetAdminMfa,
 }));
 
 vi.mock("@/services/roles", () => ({
   useAdminRoles: service.useAdminRoles,
+  useAdminRole: service.useAdminRole,
+  useAdminPermissionGroups: service.useAdminPermissionGroups,
+}));
+
+vi.mock("@/services/users", () => ({
+  useUserSearch: service.useUserSearch,
 }));
 
 const ROLES: AdminRoleSummary[] = [
@@ -133,11 +144,30 @@ function rolesQuery(overrides: Record<string, unknown> = {}) {
   };
 }
 
+function detailQuery(overrides: Record<string, unknown> = {}) {
+  return {
+    data: { roleId: "role-support", code: "SUPPORT", name: "Support", permissions: ["user:read"] },
+    isLoading: false,
+    isError: false,
+    error: null,
+    ...overrides,
+  };
+}
+
 function renderPage() {
   service.useAdminStaff.mockReturnValue(listQuery());
   service.useAdminRoles.mockReturnValue(rolesQuery());
+  service.useAdminRole.mockReturnValue(detailQuery());
+  service.useAdminPermissionGroups.mockReturnValue({
+    data: [{ resource: "user", permissions: [{ code: "user:read", resource: "user", action: "read", description: "View user records" }] }],
+    isLoading: false,
+    isError: false,
+    error: null,
+  });
+  service.useUserSearch.mockReturnValue({ data: undefined, isLoading: false, isError: false, error: null });
   service.useChangeAdminRole.mockReturnValue(mutations.changeRole);
   service.useDeactivateAdmin.mockReturnValue(mutations.deactivate);
+  service.usePromoteAdmin.mockReturnValue({ mutateAsync: vi.fn(), isPending: false });
   service.useResetAdminMfa.mockReturnValue(mutations.resetMfa);
   return render(<AdminsPage />);
 }
@@ -163,6 +193,7 @@ describe("AdminsPage (ADM-109)", () => {
     expect(screen.getByLabelText("Current admin account")).toBeDefined();
     expect(screen.getByRole("button", { name: "Open actions for Malis Chan" })).toBeDefined();
     expect(service.useAdminStaff).toHaveBeenCalledWith({ page: 0, size: 25 }, true);
+    expect(screen.getByRole("button", { name: "Invite admin" })).toBeDefined();
   });
 
   it("gates the directory and action controls on the RBAC read/manage permissions", () => {

@@ -50,6 +50,8 @@ export interface ConfirmDialogProps {
   confirmDisabled?: boolean;
   /** Optional action-specific form content rendered before the reason field. */
   children?: ReactNode;
+  /** Optional scroll treatment for confirmations with a larger feature-owned form. */
+  contentClassName?: string;
   /** Maps a typed API error to safe, user-facing copy; raw server details are never rendered. */
   errorMessageFor?: (error: unknown) => string | null;
   /** Called with the trimmed reason ("" for low tier). The dialog closes after success. */
@@ -95,10 +97,11 @@ export interface ConfirmDialogProps {
  * back — no field is auto-focused. Opening the box and pressing Enter cancels; confirming is
  * always a deliberate reach.
  */
-export function ConfirmDialog({ open, onOpenChange, ...body }: ConfirmDialogProps) {
+export function ConfirmDialog({ open, onOpenChange, contentClassName, ...body }: ConfirmDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent
+        className={contentClassName}
         onOpenAutoFocus={(event) => {
           event.preventDefault();
           (event.currentTarget as HTMLElement)

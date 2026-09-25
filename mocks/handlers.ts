@@ -15,7 +15,7 @@
  * the same field names in local development and production.
  */
 
-import { http, HttpResponse } from "msw";
+import { http, HttpResponse, passthrough } from "msw";
 
 import { endpoints } from "@/lib/api/endpoints";
 import { env } from "@/lib/config/env";
@@ -376,6 +376,72 @@ export const handlers = [
     );
   }),
 
+  // ADM-110 eligible-user search. The live endpoint remains permission-gated by user:read;
+  // fixtures include verified, unverified, and already-admin rows so the invite UI can show
+  // exactly why only one result is selectable.
+  http.get(apiPattern(endpoints.users.list), ({ request }) => {
+    // Keep the existing interception-scope guarantee: the general user directory has no
+    // fixture here, while ADM-110's explicit search contract does.
+    if (!new URL(request.url).searchParams.get("q")) return passthrough();
+
+    return HttpResponse.json(
+      apiResponse(
+        pageResponse([
+          {
+            userId: "mock-user-eligible",
+            fullName: "Nika Vann",
+            username: "nikavann",
+            email: "nika@genlink.kh",
+            avatarUrl: null,
+            emailVerified: true,
+            accountStatus: "ACTIVE",
+            adminRoleName: null,
+            universityName: "GenLink University",
+            workStatus: "STUDENT",
+            level: 4,
+            totalXp: 180,
+            createdAt: "2026-06-10T02:30:00.000Z",
+            lastActiveAt: "2026-09-24T02:30:00.000Z",
+          },
+          {
+            userId: "mock-user-unverified",
+            fullName: "Pending User",
+            username: "pendinguser",
+            email: "pending@genlink.kh",
+            avatarUrl: null,
+            emailVerified: false,
+            accountStatus: "ACTIVE",
+            adminRoleName: null,
+            universityName: null,
+            workStatus: null,
+            level: 1,
+            totalXp: 0,
+            createdAt: "2026-08-10T02:30:00.000Z",
+            lastActiveAt: null,
+          },
+          {
+            userId: "mock-user-existing-admin",
+            fullName: "Malis Chan",
+            username: "malischan",
+            email: "malis@genlink.kh",
+            avatarUrl: null,
+            emailVerified: true,
+            accountStatus: "ACTIVE",
+            adminRoleName: "Support",
+            universityName: null,
+            workStatus: "YOUNG_PROFESSIONAL",
+            level: 8,
+            totalXp: 520,
+            createdAt: "2026-03-10T02:30:00.000Z",
+            lastActiveAt: "2026-09-24T02:30:00.000Z",
+          },
+        ],
+        { totalElements: 3 },
+      ),
+    ),
+    );
+  }),
+
   // ADM-107 roles list. The real endpoint remains gated by rbac:read; this fixture keeps the
   // summary projection available for local table development and component tests.
   http.get(apiPattern(endpoints.roles.list), () =>
@@ -635,6 +701,29 @@ export const handlers = [
     ),
   ),
   ),
+
+  http.post(apiPattern(endpoints.admins.promote), async ({ request }) => {
+    const body = (await request.json()) as { userId?: string; roleId?: string };
+    const isSuperAdmin = body.roleId === "mock-role-super-admin";
+    return HttpResponse.json(
+      apiResponse({
+        adminId: "mock-admin-new",
+        userId: body.userId ?? "mock-user-eligible",
+        fullName: "Nika Vann",
+        username: "nikavann",
+        email: "nika@genlink.kh",
+        roleId: body.roleId ?? "mock-role-support",
+        roleCode: isSuperAdmin ? "SUPER_ADMIN" : "SUPPORT",
+        roleName: isSuperAdmin ? "Super Admin" : "Support",
+        active: true,
+        totpEnabled: false,
+        totpConfirmed: false,
+        lastLoginAt: null,
+        createdAt: "2026-09-25T02:30:00.000Z",
+        deletedAt: null,
+      }),
+    );
+  }),
 
   http.put(apiPattern("/admin/admins/:adminId/role"), async ({ params, request }) => {
     const body = (await request.json()) as { roleId?: string };

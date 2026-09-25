@@ -48,6 +48,8 @@ export const endpoints = {
   admins: {
     /** ADM-103/109: paginated staff directory, including active and revoked profiles. */
     list: `${ADMIN}/admins`,
+    /** ADM-103/110: audited promotion of an existing, email-verified user. */
+    promote: `${ADMIN}/admins`,
     /** ADM-103/111: audited high-tier role replacement. */
     changeRole: (adminId: string) => `${ADMIN}/admins/${encodeURIComponent(adminId)}/role`,
     /** ADM-103/111: audited admin-access revocation. */
