@@ -56,6 +56,11 @@ export const queryKeys = {
         ? analyticsQueryKey(dashboard, query)
         : (["admin", "analytics", dashboard, "disabled"] as const),
   },
+  auditLogs: {
+    all: () => ["audit-logs"] as const,
+    list: (params: ListKeyParams) => ["audit-logs", "list", params] as const,
+    detail: (auditLogId: string) => ["audit-logs", "detail", auditLogId] as const,
+  },
   roles: {
     all: () => ["roles"] as const,
     /** Role metadata and active admin counts (ADM-101/107). */

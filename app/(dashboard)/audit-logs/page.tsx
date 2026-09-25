@@ -1,5 +1,5 @@
-import { PageStub } from "@/components/layout/page-stub";
+import { AuditLogsPage } from "@/features/audit/audit-logs-page";
 
 export default function Page() {
-  return <PageStub title="Audit Logs" task="ADM-099" />;
+  return <AuditLogsPage />;
 }

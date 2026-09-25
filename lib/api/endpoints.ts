@@ -50,6 +50,13 @@ export const endpoints = {
     /** ADM-115/119: audited CSV export for one analytics series. */
     export: `${ADMIN}/analytics/export`,
   },
+  auditLogs: {
+    /** ADM-116/120: newest-first, scope-aware audit trail. */
+    list: `${ADMIN}/audit-logs`,
+    detail: (auditLogId: string) => `${ADMIN}/audit-logs/${encodeURIComponent(auditLogId)}`,
+    /** ADM-116/120: Super Admin-only, audited CSV export. */
+    export: `${ADMIN}/audit-logs/export`,
+  },
   roles: {
     /** ADM-101/107: role metadata and active admin counts for the roles list. */
     list: `${ADMIN}/roles`,
