@@ -29,6 +29,8 @@ export const endpoints = {
     me: `${ADMIN}/auth/me`,
     /** ADM-025: opens the 5-minute sudo window (SSOT §10.7). */
     sudo: `${ADMIN}/auth/sudo`,
+    /** ADM-026/112: replaces the caller's recovery codes; requires sudo and shows them once. */
+    recoveryCodes: `${ADMIN}/auth/mfa/recovery-codes`,
   },
   dashboard: {
     /** ADM-045: aggregate BFF-lite dashboard summary endpoint. */

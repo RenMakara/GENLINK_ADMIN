@@ -48,6 +48,7 @@ export interface AdminSession {
   permissions: string[];
   lastLoginAt: string | null;
   totpEnabled: boolean;
+  totpConfirmedAt: string | null;
 }
 
 type Status = "loading" | "authenticated" | "unauthenticated";

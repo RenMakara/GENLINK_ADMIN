@@ -72,6 +72,7 @@ const SESSION: AdminSession = {
   ],
   lastLoginAt: "2026-08-10T02:30:00.000Z",
   totpEnabled: true,
+  totpConfirmedAt: "2026-08-01T17:00:00.000Z",
 };
 
 /** A session-token bundle, as `/mfa/verify` and `/refresh` return it. */
@@ -137,6 +138,25 @@ export const handlers = [
       apiResponse({
         expiresInSeconds: 300,
         expiresAt: new Date(Date.now() + 300_000).toISOString(),
+      }),
+    ),
+  ),
+
+  http.post(apiPattern(endpoints.auth.recoveryCodes), () =>
+    HttpResponse.json(
+      apiResponse({
+        recoveryCodes: [
+          "ABCDE-FGHJK",
+          "LMNOP-QRSTU",
+          "VWXYZ-23456",
+          "789AB-CDEFG",
+          "HIJKL-MNPQR",
+          "STUVW-XYZ23",
+          "45678-9ABCD",
+          "EFGHJ-KLMNP",
+          "QRSTU-VWXYZ",
+          "23456-789AB",
+        ],
       }),
     ),
   ),
