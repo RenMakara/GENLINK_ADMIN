@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
@@ -12,6 +12,7 @@ import {
   Check,
   ChevronDown,
   Compass,
+  Download,
   HeartHandshake,
   Landmark,
   Menu,
@@ -26,6 +27,7 @@ import {
 
 import { env } from "@/lib/config/env";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 const NAV_ITEMS = [
   { label: "Home", href: "#home" },
@@ -138,6 +140,29 @@ const BASE_PATH = env.NEXT_PUBLIC_BASE_PATH || "";
 const LOGO_SRC = `${BASE_PATH}/genlink_logo.png`;
 const HERO_SRC = `${BASE_PATH}/angkor-wat-hero.png`;
 
+const APP_SCREENS = [
+  {
+    label: "Home",
+    src: `${BASE_PATH}/app-screens/genlink-home.png`,
+    alt: "GenLink Home screen showing the feed, event discovery, and community navigation",
+  },
+  {
+    label: "Level Up",
+    src: `${BASE_PATH}/app-screens/genlink-level-up.png`,
+    alt: "GenLink Level Up screen showing progress, habits, goals, and experience points",
+  },
+  {
+    label: "Finance",
+    src: `${BASE_PATH}/app-screens/genlink-finance.png`,
+    alt: "GenLink Finance screen showing balance, quick actions, and monthly spending",
+  },
+  {
+    label: "Quiz",
+    src: `${BASE_PATH}/app-screens/genlink-quiz.png`,
+    alt: "GenLink Quiz screen showing learning categories and quiz cards",
+  },
+] as const;
+
 function Brand() {
   return (
     <span className="flex items-center gap-3">
@@ -159,80 +184,82 @@ function Brand() {
   );
 }
 
-function StoreBadge({ store, detail }: { store: string; detail: string }) {
+function DownloadButton() {
   return (
     <a
       href="#download"
-      className="group flex min-w-[164px] items-center gap-3 rounded-2xl border border-white/15 bg-white/[0.08] px-4 py-3 text-left shadow-[0_12px_32px_rgba(0,0,0,0.14)] backdrop-blur-xl transition hover:-translate-y-1 hover:border-emerald-200/50 hover:bg-white/[0.14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#071a19]"
-      aria-label={`${store} download listing, coming soon`}
+      className="group inline-flex items-center justify-center gap-3 rounded-2xl bg-emerald-300 px-5 py-3.5 text-sm font-semibold text-[#08251f] shadow-[0_18px_35px_rgba(111,239,161,0.2)] transition hover:-translate-y-1 hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#061716]"
+      aria-label="Download app, coming soon"
     >
-      <span className="grid size-9 place-items-center rounded-xl bg-white text-sm font-bold text-[#0a2521] shadow-inner">
-        {store === "App Store" ? "" : "▶"}
-      </span>
-      <span>
-        <span className="block text-[0.58rem] font-medium uppercase tracking-[0.18em] text-white/50">{detail}</span>
-        <span className="mt-0.5 block text-sm font-semibold text-white">{store}</span>
-      </span>
-      <ArrowUpRight className="ml-auto size-4 text-white/40 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-emerald-200" aria-hidden />
+      <Download className="size-4 transition group-hover:translate-y-0.5" aria-hidden />
+      Download app
+      <ArrowUpRight className="size-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden />
     </a>
   );
 }
 
 function AppPreview() {
+  const [activeScreen, setActiveScreen] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
+  const screen = APP_SCREENS[activeScreen];
+
+  useEffect(() => {
+    if (isPaused || shouldReduceMotion) return;
+
+    const timer = window.setInterval(() => {
+      setActiveScreen((current) => (current + 1) % APP_SCREENS.length);
+    }, 5000);
+
+    return () => window.clearInterval(timer);
+  }, [isPaused, shouldReduceMotion]);
+
   return (
     <div className="relative mx-auto w-full max-w-[510px] lg:mr-0">
       <div className="landing-preview-orbit absolute -left-10 top-1/2 size-24 -translate-y-1/2 rounded-full border border-emerald-200/15 sm:-left-14" aria-hidden />
       <div className="landing-preview-orbit landing-preview-orbit--delayed absolute -right-6 top-12 size-14 rounded-full border border-amber-200/20" aria-hidden />
 
-      <div className="landing-phone landing-glass relative mx-auto w-[min(100%,360px)] rotate-[3deg] rounded-[3rem] border border-white/35 bg-[#071617]/80 p-2 shadow-[0_44px_90px_rgba(0,0,0,0.42)] backdrop-blur-xl sm:mr-4">
-        <div className="overflow-hidden rounded-[2.45rem] border border-white/10 bg-[#102a27] px-5 pb-7 pt-4">
-          <div className="flex items-center justify-between text-[0.62rem] font-medium text-white/55">
-            <span>9:41</span>
-            <span className="flex items-center gap-1.5"><span className="size-1.5 rounded-full bg-emerald-300" /> GenLink</span>
-          </div>
-
-          <div className="mt-7 flex items-end justify-between">
-            <div>
-              <p className="text-xs text-emerald-100/55">Good morning, Makara</p>
-              <p className="mt-1 text-xl font-semibold tracking-[-0.05em] text-white">Your week, in motion.</p>
-            </div>
-            <div className="grid size-10 place-items-center rounded-full border border-white/15 bg-white/10">
-              <Sparkles className="size-4 text-amber-200" aria-hidden />
-            </div>
-          </div>
-
-          <div className="mt-6 rounded-[1.45rem] bg-gradient-to-br from-emerald-200 to-emerald-500 p-4 text-[#09231e] shadow-[0_16px_35px_rgba(58,205,133,0.22)]">
-            <div className="flex items-center justify-between text-xs font-semibold">
-              <span>Growth streak</span>
-              <TrendingUp className="size-4" aria-hidden />
-            </div>
-            <p className="mt-5 text-4xl font-semibold tracking-[-0.08em]">07 <span className="text-sm tracking-normal">days</span></p>
-            <div className="mt-4 flex items-end gap-1.5" aria-label="Seven-day progress chart">
-              {[30, 45, 34, 60, 52, 72, 92].map((height, index) => (
-                <span key={index} className="flex-1 rounded-full bg-[#0b5b3b]/25" style={{ height: `${height / 2}px` }} />
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            {[
-              { label: "Learn", value: "12 min", icon: BookOpen },
-              { label: "Balance", value: "$420", icon: WalletCards },
-            ].map(({ label, value, icon: Icon }) => (
-              <div key={label} className="rounded-[1.25rem] border border-white/10 bg-white/[0.07] p-3">
-                <Icon className="size-4 text-emerald-200" aria-hidden />
-                <p className="mt-5 text-[0.65rem] text-white/50">{label}</p>
-                <p className="mt-1 text-sm font-semibold text-white">{value}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-4 flex items-center gap-3 rounded-[1.25rem] border border-white/10 bg-white/[0.07] p-3">
-            <span className="grid size-9 place-items-center rounded-xl bg-amber-300/15 text-amber-200"><Compass className="size-4" aria-hidden /></span>
-            <span className="min-w-0 flex-1"><span className="block truncate text-xs font-semibold text-white">New opportunity nearby</span><span className="mt-1 block text-[0.65rem] text-white/45">Phnom Penh · 2 days left</span></span>
-            <ArrowRight className="size-4 text-white/45" aria-hidden />
-          </div>
+      <div
+        className="landing-phone relative mx-auto w-[min(100%,330px)] rotate-[3deg] rounded-[3rem] border border-white/30 bg-[#071617]/85 p-2 shadow-[0_44px_90px_rgba(0,0,0,0.42)] backdrop-blur-xl sm:mr-4"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onFocus={() => setIsPaused(true)}
+        onBlur={() => setIsPaused(false)}
+      >
+        <div
+          id="app-screen-preview"
+          role="tabpanel"
+          aria-label={`${screen.label} screen preview`}
+          className="relative aspect-[9/19.5] overflow-hidden rounded-[2.45rem] border border-white/10 bg-[#101716]"
+        >
+          <Image
+            key={screen.src}
+            src={screen.src}
+            alt={screen.alt}
+            fill
+            sizes="(min-width: 1024px) 330px, 72vw"
+            className="object-cover transition-opacity duration-500 motion-reduce:transition-none"
+            priority={activeScreen === 0}
+          />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/25 to-transparent" aria-hidden />
         </div>
+      </div>
+
+      <div className="relative z-10 mt-5 flex flex-wrap items-center justify-center gap-2 sm:justify-start sm:pl-4" role="tablist" aria-label="GenLink app screens">
+        {APP_SCREENS.map((item, index) => (
+          <button
+            key={item.label}
+            type="button"
+            role="tab"
+            aria-selected={activeScreen === index}
+            aria-controls="app-screen-preview"
+            aria-label={`Show ${item.label} screen`}
+            onClick={() => setActiveScreen(index)}
+            className={`rounded-full border px-3 py-1.5 text-[0.65rem] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200 motion-reduce:transition-none ${activeScreen === index ? "border-emerald-200/70 bg-emerald-200 text-[#08251f]" : "border-white/20 bg-white/[0.08] text-white/65 hover:border-white/40 hover:text-white"}`}
+          >
+            {item.label}
+          </button>
+        ))}
       </div>
 
       <div className="landing-glass absolute -bottom-5 left-0 flex items-center gap-3 rounded-2xl border border-white/20 bg-white/[0.1] px-4 py-3 shadow-2xl backdrop-blur-xl sm:-left-9">
@@ -404,7 +431,7 @@ export function AdminLandingPage() {
       <section id="download" className="relative overflow-hidden px-6 py-24 sm:py-32 lg:px-8">
         <div className="landing-download-panel mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] border border-emerald-100/20 bg-gradient-to-br from-emerald-900 via-[#0a2a25] to-[#102b37] px-7 py-12 shadow-[0_30px_100px_rgba(0,0,0,0.24)] sm:px-12 sm:py-16 lg:flex lg:items-end lg:justify-between lg:px-16">
           <div className="relative max-w-xl"><span className="grid size-12 place-items-center rounded-2xl bg-emerald-200 text-[#09231e]"><Sparkles className="size-5" aria-hidden /></span><h2 className="mt-7 text-4xl font-semibold tracking-[-0.07em] text-white sm:text-6xl">Make room for what is next.</h2><p className="mt-5 max-w-md text-base leading-7 text-white/55">The GenLink mobile experience is coming soon. Leave the noise behind and keep your next step close.</p></div>
-          <div className="relative mt-10 flex flex-col gap-3 sm:flex-row lg:mt-0 lg:flex-col xl:flex-row"><StoreBadge store="App Store" detail="Download on the" /><StoreBadge store="Google Play" detail="Get it on" /></div>
+          <div className="relative mt-10 flex lg:mt-0"><DownloadButton /></div>
         </div>
       </section>
 

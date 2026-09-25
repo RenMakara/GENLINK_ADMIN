@@ -11,6 +11,11 @@ describe("AdminLandingPage", () => {
     expect(screen.getByRole("navigation", { name: "Primary navigation" })).toBeDefined();
     expect(screen.getByRole("heading", { name: /Your next chapter starts here/i })).toBeDefined();
     expect(screen.getByRole("img", { name: "Angkor Wat at sunrise reflected in calm water" })).toBeDefined();
+    expect(screen.getByRole("img", { name: /GenLink Home screen/i })).toBeDefined();
+    expect(screen.getByRole("tablist", { name: "GenLink app screens" })).toBeDefined();
+    expect(screen.getAllByRole("tab")).toHaveLength(4);
+    expect(screen.getByRole("tab", { name: "Show Finance screen" })).toBeDefined();
+    expect(screen.getByRole("tabpanel", { name: "Home screen preview" })).toBeDefined();
     expect(screen.getByRole("heading", { name: "Grow" })).toBeDefined();
     expect(screen.getByRole("heading", { name: "Learn" })).toBeDefined();
     expect(screen.getByRole("heading", { name: "Community" })).toBeDefined();
@@ -27,6 +32,7 @@ describe("AdminLandingPage", () => {
     );
     expect(screen.getAllByRole("link", { name: /Open .* GitHub profile/i })).toHaveLength(4);
     expect(screen.getAllByRole("button", { name: "Toggle light or dark theme" })).toHaveLength(2);
+    expect(screen.getAllByRole("link", { name: "Download app, coming soon" })).toHaveLength(1);
     expect(screen.getAllByRole("link", { name: /Admin login/i })).toHaveLength(2);
     expect(screen.getAllByRole("link", { name: /Admin login/i }).every((link) => link.getAttribute("href") === "/login")).toBe(true);
   });

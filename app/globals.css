@@ -224,6 +224,10 @@
   --landing-ink: #061716;
 }
 
+html:has(.landing-page) {
+  scroll-behavior: smooth;
+}
+
 .landing-nav {
   animation: landing-nav-in 700ms ease both;
 }
@@ -296,6 +300,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html:has(.landing-page) {
+    scroll-behavior: auto;
+  }
+
   .landing-nav,
   .landing-phone,
   .landing-preview-orbit,
