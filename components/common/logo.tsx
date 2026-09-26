@@ -21,9 +21,11 @@ const SIZE_MAP = {
 };
 
 /**
- * GenLink KH Brand Logo component displaying the official GenLink logo icon (public/genlink_logo.png).
+ * GenLink KH Brand Logo component displaying the official GenLink logo icon with dark and light mode support
+ * (public/genlink_logo_light.png and public/genlink_logo_dark.png).
  *
- * <p>Supports Next.js `basePath` resolution (`/admin/genlink_logo.png`) so image requests do not 404.
+ * <p>Supports Next.js `basePath` resolution (`/admin/...`) and theme-aware CSS switching
+ * (dark:hidden / dark:block) so image requests do not 404 and hydration mismatch is avoided.
  */
 export function GenLinkLogo({
   size = "md",
@@ -33,16 +35,25 @@ export function GenLinkLogo({
 }: LogoProps) {
   const config = SIZE_MAP[size];
   const basePath = env.NEXT_PUBLIC_BASE_PATH || "";
-  const logoSrc = `${basePath}/genlink_logo.png`;
+  const lightLogoSrc = `${basePath}/genlink_logo_light.png`;
+  const darkLogoSrc = `${basePath}/genlink_logo_dark.png`;
 
   return (
     <div className={cn("flex items-center gap-2.5 shrink-0 select-none", className)}>
       <img
-        src={logoSrc}
+        src={lightLogoSrc}
         alt="GenLink KH Logo"
         width={config.dimensions}
         height={config.dimensions}
-        className="object-contain shrink-0"
+        className="object-contain shrink-0 dark:hidden"
+        style={{ width: config.dimensions, height: config.dimensions }}
+      />
+      <img
+        src={darkLogoSrc}
+        alt="GenLink KH Logo"
+        width={config.dimensions}
+        height={config.dimensions}
+        className="hidden object-contain shrink-0 dark:block"
         style={{ width: config.dimensions, height: config.dimensions }}
       />
       {!iconOnly && (

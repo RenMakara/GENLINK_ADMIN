@@ -9,11 +9,12 @@ import {
   ArrowUpRight,
   BookOpen,
   Briefcase,
-  Check,
   ChevronDown,
   Compass,
   Download,
+  GraduationCap,
   HeartHandshake,
+  Infinity,
   Landmark,
   Menu,
   Play,
@@ -88,10 +89,13 @@ const FEATURES: Feature[] = [
 ];
 
 const BASE_PATH = env.NEXT_PUBLIC_BASE_PATH || "";
-const LOGO_SRC = `${BASE_PATH}/genlink_logo.png`;
+const LOGO_LIGHT_SRC = `${BASE_PATH}/genlink_logo_light.png`;
+const LOGO_DARK_SRC = `${BASE_PATH}/genlink_logo_dark.png`;
 const HERO_SRC = `${BASE_PATH}/angkor-wat-hero.png`;
 const REN_MAKARA_IMAGE = `${BASE_PATH}/team/ren-makara.png`;
 const SOKNY_ENAT_IMAGE = `${BASE_PATH}/team/sokny-enat.png`;
+const CHHAENG_SOKUNTHEARA_IMAGE = `${BASE_PATH}/team/chhaeng-sokuntheara.png`;
+const HENG_CHANSELA_IMAGE = `${BASE_PATH}/team/heng-chansela.png`;
 
 type TeamMember = {
   name: string;
@@ -105,6 +109,15 @@ type TeamMember = {
 
 const TEAM_MEMBERS: TeamMember[] = [
   {
+    name: "Heng Chansela",
+    role: "Full Stack Developer",
+    quote: "Every challenge is a chance to make something better.",
+    github: "https://github.com/TommmyBoizzz",
+    initials: "HC",
+    profile: HENG_CHANSELA_IMAGE,
+    accent: "from-violet-200/30 via-violet-400/10 to-cyan-300/10",
+  },
+  {
     name: "Ren Makara",
     role: "Full Stack Developer",
     quote: "Build with curiosity, ship with purpose.",
@@ -112,15 +125,6 @@ const TEAM_MEMBERS: TeamMember[] = [
     initials: "RM",
     profile: REN_MAKARA_IMAGE,
     accent: "from-emerald-200/30 via-emerald-400/10 to-cyan-300/10",
-  },
-  {
-    name: "Heng Chansela",
-    role: "Full Stack Developer",
-    quote: "Every challenge is a chance to make something better.",
-    github: "https://github.com/TommmyBoizzz",
-    initials: "HC",
-    profile: null,
-    accent: "from-violet-200/30 via-violet-400/10 to-cyan-300/10",
   },
   {
     name: "Sokny Enat",
@@ -137,7 +141,7 @@ const TEAM_MEMBERS: TeamMember[] = [
     quote: "Keep learning, keep building, keep opening doors.",
     github: "https://github.com/rabengbek",
     initials: "CS",
-    profile: null,
+    profile: CHHAENG_SOKUNTHEARA_IMAGE,
     accent: "from-cyan-200/30 via-cyan-400/10 to-emerald-300/10",
   },
 ];
@@ -169,11 +173,19 @@ function Brand() {
   return (
     <span className="flex items-center gap-3">
       <Image
-        src={LOGO_SRC}
-        alt="GenLink KH"
+        src={LOGO_LIGHT_SRC}
+        alt="GenLink KH Logo"
         width={40}
         height={40}
-        className="size-10 rounded-[13px] object-contain shadow-[0_0_28px_rgba(132,255,190,0.22)]"
+        className="size-10 rounded-[13px] object-contain shadow-[0_0_28px_rgba(132,255,190,0.22)] dark:hidden"
+        priority
+      />
+      <Image
+        src={LOGO_DARK_SRC}
+        alt="GenLink KH Logo"
+        width={40}
+        height={40}
+        className="hidden size-10 rounded-[13px] object-contain shadow-[0_0_28px_rgba(132,255,190,0.22)] dark:block"
         priority
       />
       <span className="leading-none">
@@ -200,6 +212,78 @@ function DownloadButton() {
   );
 }
 
+const FLOATING_CARDS = [
+  {
+    id: "learn",
+    title: "Learn",
+    subtitle: "New skills for a brighter future",
+    icon: GraduationCap,
+    iconBg: "bg-purple-500/25 border-purple-400/30",
+    iconColor: "text-purple-200",
+    positionClasses: "sm:absolute sm:-left-8 lg:-left-20 sm:top-10 lg:top-8",
+    animationClass: "landing-card-float-1",
+  },
+  {
+    id: "grow",
+    title: "Grow",
+    subtitle: "Unlock your full potential",
+    icon: TrendingUp,
+    iconBg: "bg-teal-500/25 border-teal-400/30",
+    iconColor: "text-teal-200",
+    positionClasses: "sm:absolute sm:-right-6 lg:-right-16 sm:top-24 lg:top-20",
+    animationClass: "landing-card-float-2",
+  },
+  {
+    id: "connect",
+    title: "Connect",
+    subtitle: "Meet your people and community",
+    icon: UsersRound,
+    iconBg: "bg-blue-500/25 border-blue-400/30",
+    iconColor: "text-blue-200",
+    positionClasses: "sm:absolute sm:-left-6 lg:-left-16 sm:bottom-32 lg:bottom-28",
+    animationClass: "landing-card-float-3",
+  },
+  {
+    id: "manage",
+    title: "Manage",
+    subtitle: "Take control of your money",
+    icon: WalletCards,
+    iconBg: "bg-emerald-500/25 border-emerald-400/30",
+    iconColor: "text-emerald-200",
+    positionClasses: "sm:absolute sm:-right-4 lg:-right-12 sm:bottom-20 lg:bottom-16",
+    animationClass: "landing-card-float-4",
+  },
+] as const;
+
+function FloatingGlassCard({
+  card,
+  isMobile = false,
+}: {
+  card: (typeof FLOATING_CARDS)[number];
+  isMobile?: boolean;
+}) {
+  const Icon = card.icon;
+  return (
+    <div
+      className={`group relative flex items-center gap-3.5 rounded-2xl border border-white/20 bg-white/[0.12] p-3 pr-8 shadow-[0_20px_45px_rgba(0,0,0,0.35),0_0_20px_rgba(255,255,255,0.06)] backdrop-blur-2xl transition duration-500 hover:scale-105 hover:border-white/35 hover:bg-white/[0.18] ${
+        isMobile ? "" : `${card.positionClasses} ${card.animationClass} hidden sm:flex z-20`
+      }`}
+    >
+      <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 via-white/5 to-transparent opacity-80" aria-hidden />
+      <div className={`relative grid size-10 shrink-0 place-items-center rounded-xl border ${card.iconBg} ${card.iconColor} shadow-inner`}>
+        <Icon className="size-5" aria-hidden />
+      </div>
+      <div className="relative min-w-0">
+        <span className="block text-xs font-bold tracking-tight text-white">{card.title}</span>
+        <span className="block text-[0.66rem] leading-tight text-white/70">{card.subtitle}</span>
+      </div>
+      <span className="absolute bottom-2.5 right-2.5 grid size-4 place-items-center rounded-full bg-white/15 text-white/80 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:bg-white/25">
+        <ArrowRight className="size-2.5" aria-hidden />
+      </span>
+    </div>
+  );
+}
+
 function AppPreview() {
   const [activeScreen, setActiveScreen] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -217,23 +301,85 @@ function AppPreview() {
   }, [isPaused, shouldReduceMotion]);
 
   return (
-    <div className="relative mx-auto w-full max-w-[510px] lg:mr-0">
-      <div className="landing-preview-orbit absolute -left-10 top-1/2 size-24 -translate-y-1/2 rounded-full border border-emerald-200/15 sm:-left-14" aria-hidden />
-      <div className="landing-preview-orbit landing-preview-orbit--delayed absolute -right-6 top-12 size-14 rounded-full border border-amber-200/20" aria-hidden />
+    <div className="relative mx-auto w-full max-w-[560px] py-4 lg:mr-0 lg:max-w-[600px]">
+      {/* Curved Glowing Neon Light Trails behind phone and connecting to cards */}
+      <svg
+        className="pointer-events-none absolute -inset-x-8 -inset-y-6 -z-10 h-[calc(100%+48px)] w-[calc(100%+64px)] sm:-inset-x-12 sm:-inset-y-10 sm:h-[calc(100%+80px)] sm:w-[calc(100%+96px)]"
+        viewBox="0 0 600 600"
+        fill="none"
+        aria-hidden="true"
+      >
+        <defs>
+          <filter id="hero-neon-glow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="6" result="blur1" />
+            <feGaussianBlur stdDeviation="16" result="blur2" />
+            <feMerge>
+              <feMergeNode in="blur2" />
+              <feMergeNode in="blur1" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <linearGradient id="hero-trail-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#84ffbe" stopOpacity="0.85" />
+            <stop offset="35%" stopColor="#38bdf8" stopOpacity="0.8" />
+            <stop offset="70%" stopColor="#fbbf24" stopOpacity="0.75" />
+            <stop offset="100%" stopColor="#4ade80" stopOpacity="0.9" />
+          </linearGradient>
+        </defs>
+        <path
+          d="M 90 140 C 200 40, 420 70, 500 180 C 580 300, 480 480, 320 500 C 160 520, 80 400, 140 320 C 190 250, 370 280, 480 390"
+          stroke="url(#hero-trail-grad)"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          filter="url(#hero-neon-glow)"
+          className="landing-trail-pulse"
+        />
+        <path
+          d="M 90 140 C 200 40, 420 70, 500 180 C 580 300, 480 480, 320 500 C 160 520, 80 400, 140 320 C 190 250, 370 280, 480 390"
+          stroke="#ffffff"
+          strokeWidth="0.8"
+          strokeLinecap="round"
+          opacity="0.55"
+        />
+      </svg>
 
+      {/* Floating Glass Cards on desktop/tablet */}
+      {FLOATING_CARDS.map((card) => (
+        <FloatingGlassCard key={card.id} card={card} />
+      ))}
+
+      {/* Central 3D Tilted Smartphone */}
       <div
-        className="landing-phone relative mx-auto w-[min(100%,330px)] rotate-[3deg] rounded-[3rem] border border-white/30 bg-[#071617]/85 p-2 shadow-[0_44px_90px_rgba(0,0,0,0.42)] backdrop-blur-xl sm:mr-4"
+        className="landing-phone relative mx-auto w-[min(100%,310px)] sm:w-[325px] rounded-[3.2rem] p-2.5 bg-gradient-to-b from-[#2d403c] via-[#111a18] to-[#071110] border border-white/25 shadow-[0_35px_80px_-15px_rgba(0,0,0,0.7),0_0_50px_rgba(74,222,128,0.22)] backdrop-blur-2xl"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onFocus={() => setIsPaused(true)}
         onBlur={() => setIsPaused(false)}
       >
+        {/* Subtle hardware buttons on sides */}
+        <div className="pointer-events-none absolute -left-[3px] top-24 h-10 w-[3px] rounded-l-sm bg-white/30" aria-hidden />
+        <div className="pointer-events-none absolute -left-[3px] top-38 h-10 w-[3px] rounded-l-sm bg-white/30" aria-hidden />
+        <div className="pointer-events-none absolute -right-[3px] top-32 h-14 w-[3px] rounded-r-sm bg-white/30" aria-hidden />
+
+        {/* Screen inner container */}
         <div
           id="app-screen-preview"
           role="tabpanel"
           aria-label={`${screen.label} screen preview`}
-          className="relative aspect-[9/19.5] overflow-hidden rounded-[2.45rem] border border-white/10 bg-[#101716]"
+          className="relative aspect-[9/19.5] overflow-hidden rounded-[2.65rem] border border-black/80 bg-[#071312]"
         >
+          {/* Dynamic Island / Notch */}
+          <div className="pointer-events-none absolute top-2.5 left-1/2 -translate-x-1/2 z-30 flex h-4.5 w-24 items-center justify-between rounded-full bg-black/95 px-2.5 shadow-sm">
+            <span className="size-2 rounded-full bg-[#172528] border border-white/10" />
+            <span className="size-1.5 rounded-full bg-emerald-500/80" />
+          </div>
+
+          {/* Diagonal Glass Sheen */}
+          <div
+            className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-tr from-transparent via-white/[0.08] to-transparent"
+            aria-hidden
+          />
+
           <Image
             key={screen.src}
             src={screen.src}
@@ -243,11 +389,15 @@ function AppPreview() {
             className="object-cover transition-opacity duration-500 motion-reduce:transition-none"
             priority={activeScreen === 0}
           />
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/25 to-transparent" aria-hidden />
         </div>
       </div>
 
-      <div className="relative z-10 mt-5 flex flex-wrap items-center justify-center gap-2 sm:justify-start sm:pl-4" role="tablist" aria-label="GenLink app screens">
+      {/* Screen Selector Tablist */}
+      <div
+        className="relative z-30 mt-6 flex flex-wrap items-center justify-center gap-2"
+        role="tablist"
+        aria-label="GenLink app screens"
+      >
         {APP_SCREENS.map((item, index) => (
           <button
             key={item.label}
@@ -257,21 +407,22 @@ function AppPreview() {
             aria-controls="app-screen-preview"
             aria-label={`Show ${item.label} screen`}
             onClick={() => setActiveScreen(index)}
-            className={`rounded-full border px-3 py-1.5 text-[0.65rem] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200 motion-reduce:transition-none ${activeScreen === index ? "border-emerald-200/70 bg-emerald-200 text-[#08251f]" : "border-white/20 bg-white/[0.08] text-white/65 hover:border-white/40 hover:text-white"}`}
+            className={`rounded-full border px-3.5 py-1.5 text-[0.68rem] font-medium transition backdrop-blur-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200 motion-reduce:transition-none ${
+              activeScreen === index
+                ? "border-emerald-300/80 bg-emerald-300 text-[#06241b] font-semibold shadow-[0_0_15px_rgba(132,255,190,0.4)]"
+                : "border-white/15 bg-white/[0.08] text-white/70 hover:border-white/30 hover:text-white"
+            }`}
           >
             {item.label}
           </button>
         ))}
       </div>
 
-      <div className="landing-glass absolute -bottom-5 left-0 flex items-center gap-3 rounded-2xl border border-white/20 bg-white/[0.1] px-4 py-3 shadow-2xl backdrop-blur-xl sm:-left-9">
-        <span className="grid size-9 place-items-center rounded-xl bg-emerald-300/20 text-emerald-100"><Check className="size-4" aria-hidden /></span>
-        <span><span className="block text-xs font-semibold text-white">One small win</span><span className="mt-0.5 block text-[0.65rem] text-white/50">is still a win.</span></span>
-      </div>
-
-      <div className="landing-glass absolute -right-2 top-20 hidden items-center gap-3 rounded-2xl border border-white/20 bg-white/[0.1] px-4 py-3 shadow-2xl backdrop-blur-xl sm:flex">
-        <span className="grid size-9 place-items-center rounded-xl bg-violet-300/20 text-violet-100"><HeartHandshake className="size-4" aria-hidden /></span>
-        <span><span className="block text-xs font-semibold text-white">2 new connections</span><span className="mt-0.5 block text-[0.65rem] text-white/50">in your circle</span></span>
+      {/* 2x2 grid for mobile screens (< sm) so mobile users also see all 4 cards */}
+      <div className="mt-5 grid grid-cols-2 gap-2.5 sm:hidden">
+        {FLOATING_CARDS.map((card) => (
+          <FloatingGlassCard key={card.id} card={card} isMobile />
+        ))}
       </div>
     </div>
   );
@@ -342,71 +493,233 @@ export function AdminLandingPage() {
       <a href="#home" className="sr-only z-[100] focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:rounded-xl focus:bg-white focus:px-4 focus:py-3 focus:text-sm focus:font-semibold focus:text-[#071a19]">Skip to content</a>
 
       <header className="landing-nav fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-7xl items-center justify-between rounded-[1.35rem] border border-border bg-background/80 px-4 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.12)] backdrop-blur-2xl dark:border-white/15 dark:bg-[#061716]/65 sm:px-5">
-          <Link href="/" aria-label="GenLink home" className="rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:focus-visible:ring-emerald-200 dark:focus-visible:ring-offset-[#061716]"><Brand /></Link>
+        <div className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/15 bg-[#061716]/75 px-5 py-3 shadow-[0_16px_40px_rgba(0,0,0,0.35),0_0_30px_rgba(6,23,22,0.5)] backdrop-blur-2xl">
+          <Link
+            href="/"
+            aria-label="GenLink home"
+            className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
+          >
+            <Brand />
+          </Link>
 
           <nav aria-label="Primary navigation" className="hidden items-center gap-8 md:flex">
             {NAV_ITEMS.map((item, index) => (
-              <a key={item.href} href={item.href} className={`text-sm transition hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:hover:text-emerald-200 dark:focus-visible:ring-emerald-200 ${index === 0 ? "text-foreground dark:text-white" : "text-foreground/60 dark:text-white/55"}`}>
+              <a
+                key={item.href}
+                href={item.href}
+                className={`relative text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200 ${
+                  index === 0
+                    ? "text-white after:absolute after:-bottom-1.5 after:left-1/2 after:-translate-x-1/2 after:h-0.5 after:w-5 after:rounded-full after:bg-emerald-300 after:shadow-[0_0_8px_#84ffbe]"
+                    : "text-white/60 hover:text-white"
+                }`}
+              >
                 {item.label}
               </a>
             ))}
           </nav>
 
-          <div className="hidden items-center gap-3 md:flex">
-            <span className="hidden items-center gap-2 text-xs font-medium text-muted-foreground lg:flex dark:text-white/40"><span className="size-1.5 rounded-full bg-primary shadow-[0_0_12px_rgba(132,255,190,0.9)] dark:bg-emerald-300" />For the next generation</span>
+          <div className="hidden items-center gap-4 md:flex">
+            <span className="hidden items-center gap-2 text-xs font-medium text-white/60 lg:flex">
+              <span className="size-2 rounded-full bg-emerald-400 shadow-[0_0_10px_#4ade80] animate-pulse" />
+              For the next generation
+            </span>
             <ThemeToggle />
-            <Link href="/login" className="group inline-flex items-center gap-2 rounded-xl bg-emerald-300 px-4 py-2.5 text-sm font-semibold text-[#08251f] shadow-[0_10px_24px_rgba(111,239,161,0.18)] transition hover:-translate-y-0.5 hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200 focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:focus-visible:ring-offset-[#061716]">
+            <Link
+              href="/login"
+              className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-300 to-emerald-400 px-5 py-2.5 text-xs sm:text-sm font-semibold text-[#06241b] shadow-[0_0_24px_rgba(132,255,190,0.35)] transition duration-300 hover:scale-[1.03] hover:shadow-[0_0_32px_rgba(132,255,190,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
+            >
               Admin login <ArrowUpRight className="size-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden />
             </Link>
           </div>
 
           <div className="flex items-center gap-2 md:hidden">
             <ThemeToggle />
-            <button type="button" className="grid size-10 place-items-center rounded-xl border border-border bg-muted/60 text-foreground dark:border-white/15 dark:bg-white/5 dark:text-white" aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={menuOpen} aria-controls="landing-mobile-nav" onClick={() => setMenuOpen((open) => !open)}>
+            <button
+              type="button"
+              className="grid size-10 place-items-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur-xl"
+              aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={menuOpen}
+              aria-controls="landing-mobile-nav"
+              onClick={() => setMenuOpen((open) => !open)}
+            >
               {menuOpen ? <X className="size-5" aria-hidden /> : <Menu className="size-5" aria-hidden />}
             </button>
           </div>
         </div>
 
         {menuOpen && (
-          <div id="landing-mobile-nav" className="mx-auto mt-2 max-w-7xl rounded-[1.35rem] border border-border bg-background/95 p-3 shadow-2xl backdrop-blur-2xl dark:border-white/15 dark:bg-[#061716]/90 md:hidden">
-            <nav aria-label="Mobile navigation" className="grid gap-1">
+          <div
+            id="landing-mobile-nav"
+            className="mx-auto mt-2 max-w-7xl rounded-3xl border border-white/15 bg-[#061716]/95 p-4 shadow-2xl backdrop-blur-2xl md:hidden"
+          >
+            <nav aria-label="Mobile navigation" className="grid gap-2">
               {NAV_ITEMS.map((item) => (
-                <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-medium text-foreground/75 transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:text-white/75 dark:hover:bg-white/10 dark:hover:text-white dark:focus-visible:ring-emerald-200">{item.label}</a>
+                <a
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-xl px-4 py-3 text-sm font-medium text-white/80 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
+                >
+                  {item.label}
+                </a>
               ))}
-              <Link href="/login" onClick={() => setMenuOpen(false)} className="mt-1 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-300 px-4 py-3 text-sm font-semibold text-[#08251f]">Admin login <ArrowUpRight className="size-4" aria-hidden /></Link>
+              <Link
+                href="/login"
+                onClick={() => setMenuOpen(false)}
+                className="mt-1 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-emerald-300 to-emerald-400 px-5 py-3 text-sm font-semibold text-[#06241b]"
+              >
+                Admin login <ArrowUpRight className="size-4" aria-hidden />
+              </Link>
             </nav>
           </div>
         )}
       </header>
 
-      <section id="home" className="relative isolate min-h-[850px] scroll-mt-24 overflow-hidden pt-32 sm:min-h-[920px] sm:pt-40">
-        <Image src={HERO_SRC} alt="Angkor Wat at sunrise reflected in calm water" fill priority sizes="100vw" className="-z-30 object-cover object-center" />
-        <div className="absolute inset-0 -z-20 bg-[linear-gradient(90deg,rgba(3,20,19,0.96)_0%,rgba(3,20,19,0.78)_34%,rgba(3,20,19,0.22)_72%,rgba(3,20,19,0.48)_100%)]" aria-hidden />
-        <div className="absolute inset-0 -z-20 bg-[linear-gradient(0deg,#061716_0%,transparent_28%,rgba(6,23,22,0.08)_100%)]" aria-hidden />
-        <div className="landing-hero-glow absolute -left-32 top-24 -z-10 size-96 rounded-full bg-emerald-300/10 blur-3xl" aria-hidden />
+      <section id="home" className="relative isolate min-h-[920px] scroll-mt-24 overflow-hidden pt-36 pb-20 sm:min-h-[980px] sm:pt-44 lg:pt-40">
+        <Image
+          src={HERO_SRC}
+          alt="Angkor Wat at sunrise reflected in calm water"
+          fill
+          priority
+          sizes="100vw"
+          className="-z-30 object-cover object-center"
+        />
+        <div
+          className="absolute inset-0 -z-20 bg-[linear-gradient(90deg,rgba(4,20,18,0.95)_0%,rgba(4,20,18,0.84)_36%,rgba(4,20,18,0.38)_72%,rgba(4,20,18,0.65)_100%)]"
+          aria-hidden
+        />
+        <div
+          className="absolute inset-0 -z-20 bg-[linear-gradient(0deg,#061716_0%,transparent_32%,rgba(6,23,22,0.45)_100%)]"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute left-1/3 top-1/3 -z-20 h-96 w-[550px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(251,191,36,0.16)_0%,rgba(245,158,11,0.06)_45%,transparent_70%)] blur-3xl"
+          aria-hidden
+        />
+        <div
+          className="landing-hero-glow pointer-events-none absolute -left-28 top-28 -z-10 size-[30rem] rounded-full bg-emerald-400/12 blur-[100px]"
+          aria-hidden
+        />
+        <div
+          className="landing-hero-glow pointer-events-none absolute right-4 top-1/3 -z-10 size-[32rem] rounded-full bg-emerald-400/14 blur-[120px]"
+          style={{ animationDelay: "-4s" }}
+          aria-hidden
+        />
 
-        <div className="mx-auto flex max-w-7xl flex-col px-6 pb-24 lg:flex-row lg:items-center lg:gap-12 lg:px-8 lg:pb-32">
+        <div className="pointer-events-none absolute left-1/4 top-1/4 -z-10 size-1 rounded-full bg-emerald-200/60 blur-[0.5px] shadow-[0_0_8px_#84ffbe]" aria-hidden />
+        <div className="pointer-events-none absolute left-1/2 top-1/5 -z-10 size-1.5 rounded-full bg-amber-200/50 blur-[0.5px] shadow-[0_0_10px_#fde68a]" aria-hidden />
+        <div className="pointer-events-none absolute right-1/4 top-1/2 -z-10 size-1 rounded-full bg-emerald-300/50 blur-[0.5px] shadow-[0_0_8px_#84ffbe]" aria-hidden />
+        <div className="pointer-events-none absolute left-1/6 bottom-1/3 -z-10 size-1.5 rounded-full bg-teal-200/40 blur-[0.5px]" aria-hidden />
+
+        <div className="mx-auto flex max-w-7xl flex-col px-6 lg:flex-row lg:items-center lg:gap-12 lg:px-8">
           <div className="max-w-2xl flex-1">
-            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-100/25 bg-emerald-950/35 px-3 py-1.5 text-xs font-semibold text-emerald-100/80 backdrop-blur-xl"><Sparkles className="size-3.5 text-amber-200" aria-hidden /> Made for your next chapter</div>
-            <h1 className="mt-7 max-w-[720px] text-5xl font-semibold leading-[0.98] tracking-[-0.08em] text-white sm:text-7xl lg:text-[5.6rem]">Your next chapter <span className="text-emerald-200">starts here.</span></h1>
-            <p className="mt-7 max-w-xl text-base leading-7 text-white/65 sm:text-lg sm:leading-8">GenLink brings the pieces of a meaningful life closer together — learn something useful, meet your people, manage your money, and find the opportunity that moves you forward.</p>
-
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <a href="#features" className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-300 px-5 py-3.5 text-sm font-semibold text-[#08251f] shadow-[0_18px_35px_rgba(111,239,161,0.2)] transition hover:-translate-y-1 hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#061716]">Explore the experience <ArrowRight className="size-4 transition group-hover:translate-x-1" aria-hidden /></a>
-              <a href="#download" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/[0.08] px-5 py-3.5 text-sm font-semibold text-white backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#061716]"><Play className="size-4 fill-current" aria-hidden /> See the app</a>
+            <div className="inline-flex items-center gap-2.5 rounded-full border border-emerald-400/30 bg-emerald-950/50 px-4 py-1.5 text-xs font-medium text-emerald-200 shadow-[0_0_20px_rgba(74,222,128,0.18)] backdrop-blur-xl">
+              <Sparkles className="size-3.5 text-emerald-300" aria-hidden />
+              <span>Made for Cambodia&apos;s next generation</span>
             </div>
 
-            <div className="mt-12 grid max-w-lg grid-cols-3 gap-5 border-t border-white/15 pt-5">
-              {[["5", "ways to move forward"], ["1", "space for your whole journey"], ["∞", "possibilities ahead"]].map(([value, label]) => <div key={label}><p className="text-2xl font-semibold tracking-[-0.06em] text-white sm:text-3xl">{value}</p><p className="mt-1 max-w-[120px] text-[0.65rem] leading-4 text-white/45">{label}</p></div>)}
+            <h1 className="mt-6 max-w-[720px] text-5xl font-extrabold leading-[1.04] tracking-[-0.06em] text-white sm:text-7xl lg:text-[5.4rem]">
+              Your next <br />
+              chapter{" "}
+              <span className="bg-gradient-to-r from-[#84ffbe] via-[#4ade80] to-[#2dd4bf] bg-clip-text text-transparent drop-shadow-[0_0_35px_rgba(74,222,128,0.35)]">
+                starts
+              </span>{" "}
+              <br />
+              <span className="bg-gradient-to-r from-[#84ffbe] via-[#4ade80] to-[#2dd4bf] bg-clip-text text-transparent drop-shadow-[0_0_35px_rgba(74,222,128,0.35)]">
+                here.
+              </span>
+            </h1>
+
+            <p className="mt-7 max-w-xl text-base font-normal leading-relaxed text-white/75 sm:text-lg sm:leading-8">
+              GenLink brings the pieces of a meaningful life closer together — learn something useful, meet your people, manage your money, and find the opportunity that moves you forward.
+            </p>
+
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <a
+                href="#features"
+                className="group inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#84ffbe] via-[#5eead4] to-[#4ade80] px-7 py-4 text-sm font-semibold text-[#06241b] shadow-[0_0_30px_rgba(132,255,190,0.35),0_10px_20px_rgba(0,0,0,0.25)] transition duration-300 hover:scale-[1.03] hover:shadow-[0_0_42px_rgba(132,255,190,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
+              >
+                <span>Explore the experience</span>
+                <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden />
+              </a>
+              <a
+                href="#download"
+                className="group inline-flex items-center justify-center gap-2.5 rounded-full border border-white/25 bg-white/[0.08] px-6 py-4 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(0,0,0,0.2)] backdrop-blur-xl transition duration-300 hover:scale-[1.02] hover:border-white/40 hover:bg-white/[0.14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
+              >
+                <span className="grid size-6 place-items-center rounded-full bg-white/15 text-white transition duration-300 group-hover:bg-white/25">
+                  <Play className="ml-0.5 size-3 fill-current" aria-hidden />
+                </span>
+                <span>See the app</span>
+              </a>
+            </div>
+
+            <div className="mt-8 flex items-center gap-3.5">
+              <div className="flex -space-x-2.5 overflow-hidden">
+                {[
+                  { src: REN_MAKARA_IMAGE, name: "Ren Makara" },
+                  { src: SOKNY_ENAT_IMAGE, name: "Sokny Enat" },
+                  { src: CHHAENG_SOKUNTHEARA_IMAGE, name: "Chhaeng Sokuntheara" },
+                  { src: HENG_CHANSELA_IMAGE, name: "Heng Chansela" },
+                ].map((u) => (
+                  <div
+                    key={u.name}
+                    className="relative size-10 overflow-hidden rounded-full border-2 border-[#09231f] bg-slate-800 shadow-md"
+                  >
+                    <Image src={u.src} alt={u.name} fill sizes="40px" className="object-cover object-top" />
+                  </div>
+                ))}
+              </div>
+              <p className="max-w-[220px] text-xs leading-snug text-white/75">
+                Join a growing community <br />
+                <span className="text-white/50">of students and young professionals</span>
+              </p>
+            </div>
+
+            <div className="mt-10 flex flex-wrap items-center gap-6 sm:gap-8 border-t border-white/15 pt-6">
+              <div className="flex items-center gap-3">
+                <div className="grid size-9 place-items-center rounded-xl border border-white/15 bg-white/[0.07] text-emerald-300">
+                  <UsersRound className="size-4" aria-hidden />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold tracking-tight text-white sm:text-3xl">5</p>
+                  <p className="text-[0.68rem] font-medium leading-tight text-white/50">ways to move forward</p>
+                </div>
+              </div>
+
+              <div className="hidden h-9 w-px bg-white/15 sm:block" aria-hidden />
+
+              <div className="flex items-center gap-3">
+                <div className="grid size-9 place-items-center rounded-xl border border-white/15 bg-white/[0.07] text-emerald-300">
+                  <Compass className="size-4" aria-hidden />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold tracking-tight text-white sm:text-3xl">1</p>
+                  <p className="text-[0.68rem] font-medium leading-tight text-white/50">space for your whole journey</p>
+                </div>
+              </div>
+
+              <div className="hidden h-9 w-px bg-white/15 sm:block" aria-hidden />
+
+              <div className="flex items-center gap-3">
+                <div className="grid size-9 place-items-center rounded-xl border border-white/15 bg-white/[0.07] text-emerald-300">
+                  <Infinity className="size-4" aria-hidden />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold tracking-tight text-white sm:text-3xl">∞</p>
+                  <p className="text-[0.68rem] font-medium leading-tight text-white/50">possibilities ahead</p>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="mt-16 flex-1 lg:mt-4"><AppPreview /></div>
+          <div className="mt-16 flex-1 lg:mt-4">
+            <AppPreview />
+          </div>
         </div>
 
-        <div className="absolute bottom-7 left-1/2 hidden -translate-x-1/2 items-center gap-2 text-[0.62rem] font-semibold uppercase tracking-[0.25em] text-white/40 sm:flex"><span className="h-px w-10 bg-white/25" /> Scroll to explore <ChevronDown className="size-3.5 animate-bounce" aria-hidden /></div>
+        <div className="absolute bottom-7 left-1/2 hidden -translate-x-1/2 items-center gap-2 text-[0.62rem] font-semibold uppercase tracking-[0.25em] text-white/40 sm:flex">
+          <span className="h-px w-10 bg-white/25" /> Scroll to explore <ChevronDown className="size-3.5 animate-bounce" aria-hidden />
+        </div>
       </section>
 
       <section id="features" className="relative scroll-mt-20 bg-background px-6 py-24 sm:py-32 lg:px-8">

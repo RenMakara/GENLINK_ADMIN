@@ -250,6 +250,26 @@ html:has(.landing-page) {
   animation: landing-glow 8s ease-in-out infinite alternate;
 }
 
+.landing-card-float-1 {
+  animation: landing-card-float-1 6s ease-in-out infinite;
+}
+
+.landing-card-float-2 {
+  animation: landing-card-float-2 7s ease-in-out infinite -2s;
+}
+
+.landing-card-float-3 {
+  animation: landing-card-float-3 6.5s ease-in-out infinite -1s;
+}
+
+.landing-card-float-4 {
+  animation: landing-card-float-4 7.5s ease-in-out infinite -3s;
+}
+
+.landing-trail-pulse {
+  animation: landing-trail-pulse 5s ease-in-out infinite;
+}
+
 .landing-download-panel {
   position: relative;
 }
@@ -285,8 +305,37 @@ html:has(.landing-page) {
 }
 
 @keyframes landing-phone-float {
-  0%, 100% { transform: translateY(0) rotate(3deg); }
-  50% { transform: translateY(-14px) rotate(1deg); }
+  0%, 100% {
+    transform: perspective(1000px) rotateY(-6deg) rotateX(3deg) rotateZ(1.5deg) translateY(0);
+  }
+  50% {
+    transform: perspective(1000px) rotateY(-4deg) rotateX(1.5deg) rotateZ(0.8deg) translateY(-12px);
+  }
+}
+
+@keyframes landing-card-float-1 {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(-0.5deg); }
+}
+
+@keyframes landing-card-float-2 {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(0.8deg); }
+}
+
+@keyframes landing-card-float-3 {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-7px) rotate(0.5deg); }
+}
+
+@keyframes landing-card-float-4 {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-9px) rotate(-0.7deg); }
+}
+
+@keyframes landing-trail-pulse {
+  0%, 100% { opacity: 0.65; filter: drop-shadow(0 0 8px rgba(74, 222, 128, 0.4)); }
+  50% { opacity: 0.95; filter: drop-shadow(0 0 16px rgba(74, 222, 128, 0.75)); }
 }
 
 @keyframes landing-orbit {
@@ -307,7 +356,12 @@ html:has(.landing-page) {
   .landing-nav,
   .landing-phone,
   .landing-preview-orbit,
-  .landing-hero-glow {
+  .landing-hero-glow,
+  .landing-card-float-1,
+  .landing-card-float-2,
+  .landing-card-float-3,
+  .landing-card-float-4,
+  .landing-trail-pulse {
     animation: none;
   }
 }
