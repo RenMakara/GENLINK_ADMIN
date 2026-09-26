@@ -27,6 +27,9 @@ describe("AdminLandingPage", () => {
     expect(screen.getByRole("heading", { name: "Heng Chansela" })).toBeDefined();
     expect(screen.getByRole("heading", { name: "Sokny Enat" })).toBeDefined();
     expect(screen.getByRole("heading", { name: "Chhaeng Sokuntheara" })).toBeDefined();
+    expect(screen.getByRole("img", { name: "Ren Makara profile" })).toBeDefined();
+    expect(screen.getByRole("img", { name: "Sokny Enat profile" })).toBeDefined();
+    expect(screen.getAllByText("Profile coming soon")).toHaveLength(2);
     expect(screen.getByRole("link", { name: "Open Ren Makara's GitHub profile" }).getAttribute("href")).toBe(
       "https://github.com/RenMakara",
     );

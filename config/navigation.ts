@@ -21,17 +21,6 @@ import {
 
 import type { Permission } from "@/types/permissions";
 
-/**
- * The sidebar, from SSOT §3.
- *
- * <h2>Every item is listed, including ones that must not render yet</h2>
- *
- * The alternative — writing down only the six MVP entries — would make "only MVP items appear"
- * true by omission, and there would be nothing to test. Declaring the whole map and filtering on
- * {@link NavItem.phase} makes it a behaviour: `visibleGroups()` can be checked against a menu
- * that genuinely contains Phase 7–10 entries, and shipping one later is a one-word edit rather
- * than an archaeology exercise in the SSOT.
- */
 
 /** The phase an item becomes reachable. `mvp` = present at the end of Phase 6. */
 export type NavPhase = "mvp" | 7 | 8 | 9 | 10 | "blocked";

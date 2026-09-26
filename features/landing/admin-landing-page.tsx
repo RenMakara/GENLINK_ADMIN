@@ -87,6 +87,12 @@ const FEATURES: Feature[] = [
   },
 ];
 
+const BASE_PATH = env.NEXT_PUBLIC_BASE_PATH || "";
+const LOGO_SRC = `${BASE_PATH}/genlink_logo.png`;
+const HERO_SRC = `${BASE_PATH}/angkor-wat-hero.png`;
+const REN_MAKARA_IMAGE = `${BASE_PATH}/team/ren-makara.png`;
+const SOKNY_ENAT_IMAGE = `${BASE_PATH}/team/sokny-enat.png`;
+
 type TeamMember = {
   name: string;
   role: string;
@@ -104,7 +110,7 @@ const TEAM_MEMBERS: TeamMember[] = [
     quote: "Build with curiosity, ship with purpose.",
     github: "https://github.com/RenMakara",
     initials: "RM",
-    profile: null,
+    profile: REN_MAKARA_IMAGE,
     accent: "from-emerald-200/30 via-emerald-400/10 to-cyan-300/10",
   },
   {
@@ -122,7 +128,7 @@ const TEAM_MEMBERS: TeamMember[] = [
     quote: "Good technology should feel useful, human, and shared.",
     github: "https://github.com/E-Nat",
     initials: "SE",
-    profile: null,
+    profile: SOKNY_ENAT_IMAGE,
     accent: "from-amber-200/30 via-amber-400/10 to-rose-300/10",
   },
   {
@@ -135,10 +141,6 @@ const TEAM_MEMBERS: TeamMember[] = [
     accent: "from-cyan-200/30 via-cyan-400/10 to-emerald-300/10",
   },
 ];
-
-const BASE_PATH = env.NEXT_PUBLIC_BASE_PATH || "";
-const LOGO_SRC = `${BASE_PATH}/genlink_logo.png`;
-const HERO_SRC = `${BASE_PATH}/angkor-wat-hero.png`;
 
 const APP_SCREENS = [
   {
@@ -298,7 +300,13 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
       <div className={`relative flex aspect-[1.12] items-end overflow-hidden bg-gradient-to-br ${member.accent} p-5`}>
         <div className="absolute -right-8 -top-10 size-40 rounded-full border border-white/15 bg-white/10 blur-2xl transition duration-500 group-hover:scale-125" aria-hidden />
         {member.profile ? (
-          <Image src={member.profile} alt={`${member.name} profile`} fill sizes="(min-width: 1024px) 240px, 50vw" className="object-cover" />
+          <Image
+            src={member.profile}
+            alt={`${member.name} profile`}
+            fill
+            sizes="(min-width: 1024px) 240px, 50vw"
+            className="object-cover object-top transition duration-500 group-hover:scale-105"
+          />
         ) : (
           <div className="relative grid size-24 place-items-center rounded-[2rem] border border-primary/25 bg-primary/10 text-3xl font-semibold tracking-[-0.08em] text-foreground shadow-[0_20px_45px_rgba(0,0,0,0.2)] backdrop-blur-xl dark:border-white/25 dark:bg-[#0a2420]/60 dark:text-white" aria-label={`${member.name} profile placeholder`}>
             {member.initials}
