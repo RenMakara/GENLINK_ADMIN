@@ -7,7 +7,13 @@ import {
   type UserStatus,
 } from "@/lib/ui/status";
 
-/** Every status remains identifiable through its text label. */
+/**
+ * status is conveyed without relying on colour.
+ *
+ * A node test cannot see a colour, which is the point: it asserts the thing a colour-blind
+ * operator relies on, the label. If every status has a non-empty word, the badge is legible to
+ * someone who cannot tell the pills apart by hue.
+ */
 
 describe("status presentation", () => {
   /** AC#1, stated directly: every status carries a word. */
@@ -21,7 +27,11 @@ describe("status presentation", () => {
     expect(new Set(labels).size).toBe(USER_STATUSES.length);
   });
 
-  /** Pin the semantic colors used for each status. */
+  /**
+   * The five expected mappings, pinned. This is the semantic table — green healthy,
+   * amber temporary, red terminal — and a silent reshuffle (suspended drawn red, say) should
+   * fail here rather than in production.
+   */
   it.each([
     ["ACTIVE", "Active", "success"],
     ["PENDING", "Pending", "secondary"],

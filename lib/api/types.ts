@@ -1,16 +1,18 @@
-/** TypeScript mirrors of the backend response records. */
 
-/** API response envelope; optional fields match the backend's null-omission rules. */
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data?: T;
   errorCode?: string;
-  /** ISO-8601 UTC. Rendered through the Asia/Phnom_Penh formatter (SSOT §9.5). */
+  /** UTC. Rendered through the Asia/Phnom_Penh formatter (SSOT §9.5). */
   timestamp: string;
 }
 
-/** Stable pagination fields nested inside the API response envelope. */
+/**
+ * Field for field with the backend record. It exists because Spring's own `Page` serialises
+ * its internal `Pageable`, which is unstable across versions and leaks sort/offset internals
+ * the client has no use for.
+ */
 export interface PageResponse<T> {
   content: T[];
   /** Zero-based. */
@@ -27,7 +29,16 @@ export interface BulkFailure {
   errorCode: string;
 }
 
-/** Per-item result shape for partial-success bulk operations. */
+/**
+ * The fixed shape every bulk endpoint returns .
+ *
+ * Bulk operations are **partial-success, not transactional**, and always return `200` —
+ * never `207` or `400`. An all-or-nothing bulk ban that rolls back because one target was
+ * already deleted is worse than useless to a moderator, so the result reports what happened
+ * per row and the UI renders "47 of 50 succeeded" with the failures listed.
+ *
+ * Typed once here because one component renders all of them.
+ */
 export interface BulkResult {
   /** Client-supplied; the server deduplicates replays of the same batch for 24 hours. */
   batchId: string;

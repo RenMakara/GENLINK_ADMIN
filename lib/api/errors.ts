@@ -1,6 +1,18 @@
-/** API errors use stable codes; messages are display-only. */
+/**
+ * The error contract (SSOT §8 C-2).
+ *
+ * The frontend maps `errorCode`; it never parses `message`. A message can be reworded at
+ * any time without notice — a code cannot, which is what makes it something the UI may branch
+ * on.
+ */
 
-/** Known admin API error codes. */
+/**
+ * Every code the admin API can return.
+ *
+ * A union rather than a string, so `if (error.code === "ADMIN_SUDO_REQURED")` fails to
+ * compile instead of silently never matching — which would show the generic fallback message
+ * and lose the sudo prompt.
+ */
 export const ERROR_CODES = [
   // Shared, from GlobalExceptionHandler.
   "NOT_FOUND",
@@ -42,7 +54,12 @@ export function isKnownErrorCode(code: string | undefined): code is ErrorCode {
   return code !== undefined && KNOWN.has(code);
 }
 
-/** Typed API failure with a stable code, status, and diagnostic message. */
+/**
+ * A failed API call.
+ *
+ * Carries the code the UI branches on, the HTTP status, and the server's message — the
+ * last for logs and bug reports only, never for display.
+ */
 export class ApiError extends Error {
   readonly code: ErrorCode | "UNKNOWN";
   readonly status: number;
@@ -81,11 +98,11 @@ export class ApiError extends Error {
 /**
  * Maps a code to an i18n message key, not to English text.
  *
- * <p>Returning a key keeps this module free of user-facing copy, so it can run in a route
+ * Returning a key keeps this module free of user-facing copy, so it can run in a route
  * handler or `proxy.ts` where no React context exists, and so the strings are translatable
  * (ADM-012). Callers resolve it with `useTranslations("Errors")`.
  *
- * <p>An unrecognised code falls back to a generic key rather than showing the raw code to a
+ * An unrecognised code falls back to a generic key rather than showing the raw code to a
  * member of staff. The code still reaches the logs via {@link ApiError.rawCode}.
  */
 export function errorMessageKey(error: ApiError): string {

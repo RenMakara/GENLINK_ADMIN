@@ -1,9 +1,8 @@
-/** Pure confirmation rules shared by dialogs and tests. */
-
-/** Low, medium, and high confirmation tiers. */
+/**
+ * The rules behind a sensitive-action confirmation.
+ */
 export type ConfirmTier = "low" | "medium" | "high";
 
-/** SSOT §10.7: the mandatory reason must be at least this many characters, trimmed. */
 export const MIN_REASON_LENGTH = 10;
 
 export interface ConfirmGateInput {
@@ -27,7 +26,6 @@ export interface ConfirmGateState {
   canConfirm: boolean;
 }
 
-/** Checks trimmed reasons and exact target-name matches for each confirmation tier. */
 export function confirmGate(input: ConfirmGateInput): ConfirmGateState {
   const reasonRequired = input.tier !== "low";
   const confirmationRequired = input.tier === "high";

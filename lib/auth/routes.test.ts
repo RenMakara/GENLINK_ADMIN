@@ -12,7 +12,14 @@ import {
   withReturnTo,
 } from "@/lib/auth/routes";
 
-/** Tests route protection and safe return-to redirects. */
+/**
+ * Route classification and the return-to round trip.
+ *
+ * Everything the proxy and the guard decide comes from here, which is the point of the module
+ * existing: `proxy.ts` cannot be unit tested without a Next server, and `AuthGuard` cannot be
+ * rendered without a DOM environment. Putting
+ * the decisions in a pure module means the parts that can be wrong are the parts under test.
+ */
 
 describe("classification", () => {
   it.each(["/", "/login", "/mfa", "/enrol"])("%s is public", (path) => {
@@ -27,18 +34,28 @@ describe("classification", () => {
     },
   );
 
-  /** Nested public routes remain accessible. */
+  /**
+   * The allowlist is prefix-matched, so a nested public route stays public. Written down because
+   * the alternative reading — exact match only — would guard `/enrol/confirm` if it ever existed
+   * and lock an admin out of the one page they are allowed to reach.
+   */
   it("covers paths nested under a public route", () => {
     expect(isPublicRoute("/enrol/confirm")).toBe(true);
   });
 
-  /** Prefix lookalikes such as `/loginhistory` remain protected. */
+  /**
+   * A route that merely *starts with* a public name is not public. `/loginhistory` is a
+   * plausible future audit page, and prefix matching without the boundary would expose it.
+   */
   it("does not treat a longer name as a public route", () => {
     expect(isProtectedRoute("/loginhistory")).toBe(true);
     expect(isProtectedRoute("/enrolments")).toBe(true);
   });
 
-  /** Sidebar routes remain protected by default. */
+  /**
+   * The guarantee that makes the allowlist safe: everything in the sidebar is protected without
+   * anyone having to add it anywhere. This fails the day a nav route collides with a public name.
+   */
   it("protects every route in the sidebar", () => {
     for (const group of NAVIGATION) {
       for (const item of group.items) {
@@ -60,7 +77,11 @@ describe("safeReturnTo", () => {
     expect(safeReturnTo(value)).toBe(DEFAULT_ROUTE);
   });
 
-  /** Rejects return paths that could redirect to another origin. */
+  /**
+   * The open-redirect cases. Each of these is accepted by the obvious `startsWith("/")` check
+   * and each one lands the admin on another origin — on a page that looks exactly like the one
+   * they just successfully signed in to.
+   */
   it.each([
     ["absolute http", "https://evil.example/users"],
     ["protocol-relative", "//evil.example/users"],
@@ -93,23 +114,6 @@ describe("safeReturnTo", () => {
     expect(safeReturnTo("/foo/../users")).toBe("/users");
   });
 
-  /**
-   * Two shapes that look like attacks and are not. Both were asserted as refusals while writing
-   * this and both were wrong, which is exactly why they are pinned as accepted — the next person
-   * to read the list will have the same instinct.
-   *
-   * <ul>
-   *   <li>`/javascript:alert(1)` is a *path*, not a scheme. The leading slash settles it: the
-   *       browser navigates to a page of that name and gets a 404. The scheme form without the
-   *       slash is refused above, and that is the one that matters.</li>
-   *   <li>`..` cannot climb above the root. `/../../evil.example` resolves to the same-origin
-   *       path `/evil.example` — a 404 on this site, not a trip to someone else's.</li>
-   * </ul>
-   *
-   * <p>Refusing them anyway would cost nothing here, but the rule would be "reject things that
-   * pattern-match as scary", which is the kind of check that gets loosened later by someone who
-   * cannot tell which cases it was actually load-bearing for.
-   */
   it.each([
     ["/javascript:alert(1)", "/javascript:alert(1)"],
     ["/../../evil.example", "/evil.example"],
@@ -129,7 +133,7 @@ describe("safeReturnTo", () => {
 });
 
 describe("loginUrlFor", () => {
-  /** AC#1: the destination survives the bounce to sign-in. */
+  /** the destination survives the bounce to sign-in. */
   it("remembers where the visitor was going", () => {
     expect(loginUrlFor("/users")).toBe("/login?next=%2Fusers");
   });
@@ -173,7 +177,7 @@ describe("returnToFrom", () => {
 
 describe("the full round trip", () => {
   /**
-   * What AC#1 actually describes, end to end: intercepted at `/users`, bounced to sign-in,
+   * What actually describes, end to end: intercepted at `/users`, bounced to sign-in,
    * carried across the code step, and returned to `/users`.
    */
   it("returns the admin to the page they asked for", () => {

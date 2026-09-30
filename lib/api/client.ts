@@ -4,11 +4,17 @@ import { buildQuery } from "./endpoints";
 import { ApiError } from "./errors";
 import type { ApiResponse } from "./types";
 
-/** Unwraps API responses and refreshes expired sessions once per request group. */
+/**
+ * The one way the portal talks to the backend.
+ *
+ * Unwraps the `ApiResponse` envelope, turns failures into a typed {@link ApiError} the UI
+ * can branch on, and refreshes an expired session once — not once per in-flight request.
+ */
 
-/** Auth callbacks keep the API client independent of the auth feature. */
+/** Supplied by the auth provider. Kept behind an interface so `lib/api` does not
+ * import the auth feature, which would make the dependency circular. */
 interface AuthBridge {
-  /** Current access token, held in memory — never `localStorage` (SSOT §10.9). */
+  /** Current access token, held in memory — never `localStorage`. */
   getAccessToken: () => string | null;
   /** Exchanges the refresh cookie for a new access token. `false` means the session is over. */
   refresh: () => Promise<boolean>;
@@ -34,7 +40,14 @@ export function resetAuth(): void {
   refreshInFlight = null;
 }
 
-/** Shares one refresh promise across concurrent failed requests. */
+/**
+ * The single-flight guard.
+ *
+ * A dashboard fires a dozen queries at once, so an expired token produces a dozen
+ * simultaneous 401s. Without this, each would start its own refresh: the backend rotates the
+ * refresh token on every call, so the first rotation invalidates the token the other eleven
+ * are still using, and the admin is thrown out mid-session. They share one promise instead.
+ */
 let refreshInFlight: Promise<boolean> | null = null;
 
 function refreshOnce(): Promise<boolean> {
@@ -82,8 +95,6 @@ async function send(path: string, options: RequestOptions): Promise<Response> {
 
 /**
  * Calls the API and returns the unwrapped `data`.
- *
- * @throws {ApiError} on any non-success, including a transport failure.
  */
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   let response: Response;
