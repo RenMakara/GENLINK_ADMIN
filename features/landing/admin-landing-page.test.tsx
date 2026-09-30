@@ -36,7 +36,7 @@ describe("AdminLandingPage", () => {
       "https://github.com/RenMakara",
     );
     expect(screen.getAllByRole("link", { name: /Open .* GitHub profile/i })).toHaveLength(4);
-    expect(screen.getAllByRole("button", { name: "Toggle light or dark theme" })).toHaveLength(2);
+    expect(screen.queryByRole("button", { name: "Toggle light or dark theme" })).toBeNull();
     expect(screen.getAllByRole("link", { name: "Download app, coming soon" })).toHaveLength(1);
     expect(screen.getAllByRole("link", { name: /Admin login/i })).toHaveLength(2);
     expect(screen.getAllByRole("link", { name: /Admin login/i }).every((link) => link.getAttribute("href") === "/login")).toBe(true);
