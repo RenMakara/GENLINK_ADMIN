@@ -1,12 +1,4 @@
-/**
- * Starts the browser mock worker, when — and only when — mocking is enabled.
- *
- * <p>The single toggle (SSOT §8 / ADM-041 AC-1) is `NEXT_PUBLIC_API_MOCKING`, read through the
- * one env boundary (SSOT §1.7). Disabled by default and in production, so a production bundle
- * never starts a worker; and because `./browser` is reached through a dynamic `import()` behind
- * that guard, `msw/browser` is code-split into a chunk that is never fetched when mocking is
- * off — the production build stays clean.
- */
+/** Starts the browser mock worker only when enabled. */
 
 import { env } from "@/lib/config/env";
 

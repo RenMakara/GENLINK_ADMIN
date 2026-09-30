@@ -12,14 +12,7 @@ import {
   withReturnTo,
 } from "@/lib/auth/routes";
 
-/**
- * ADM-039 — route classification and the return-to round trip.
- *
- * <p>Everything the proxy and the guard decide comes from here, which is the point of the module
- * existing: `proxy.ts` cannot be unit tested without a Next server, and `AuthGuard` cannot be
- * rendered without a DOM environment (this project runs vitest in node until Phase 2). Putting
- * the decisions in a pure module means the parts that can be wrong are the parts under test.
- */
+/** Tests route protection and safe return-to redirects. */
 
 describe("classification", () => {
   it.each(["/", "/login", "/mfa", "/enrol"])("%s is public", (path) => {
@@ -34,28 +27,18 @@ describe("classification", () => {
     },
   );
 
-  /**
-   * The allowlist is prefix-matched, so a nested public route stays public. Written down because
-   * the alternative reading — exact match only — would guard `/enrol/confirm` if it ever existed
-   * and lock an admin out of the one page they are allowed to reach.
-   */
+  /** Nested public routes remain accessible. */
   it("covers paths nested under a public route", () => {
     expect(isPublicRoute("/enrol/confirm")).toBe(true);
   });
 
-  /**
-   * A route that merely *starts with* a public name is not public. `/loginhistory` is a
-   * plausible future audit page, and prefix matching without the boundary would expose it.
-   */
+  /** Prefix lookalikes such as `/loginhistory` remain protected. */
   it("does not treat a longer name as a public route", () => {
     expect(isProtectedRoute("/loginhistory")).toBe(true);
     expect(isProtectedRoute("/enrolments")).toBe(true);
   });
 
-  /**
-   * The guarantee that makes the allowlist safe: everything in the sidebar is protected without
-   * anyone having to add it anywhere. This fails the day a nav route collides with a public name.
-   */
+  /** Sidebar routes remain protected by default. */
   it("protects every route in the sidebar", () => {
     for (const group of NAVIGATION) {
       for (const item of group.items) {
@@ -77,11 +60,7 @@ describe("safeReturnTo", () => {
     expect(safeReturnTo(value)).toBe(DEFAULT_ROUTE);
   });
 
-  /**
-   * The open-redirect cases. Each of these is accepted by the obvious `startsWith("/")` check
-   * and each one lands the admin on another origin — on a page that looks exactly like the one
-   * they just successfully signed in to.
-   */
+  /** Rejects return paths that could redirect to another origin. */
   it.each([
     ["absolute http", "https://evil.example/users"],
     ["protocol-relative", "//evil.example/users"],

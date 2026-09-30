@@ -3,12 +3,7 @@ import { AlertTriangle, XCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { authErrorMessage } from "@/features/auth/error-messages";
 
-/**
- * The failure banner for both sign-in steps.
- *
- * <p>`role="alert"` so it is announced the moment it appears — an admin using a screen reader
- * would otherwise submit, hear nothing, and have no idea the form had answered (AC#5).
- */
+/** Accessible failure banner used on both sign-in steps. */
 export function AuthErrorAlert({ errorCode }: { errorCode: string | undefined | null }) {
   if (errorCode === undefined || errorCode === null) {
     return null;

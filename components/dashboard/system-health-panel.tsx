@@ -167,13 +167,7 @@ function needsAttention(status: SubsystemStatus): boolean {
   return status === "DOWN" || status === "DEGRADED" || status === "UNKNOWN";
 }
 
-/**
- * System Health Summary Panel (SSOT §2.5, ADM-055).
- *
- * <p>Surfaces backend Actuator status, S3 storage, mail delivery, and scheduled job outcomes.
- * Every indicator features accessible status icons AND text labels (never color alone - AC#1).
- * Scheduled jobs distinguish "Never run since restart" from "Failed" (AC#2).
- */
+/** Backend, storage, email, and scheduled-job status with text labels. */
 export function SystemHealthPanel({
   data,
   loading = false,

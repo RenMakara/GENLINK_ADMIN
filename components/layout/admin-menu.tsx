@@ -15,13 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-/**
- * The admin avatar menu (SSOT §3).
- *
- * <p>Identity and sign-out come from the session (ADM-035). Sign-out revokes the refresh cookie
- * and the access token's session server-side, so it takes effect immediately rather than when
- * the token would have expired.
- */
+/** Avatar menu for admin identity and sign-out. */
 export function AdminMenu() {
   const { session, signOut } = useAuth();
   const [securityOpen, setSecurityOpen] = useState(false);

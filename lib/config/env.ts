@@ -1,25 +1,8 @@
 import { z } from "zod";
 
-/**
- * The only file in the application that reads `process.env`.
- *
- * <p>SSOT §1.7 requires the portal to be domain-agnostic: no hostname, IP, port or scheme in
- * code, so moving from `http://<ip>/admin` to `https://admin.genlink.kh` is a configuration
- * change and nothing more. That only holds if configuration enters through one door, which is
- * why an ESLint rule forbids `process.env` everywhere else.
- *
- * <p>Values are validated rather than merely read. An unvalidated env var does not fail — it
- * arrives as `undefined` and the app cheerfully requests `undefined/admin/users`, which
- * surfaces as a confusing 404 rather than a configuration error.
- */
+/** Central validated environment config; app code should not read `process.env` directly. */
 
-/**
- * Every variable is accessed as a literal property.
- *
- * <p>Next.js substitutes `process.env.NEXT_PUBLIC_*` at build time by textual replacement, so
- * a dynamic lookup — `process.env[name]` — is never replaced and reads `undefined` in the
- * browser. This object cannot be built in a loop for that reason.
- */
+/** Use literal env properties so Next.js can inline public values at build time. */
 const raw = {
   NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   NEXT_PUBLIC_BASE_PATH: process.env.NEXT_PUBLIC_BASE_PATH,
@@ -35,16 +18,9 @@ const booleanish = z
   .enum(["true", "false", "1", "0"])
   .transform((value) => value === "true" || value === "1");
 
-/**
- * Client-readable configuration. `NEXT_PUBLIC_*` is inlined into the browser bundle, so
- * nothing secret may go here — the prefix is a publication decision, not a naming convention.
- */
+/** Browser-visible settings only; never expose secrets here. */
 const clientSchema = z.object({
-  /**
-   * Where the admin API lives. Relative by default: under the path-based routing chosen in
-   * SSOT §1.7 the portal and the API share one origin, which removes CORS from the MVP
-   * entirely. An absolute URL here is what the eventual subdomain split will set.
-   */
+  /** API base path; use an absolute URL only for a separate API host. */
   NEXT_PUBLIC_API_BASE_URL: z
     .string()
     .min(1)
@@ -55,10 +31,7 @@ const clientSchema = z.object({
     })
     .default("/api/v1"),
 
-  /**
-   * Path the portal is served under. `/admin` today; empty once it has its own subdomain.
-   * Must not end in a slash — Next.js rejects that, and it is easy to add by habit.
-   */
+  /** Portal base path, without a trailing slash. */
   NEXT_PUBLIC_BASE_PATH: z
     .string()
     .refine((value) => value === "" || (value.startsWith("/") && !value.endsWith("/")), {
@@ -66,10 +39,7 @@ const clientSchema = z.object({
     })
     .default("/admin"),
 
-  /**
-   * Display timezone. Fixed rather than the browser's, so an admin travelling sees the same
-   * day boundaries as a colleague in Phnom Penh (SSOT §9.5).
-   */
+  /** Timezone used for displayed dates. */
   NEXT_PUBLIC_TIMEZONE: z
     .string()
     .refine((value) => Intl.supportedValuesOf("timeZone").includes(value), {
@@ -77,30 +47,12 @@ const clientSchema = z.object({
     })
     .default("Asia/Phnom_Penh"),
 
-  /**
-   * Which deployment this is. Drives the topbar badge (SSOT §3).
-   *
-   * <p>Not cosmetic. Staff will have staging and production open in adjacent tabs, and "ban
-   * user" is not an action you want to take against the wrong database. The badge is the only
-   * thing on screen that tells them apart.
-   *
-   * <p>Defaults to `development`, so a misconfigured deployment shows a badge it should not
-   * rather than hiding one it should show. Failing towards a visible warning is the right
-   * direction for a control whose whole job is to be noticed.
-   */
+  /** Deployment name used by the environment badge. */
   NEXT_PUBLIC_ENVIRONMENT: z
     .enum(["development", "staging", "production"])
     .default("development"),
 
-  /**
-   * The one flag that turns the MSW mock layer on (ADM-041). Off by default and in production,
-   * so the portal talks to the real API unless a developer opts in — the mocks let the frontend
-   * run ahead of unbuilt endpoints (SSOT §8), they are not a shipping mode.
-   *
-   * <p>`booleanish` accepts the `true`/`false`/`1`/`0` a shell or `.env` actually produces. As a
-   * `NEXT_PUBLIC_*` value it is inlined into the browser bundle, which is required: the worker
-   * that reads it starts in the browser.
-   */
+  /** Enables browser API mocks during development. */
   NEXT_PUBLIC_API_MOCKING: booleanish.default(false),
 });
 
@@ -108,26 +60,10 @@ const clientSchema = z.object({
  * Server-only configuration. Never sent to the browser.
  */
 const serverSchema = z.object({
-  /**
-   * `Secure` flag on the refresh-token cookie.
-   *
-   * <p>Defaults to **true**, per SSOT §10.9, and the HTTP MVP sets it to `false` explicitly.
-   * That direction matters: defaulting to `false` and forgetting to set it in a TLS
-   * environment ships insecure cookies silently, whereas defaulting to `true` and forgetting
-   * it on plain HTTP breaks sign-in loudly on the first attempt. Fail visibly, not quietly.
-   */
+  /** Secure flag for the refresh cookie; defaults to true. */
   ADMIN_COOKIE_SECURE: booleanish.default(true),
 
-  /**
-   * Absolute origin of the Spring API, for server-to-server calls from the route handlers.
-   *
-   * <p>Separate from {@code NEXT_PUBLIC_API_BASE_URL}, which is a *relative* path because the
-   * browser reaches the API through the same nginx origin (SSOT §1.7). A route handler runs on
-   * the server, where a relative URL has no origin to resolve against, so it needs a real one.
-   *
-   * <p>Server-only, so it is not exposed to the browser: it may name an internal address the
-   * public cannot reach - `http://app:8888` on the Docker network, for instance.
-   */
+  /** Server-only origin for route-handler calls to Spring. */
   ADMIN_API_ORIGIN: z
     .string()
     .refine((value) => /^https?:\/\//.test(value), {

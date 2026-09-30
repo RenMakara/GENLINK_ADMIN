@@ -4,15 +4,9 @@ import { buildQuery } from "./endpoints";
 import { ApiError } from "./errors";
 import type { ApiResponse } from "./types";
 
-/**
- * The one way the portal talks to the backend.
- *
- * <p>Unwraps the `ApiResponse` envelope, turns failures into a typed {@link ApiError} the UI
- * can branch on, and refreshes an expired session once — not once per in-flight request.
- */
+/** Unwraps API responses and refreshes expired sessions once per request group. */
 
-/** Supplied by the auth provider (ADM-035). Kept behind an interface so `lib/api` does not
- * import the auth feature, which would make the dependency circular. */
+/** Auth callbacks keep the API client independent of the auth feature. */
 interface AuthBridge {
   /** Current access token, held in memory — never `localStorage` (SSOT §10.9). */
   getAccessToken: () => string | null;
@@ -40,14 +34,7 @@ export function resetAuth(): void {
   refreshInFlight = null;
 }
 
-/**
- * The single-flight guard.
- *
- * <p>A dashboard fires a dozen queries at once, so an expired token produces a dozen
- * simultaneous 401s. Without this, each would start its own refresh: the backend rotates the
- * refresh token on every call, so the first rotation invalidates the token the other eleven
- * are still using, and the admin is thrown out mid-session. They share one promise instead.
- */
+/** Shares one refresh promise across concurrent failed requests. */
 let refreshInFlight: Promise<boolean> | null = null;
 
 function refreshOnce(): Promise<boolean> {

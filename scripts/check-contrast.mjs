@@ -1,15 +1,4 @@
-/**
- * WCAG 2.1 AA contrast check for the design tokens in `app/globals.css`.
- *
- * SSOT §11.8 requires 4.5:1 for text in both themes, and ADM-013 AC#3 makes it a release
- * gate. This runs it as a check rather than an intention: the tokens are edited rarely and
- * by eye, and a ratio of 4.3 looks identical to 4.6 in a browser.
- *
- * Reads the CSS so it can never drift from what actually ships — there is no second copy of
- * the palette to keep in sync.
- *
- *   node scripts/check-contrast.mjs
- */
+/** Checks text and UI token contrast against WCAG thresholds. */
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -38,11 +27,7 @@ const TEXT_PAIRS = [
   ['muted-foreground', 'muted'],
 ];
 
-/**
- * WCAG 1.4.11 asks 3:1 for visual information needed to **identify a UI component** — a form
- * field's boundary, a focus indicator. Not 4.5:1: a control outline that met text contrast
- * would be a heavy black line.
- */
+/** Checks 3:1 contrast for control boundaries and focus indicators. */
 const UI_PAIRS = [
   // `--input` draws the edge of a text field. Without it there is nothing else marking where
   // the control is, so it has to be findable.
@@ -53,12 +38,7 @@ const UI_PAIRS = [
   ['ring', 'card'],
 ];
 
-/**
- * Reported, never enforced. `--border` separates regions that are already distinguishable by
- * their own background (a card against the page), so it is decorative under 1.4.11. Holding
- * it to 3:1 would mean heavy rules everywhere and would not help anyone — every mainstream
- * design system, shadcn's own defaults included, sits near 1.2-1.5:1 here.
- */
+/** Reports decorative border contrast without enforcing a threshold. */
 const INFORMATIONAL_PAIRS = [
   ['border', 'background'],
   ['border', 'card'],

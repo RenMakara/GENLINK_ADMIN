@@ -8,13 +8,7 @@ import nextTs from "eslint-config-next/typescript";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
-/**
- * Feature directories, read at config load rather than hard-coded.
- *
- * Adding `features/roles/` is then enough for the boundary to cover it — a list maintained by
- * hand would be correct on the day it was written and quietly wrong a month later, which for
- * a rule like this is worse than having none.
- */
+/** Lists feature folders for automatic boundary rules. */
 function featureNames() {
   try {
     return readdirSync(join(here, "features"), { withFileTypes: true })
@@ -25,14 +19,7 @@ function featureNames() {
   }
 }
 
-/**
- * How deeply a file can sit inside a feature and still climb out with `../`.
- *
- * `features/users/dialogs/ban-dialog.tsx` needs two hops to reach `features/`; three covers
- * anything realistic. This exists because `no-restricted-imports` globs the *specifier
- * string*, not the resolved path — it cannot tell that `../beta/thing` leaves the feature, so
- * the escape routes are enumerated instead.
- */
+/** Maximum relative-import depth checked by feature boundaries. */
 const MAX_FEATURE_DEPTH = 3;
 
 /** `['../beta', '../beta/**', '../../beta', …]` — every relative way into `other`. */
@@ -45,10 +32,7 @@ function relativeEscapes(other) {
   return patterns;
 }
 
-/**
- * One config block per feature: inside `features/x/**`, reaching into any *other* feature is
- * an error, by alias or by relative path. `features/x` importing its own files stays legal.
- */
+/** Prevents imports between feature folders. */
 const featureBoundaries = featureNames().map((feature) => {
   const others = featureNames().filter((other) => other !== feature);
   return {
@@ -74,12 +58,7 @@ const featureBoundaries = featureNames().map((feature) => {
   };
 });
 
-/**
- * `toLocaleString()` and friends render in the *browser's* timezone, so a dashboard disagrees
- * with itself depending on who is looking — and it is invisible when reviewed from Phnom Penh,
- * where the two agree (SSOT §9.5). Verified: with the pinning removed, the date suite passes
- * 24/24 on a Cambodian machine and fails 9 assertions from New York.
- */
+/** Forbids date formatting that uses the browser's local timezone. */
 const NO_LOCAL_TIMEZONE = {
   selector: "CallExpression[callee.property.name=/^toLocale(Date|Time)?String$/]",
   message:
@@ -87,11 +66,7 @@ const NO_LOCAL_TIMEZONE = {
     "the browser's timezone (SSOT §9.5).",
 };
 
-/**
- * The same bug by the other route. `new Intl.DateTimeFormat(locale, {...})` with no `timeZone`
- * option silently uses the machine's zone, and unlike `toLocaleString` it *looks* deliberate —
- * which makes it likelier to survive review, not less.
- */
+/** Forbids date formatters without an explicit timezone. */
 const NO_RAW_INTL_DATE = ["NewExpression", "CallExpression"].map((kind) => ({
   selector: `${kind}[callee.object.name='Intl'][callee.property.name='DateTimeFormat']`,
   message:
@@ -99,15 +74,7 @@ const NO_RAW_INTL_DATE = ["NewExpression", "CallExpression"].map((kind) => ({
     "Intl.DateTimeFormat uses the machine's timezone (SSOT §9.5).",
 }));
 
-/**
- * Web storage is readable by any script on the page, so a token in it is a token an XSS walks
- * away with — one carrying `user:delete` (SSOT §10.9, ADM-035 AC#1).
- *
- * <p>The access token lives in a ref and the refresh token in an `httpOnly` cookie. Neither is
- * a rule anyone can see at the point where a "just cache it for a second" would be written, so
- * the rule is here instead. `hooks/use-sidebar-state.ts` is exempted below — a collapsed
- * sidebar is not a credential.
- */
+/** Prevents storing session credentials in browser storage. */
 const NO_WEB_STORAGE = ["localStorage", "sessionStorage"].flatMap((store) => [
   {
     selector: `MemberExpression[object.name='${store}']`,
@@ -123,11 +90,7 @@ const NO_WEB_STORAGE = ["localStorage", "sessionStorage"].flatMap((store) => [
   },
 ]);
 
-/**
- * An inline key cannot be invalidated by anything that does not repeat the same literal.
- * Banning a user has to refresh the list, the detail and the enforcement timeline; with
- * scattered literals, a missed one shows the moderator stale data straight after they acted.
- */
+/** Requires query-key factories so mutation invalidation stays consistent. */
 const NO_INLINE_QUERY_KEY = {
   selector: "Property[key.name='queryKey'] > ArrayExpression",
   message:
@@ -140,11 +103,9 @@ const eslintConfig = defineConfig([
   ...nextTs,
 
   {
-    // `process.env` belongs in one place, so the domain-agnostic rule (SSOT §1.7) is
-    // enforceable rather than aspirational: no hostname, IP, port or scheme in code.
+    // Route app configuration through one validated module.
     files: ["**/*.{ts,tsx}"],
-    // Exactly one application file may read process.env (SSOT §1.7). The others are outside
-    // the app: build config, and standalone node scripts that never reach the browser.
+    // Build config and scripts run outside the browser app.
     ignores: ["lib/config/env.ts", "scripts/**", "*.config.{ts,mjs,js}"],
     rules: {
       "no-restricted-properties": [
@@ -168,10 +129,7 @@ const eslintConfig = defineConfig([
   },
 
   {
-    /**
-     * Table density and column visibility are non-sensitive UI preferences. They may be
-     * persisted under an admin-scoped key, but this exception must not expand to auth state.
-     */
+    /** Allow storage for non-sensitive table preferences only. */
     files: ["hooks/use-data-table-preferences.ts"],
     rules: {
       "no-restricted-syntax": [
@@ -184,12 +142,7 @@ const eslintConfig = defineConfig([
   },
 
   {
-    /**
-     * The one file allowed to touch web storage.
-     *
-     * <p>Sidebar collapse is a display preference, not a credential. Exempted narrowly rather
-     * than by a blanket disable, so the next use of storage in this file is still caught.
-     */
+    /** Allow storage for sidebar display preferences only. */
     files: ["hooks/use-sidebar-state.ts"],
     rules: {
       "no-restricted-syntax": [
@@ -202,13 +155,7 @@ const eslintConfig = defineConfig([
   },
 
   {
-    /**
-     * The one file allowed to build a date formatter — it is what the rule above points at.
-     *
-     * <p>Flat config replaces a rule's options rather than merging them, so the two rules that
-     * still apply here are restated. Narrowing an exemption to a single file beats adding a
-     * blanket `eslint-disable`, which would also silence the next mistake in it.
-     */
+    /** Allow centralized date formatters to specify the app timezone. */
     files: ["lib/utils/date.ts"],
     rules: {
       "no-restricted-syntax": ["error", NO_LOCAL_TIMEZONE, ...NO_WEB_STORAGE, NO_INLINE_QUERY_KEY],
@@ -218,13 +165,12 @@ const eslintConfig = defineConfig([
   ...featureBoundaries,
 
   globalIgnores([
-    // Default ignores of eslint-config-next:
+    // Standard Next.js build output.
     ".next/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // Generated verbatim by the MSW CLI (ADM-041) and marked "do NOT modify" — vendored, not
-    // our source, so it is not ours to lint.
+    // Generated by MSW; do not lint vendored code.
     "public/mockServiceWorker.js",
   ]),
 ]);

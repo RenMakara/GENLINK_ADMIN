@@ -72,10 +72,7 @@ function writeRaw<T>(key: string | undefined, value: T) {
   }
 }
 
-/**
- * Persists only non-sensitive table UI preferences such as density and column visibility.
- * Callers provide an admin-scoped key when the preference should follow the signed-in admin.
- */
+/** Persists table preferences under an optional admin-scoped key. */
 export function usePersistedTablePreference<T>(
   key: string | undefined,
   defaultValue: T,

@@ -26,12 +26,7 @@ export type UserListTableState = Pick<
 
 export type UserListQuery = Record<string, unknown>;
 
-/**
- * Converts the URL-owned table state to the documented ADM-059 query contract.
- *
- * The hook owns URL encoding; the API client owns HTTP encoding. Keeping this adapter pure makes
- * it possible to verify that the two contracts agree without rendering a page or making a call.
- */
+/** Maps URL table state to the API list-query contract. */
 export function buildUserListQuery(state: UserListTableState): UserListQuery {
   const query: UserListQuery = {
     page: state.pageIndex,

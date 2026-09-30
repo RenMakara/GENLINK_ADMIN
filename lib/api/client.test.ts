@@ -20,12 +20,7 @@ function failure(status: number, errorCode: string, message = "failed"): Respons
   return envelope({ success: false, message, errorCode, timestamp: "2026-08-06T12:00:00Z" }, status);
 }
 
-/**
- * Awaits a call that must fail, and returns the typed error.
- *
- * Better than `.catch((e) => e)`: that yields `unknown`, and — worse — a promise that
- * *resolved* would flow straight into the assertions and quietly pass.
- */
+/** Returns the typed error from a rejected call. */
 async function expectApiError(promise: Promise<unknown>): Promise<ApiError> {
   try {
     await promise;
@@ -53,10 +48,7 @@ describe("api client", () => {
     await expect(api.get("/admin/users/u1")).resolves.toEqual({ id: "u1", name: "Sok Dara" });
   });
 
-  /**
-   * AC#1. The UI branches on the code, so a failure has to arrive as something with a `code`
-   * field — not a string it would have to parse.
-   */
+  /** API failures expose a typed code for UI handling. */
   it("surfaces a 403 as a typed ApiError carrying the errorCode", async () => {
     vi.mocked(fetch).mockResolvedValueOnce(failure(403, "ADMIN_SUDO_REQUIRED", "Step-up required"));
 
@@ -107,11 +99,7 @@ describe("api client", () => {
   });
 
   describe("session refresh", () => {
-    /**
-     * AC#2, and the reason the guard exists. The backend rotates the refresh token on every
-     * call, so a second concurrent refresh would invalidate the token the first just issued
-     * and throw the admin out mid-session.
-     */
+    /** Concurrent requests share one refresh to avoid token rotation conflicts. */
     it("refreshes once for many concurrent 401s", async () => {
       const refresh = vi.fn().mockResolvedValue(true);
       configureAuth({ getAccessToken: () => "expired", refresh });

@@ -19,12 +19,7 @@ export interface UserSearchInputProps
   label?: string;
 }
 
-/**
- * Users-list search control for ADM-071.
- *
- * This component is presentation-only. URL serialization, debouncing, page reset, and
- * reload restoration remain owned by ADM-068's useTableState hook in the page feature.
- */
+/** Search control; URL state and debouncing are owned by the table hook. */
 export function UserSearchInput({
   value,
   onValueChange,

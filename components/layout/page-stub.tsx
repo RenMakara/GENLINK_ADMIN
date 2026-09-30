@@ -1,12 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-/**
- * Placeholder for a route the shell links to but whose feature has not been built.
- *
- * <p>These exist so the navigation is walkable and breadcrumbs resolve while the shell is being
- * reviewed (ADM-034). Each says which task replaces it, so a stub cannot be mistaken for a
- * finished page that happens to be empty.
- */
+/** Placeholder for a route whose feature is not implemented yet. */
 export function PageStub({ title, task }: { title: string; task: string }) {
   return (
     <div className="flex flex-col gap-4">

@@ -19,10 +19,7 @@ describe("login schema", () => {
     expect(loginSchema.safeParse({ email: "not-an-email", password: "x" }).success).toBe(false);
   });
 
-  /**
-   * No minimum length. A client-side rule would reject a correct legacy password before it was
-   * ever tried, and it tells an attacker the shape of what is stored.
-   */
+  /** Accept legacy passwords without client-side length rules. */
   it("imposes no length or complexity rule on the password", () => {
     expect(loginSchema.safeParse({ email: "a@b.co", password: "a" }).success).toBe(true);
   });
@@ -52,10 +49,7 @@ describe("mfa schema", () => {
     expect(mfaSchema.safeParse({ code: "1234567" }).success).toBe(false);
   });
 
-  /**
-   * The message mentions recovery codes. An admin reaching for one has usually lost their
-   * phone; "must be 6 digits" at that moment would be a small cruelty.
-   */
+  /** Recovery codes should not receive the TOTP length error. */
   it("its message mentions recovery codes", () => {
     const result = mfaSchema.safeParse({ code: "nope" });
 

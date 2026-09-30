@@ -5,12 +5,7 @@ import messages from "@/messages/en.json";
 import { ApiError, ERROR_CODES, errorMessageKey, isKnownErrorCode } from "./errors";
 
 describe("error contract", () => {
-  /**
-   * The drift check. Adding a code to the union without adding its message does not fail
-   * anywhere — the UI quietly shows the generic fallback, and nobody notices until a member
-   * of staff reports an unhelpful error. Same reasoning as the backend's permission-code
-   * drift test, which exists because there is no foreign key to catch it.
-   */
+  /** Every API error code has a user-facing message. */
   it("every error code has a message", () => {
     const translated = Object.keys(messages.Errors);
     const missing = ERROR_CODES.filter((code) => !translated.includes(code));

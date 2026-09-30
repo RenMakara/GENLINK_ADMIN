@@ -14,13 +14,7 @@ import { redirectsToEnrolment } from "@/features/auth/error-messages";
 import { mfaSchema, normaliseCode, type MfaValues } from "@/features/auth/schemas";
 import { returnToFrom } from "@/lib/auth/routes";
 
-/**
- * The second factor (ADM-036).
- *
- * <p>Accepts a 6-digit TOTP code or a recovery code; the server decides which. On success the
- * session exists and the admin lands wherever they were headed — the dashboard, unless a guard
- * intercepted them on the way to somewhere else (ADM-039).
- */
+/** Second-factor form accepting a TOTP or recovery code. */
 export function MfaForm() {
   const { challenge, completeSignIn } = useAuth();
   const router = useRouter();
@@ -109,10 +103,7 @@ export function MfaForm() {
         {isSubmitting ? "Verifying…" : "Sign in"}
       </Button>
 
-      {/*
-        Five wrong codes void the challenge (SSOT §10.6), and the server then answers
-        RATE_LIMITED rather than "wrong code" — so leaving is genuinely the way out.
-      */}
+      {/* Leave this step after repeated failures; the server voids the challenge. */}
       <Button type="button" variant="ghost" onClick={() => router.replace("/login")}>
         Start again
       </Button>

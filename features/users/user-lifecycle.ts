@@ -51,12 +51,7 @@ export function userLifecycleErrorMessage(error: unknown): string | null {
   }
 }
 
-/**
- * Runs a high-tier account lifecycle action with rollback and projection invalidation.
- *
- * <p>The high-tier dialog opens the server-side sudo window when the API returns
- * {@code ADMIN_SUDO_REQUIRED}; this hook deliberately knows nothing about credentials.
- */
+/** Runs account lifecycle actions with rollback and projection refresh. */
 export function useUserLifecycle(userId: string) {
   const queryClient = useQueryClient();
   const detailKey = queryKeys.users.detail(userId);

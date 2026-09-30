@@ -1,19 +1,4 @@
-/**
- * MSW request handlers for the endpoints that exist on the backend and frontend today (SSOT §8.1).
- *
- * <p>Isomorphic: imports only the `msw` core (`http` / `HttpResponse`), the pure factories and
- * `lib/api`. No `msw/browser` or `msw/node` here, so the same handlers feed both the browser
- * worker (`browser.ts`) and the Node server (`server.ts`) without either pulling the other's
- * platform code.
- *
- * <p>Scope covers the core auth surface (`/auth/me`, `/auth/login`, `/auth/sudo`, etc.) as well as
- * Phase 2 dashboard summary (`/dashboard/summary`, ADM-052) and system health (`/system/health`, ADM-055)
- * endpoints.
- *
- * <p>The response *data* is illustrative fixture content wrapped in the standard `ApiResponse` envelope.
- * The system-health fixture mirrors the backend ADM-047 response contract so the panel exercises
- * the same field names in local development and production.
- */
+/** Shared MSW handlers for current API response shapes. */
 
 import { http, HttpResponse, passthrough } from "msw";
 
@@ -27,20 +12,7 @@ import { apiError, apiResponse, pageResponse } from "./factories";
 import type { AdminSession } from "@/features/auth/auth-provider";
 import type { SessionTokens } from "@/features/auth/auth-client";
 
-/**
- * Turns an endpoint path into a host-agnostic MSW pattern.
- *
- * <p>`endpoints.ts` holds paths relative to `NEXT_PUBLIC_API_BASE_URL` (`/api/v1` under the
- * MVP's path-based routing). A handler has to match the *full* request URL, so the base path is
- * prefixed here — and with a leading `*` wildcard so the same pattern matches whatever origin
- * the request resolves against: `http://localhost:3000` in the browser, an absolute test host
- * under Node. The base is read through `env`, never `process.env` (SSOT §1.7); its path portion
- * is taken even when it is an absolute URL, so a future subdomain split needs no change here.
- *
- * <p>Exported so a feature test can attach one of the {@link errorResponses} to the same
- * endpoint the app calls — `server.use(http.post(apiPattern(endpoints.x), errorResponses.y))` —
- * without re-deriving the URL and drifting from what the handlers match.
- */
+/** Converts an endpoint path to an MSW pattern that matches any host. */
 export function apiPattern(endpoint: string): string {
   const base = env.NEXT_PUBLIC_API_BASE_URL;
   const basePath = base.startsWith("/") ? base : new URL(base).pathname;

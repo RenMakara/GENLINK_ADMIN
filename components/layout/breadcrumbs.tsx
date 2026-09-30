@@ -10,18 +10,7 @@ import { useUserDetail } from "@/services/users";
 /** Segments that are route-group or id noise rather than something to show. */
 const UUID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/**
- * Breadcrumbs derived from App Router segments (SSOT §3).
- *
- * <p>Derived rather than declared: a hand-maintained trail per page drifts the moment someone
- * adds a route, and drifts silently.
- *
- * <p>A segment's label comes from the navigation map where one matches, so the crumb reads
- * "Roles & Permissions" rather than "roles". Anything unmatched is title-cased, and an id-looking
- * segment renders as a short hash — a full UUID in a breadcrumb is unreadable and pushes the
- * useful part off screen. ADM-045 onwards can replace those with real names once the pages know
- * what they are showing.
- */
+/** Builds readable breadcrumbs from route segments and navigation labels. */
 export function Breadcrumbs() {
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);

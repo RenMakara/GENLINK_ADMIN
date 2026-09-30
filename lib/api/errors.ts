@@ -1,18 +1,6 @@
-/**
- * The error contract (SSOT §8 C-2).
- *
- * <p>The frontend maps `errorCode`; it never parses `message`. A message can be reworded at
- * any time without notice — a code cannot, which is what makes it something the UI may branch
- * on.
- */
+/** API errors use stable codes; messages are display-only. */
 
-/**
- * Every code the admin API can return.
- *
- * <p>A union rather than a string, so `if (error.code === "ADMIN_SUDO_REQURED")` fails to
- * compile instead of silently never matching — which would show the generic fallback message
- * and lose the sudo prompt.
- */
+/** Known admin API error codes. */
 export const ERROR_CODES = [
   // Shared, from GlobalExceptionHandler.
   "NOT_FOUND",
@@ -54,12 +42,7 @@ export function isKnownErrorCode(code: string | undefined): code is ErrorCode {
   return code !== undefined && KNOWN.has(code);
 }
 
-/**
- * A failed API call.
- *
- * <p>Carries the code the UI branches on, the HTTP status, and the server's message — the
- * last for logs and bug reports only, never for display.
- */
+/** Typed API failure with a stable code, status, and diagnostic message. */
 export class ApiError extends Error {
   readonly code: ErrorCode | "UNKNOWN";
   readonly status: number;

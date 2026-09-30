@@ -2,12 +2,7 @@ import { QueryClient } from "@tanstack/react-query";
 
 import { ApiError } from "@/lib/api/errors";
 
-/**
- * How queries behave across the whole portal.
- *
- * <p>Separated from the provider so the same configuration can be used in tests without
- * rendering React.
- */
+/** Shared query defaults, split out for reuse without React. */
 
 /** Retries once, and only when a retry could plausibly help. */
 function shouldRetry(failureCount: number, error: unknown): boolean {
@@ -28,17 +23,10 @@ export function createQueryClient(): QueryClient {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        /**
-         * 30s. Long enough that moving between pages does not refetch everything, short
-         * enough that an admin who just banned someone sees it reflected when they navigate.
-         */
+        /** Keep queries fresh for 30 seconds. */
         staleTime: 30_000,
         retry: shouldRetry,
-        /**
-         * Off deliberately. An admin has this tool open all day beside other tabs; refetching
-         * on every focus would re-fire a dozen dashboard queries each time they tab back,
-         * for data that has almost certainly not changed.
-         */
+        /** Avoid refetching dashboard queries on every tab focus. */
         refetchOnWindowFocus: false,
         /** Reconnecting is a real signal that data may have moved on. */
         refetchOnReconnect: true,

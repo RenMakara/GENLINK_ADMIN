@@ -40,12 +40,7 @@ export interface CommandPaletteProps {
   userPermissions?: string[] | null;
 }
 
-/**
- * Global ⌘K / Ctrl+K Command Palette (SSOT §3, ADM-057).
- *
- * <p>Permission-filtered via `visibleGroups(permissions)` and viewer grants. Fully keyboard
- * operable with Escape to close, arrows to highlight, and Enter to execute.
- */
+/** Keyboard-accessible command palette filtered by permissions. */
 export function CommandPalette({ open, onOpenChange, userPermissions }: CommandPaletteProps) {
   const router = useRouter();
   const { setTheme } = useTheme();

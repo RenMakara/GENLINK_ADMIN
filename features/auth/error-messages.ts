@@ -1,21 +1,4 @@
-/**
- * `errorCode` → what the admin is told (SSOT §8 C-2, ADM-036).
- *
- * <h2>Never "Invalid input"</h2>
- *
- * A generic message costs the admin their next move. Someone who has been rate-limited needs to
- * know to wait, not to keep retrying a password they typed correctly — and each retry extends
- * the lockout. Someone whose second factor was rejected needs to know their password was fine.
- *
- * <p>The codes are the contract; `message` from the API is never parsed (SSOT §8 C-2).
- *
- * <h2>Specific is not the same as revealing</h2>
- *
- * The password step deliberately answers the same way for a wrong password, an unknown address
- * and a non-admin account — that uniformity is enforced server-side and must not be undone
- * here by inferring more than the code says. "Email or password is incorrect" is precise about
- * what to do and silent about which of the two was wrong.
- */
+/** Maps stable API error codes to safe, actionable sign-in messages. */
 
 export interface AuthErrorMessage {
   title: string;
@@ -71,13 +54,7 @@ const MESSAGES: Record<string, AuthErrorMessage> = {
   },
 };
 
-/**
- * A message for every failure, including ones not listed.
- *
- * <p>The fallback names the code. It is not pretty, but an admin who can quote
- * `ADMIN_SUDO_REQUIRED` to whoever is on support gets help faster than one reporting
- * "it said something went wrong".
- */
+/** Names unknown codes so support can identify the failure. */
 export function authErrorMessage(errorCode: string | undefined): AuthErrorMessage {
   if (!errorCode) {
     return {

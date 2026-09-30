@@ -35,10 +35,7 @@ export interface AnalyticsQuery {
   granularity: AnalyticsGranularity;
 }
 
-/**
- * Dashboard identifiers are the stable contract used by ADM-118 query keys. Keeping them here
- * means every future chart can use the same URL-derived range without inventing its own state.
- */
+/** Stable dashboard IDs used by analytics query keys. */
 export const ANALYTICS_DASHBOARDS = [
   { id: "user-growth", label: "User growth", tab: "overview" },
   { id: "active-users", label: "Daily & monthly active users", tab: "overview" },

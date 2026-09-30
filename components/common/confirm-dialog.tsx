@@ -32,10 +32,7 @@ export interface ConfirmDialogProps {
   tier?: ConfirmTier;
   title: ReactNode;
   description?: ReactNode;
-  /**
-   * The exact consequence of confirming this action. It is rendered in the dialog's inline
-   * alert so an operator cannot confirm based on a vague title alone.
-   */
+  /** Exact consequence shown in the confirmation alert. */
   consequence: ReactNode;
   confirmLabel?: string;
   /** High tier only: the exact string the operator must type (username or email). */
@@ -56,47 +53,11 @@ export interface ConfirmDialogProps {
   errorMessageFor?: (error: unknown) => string | null;
   /** Called with the trimmed reason ("" for low tier). The dialog closes after success. */
   onConfirm: (reason: string) => void | Promise<void>;
-  /**
-   * Opens the server-side five-minute sudo window. When an action rejects with
-   * ADMIN_SUDO_REQUIRED, the dialog keeps its reason and target fields, renders the inline
-   * re-auth prompt, and calls this function before retrying the original action. Defaults to the
-   * shared ADM-089 window service.
-   */
+  /** Reauthenticates and retries sudo-required actions without losing entered details. */
   onSudoReauthenticate?: (credentials: SudoCredentials) => Promise<unknown>;
 }
 
-/**
- * The confirmation in front of a sensitive action (ADM-040, SSOT §10.7).
- *
- * <h2>Three tiers, one component</h2>
- *
- * The `tier` decides how much friction stands between the click and the action:
- *
- * <ul>
- *   <li><strong>low</strong> — a plain "are you sure".</li>
- *   <li><strong>medium</strong> — plus a mandatory reason, which the caller writes to the audit
- *       log. Ten characters, trimmed (SSOT §10.7).</li>
- *   <li><strong>high</strong> — plus typing the target's name, so a reflexive Enter on an
- *       unattended laptop cannot delete an account.</li>
- * </ul>
- *
- * <p>The gate logic — what makes the confirm button live — is {@link confirmGate}, which is pure
- * and unit-tested. This is the shell that collects input and renders errors.
- *
- * <h2>Sudo-required actions resume in place</h2>
- *
- * A high-tier request can be refused with {@code ADMIN_SUDO_REQUIRED}. When the caller supplies
- * {@link onSudoReauthenticate}, the dialog keeps the operator's reason and target confirmation,
- * asks for a password or fresh TOTP code inline, opens the server-side five-minute window, and
- * retries the original action. The server remains authoritative; the component never treats a
- * client-side flag as proof of re-authentication.
- *
- * <h2>Cancel holds focus on open</h2>
- *
- * Radix `AlertDialog` moves initial focus to its Cancel action (AC#2), and nothing here takes it
- * back — no field is auto-focused. Opening the box and pressing Enter cancels; confirming is
- * always a deliberate reach.
- */
+/** Confirms sensitive actions with tiered input and optional inline sudo reauthentication. */
 export function ConfirmDialog({ open, onOpenChange, contentClassName, ...body }: ConfirmDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -109,12 +70,7 @@ export function ConfirmDialog({ open, onOpenChange, contentClassName, ...body }:
             ?.focus();
         }}
       >
-        {/*
-          The fields live in this child, which Radix mounts only while the dialog is open. So
-          each open is a fresh mount with empty fields — a reason typed for one target never
-          bleeds into the next — without a reset effect. Keying by mount is React's answer to
-          "reset state when this opens".
-        */}
+        {/* Radix remounts this child on open, so each confirmation starts with empty fields. */}
         <ConfirmDialogBody {...body} onOpenChange={onOpenChange} />
       </AlertDialogContent>
     </AlertDialog>
@@ -167,10 +123,7 @@ function ConfirmDialogBody({
   const isDestructive = destructive ?? tier !== "low";
   const busy = pending || actionPending || sudoPending;
 
-  /**
-   * Keep this separate from the click handler so the same action can be retried after sudo
-   * without re-reading or resetting any of the dialog fields.
-   */
+  /** Retry after sudo without resetting the dialog fields. */
   const executeAction = async () => {
     setActionError(null);
     setActionPending(true);
@@ -359,11 +312,7 @@ function ConfirmDialogBody({
 
       <AlertDialogFooter>
         <AlertDialogCancel data-confirm-cancel disabled={busy}>Cancel</AlertDialogCancel>
-        {/*
-          A plain Button, not AlertDialogAction, on purpose: AlertDialogAction closes the dialog
-          before the async action can report ADMIN_SUDO_REQUIRED or another failure. This button
-          leaves the form open, and the dialog closes only after the action succeeds.
-        */}
+        {/* Keep the dialog open when an async action fails. */}
         <Button
           type="button"
           variant={isDestructive ? "destructive" : "default"}

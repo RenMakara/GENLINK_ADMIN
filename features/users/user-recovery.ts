@@ -54,14 +54,7 @@ export function userRecoveryErrorMessage(error: unknown): string | null {
   }
 }
 
-/**
- * Runs one account-recovery action and refreshes every affected user projection.
- *
- * <p>The server remains authoritative. Email verification gets a small optimistic update so the
- * header can immediately reflect the action; a failed request restores the previous projection.
- * Reset-password and force-logout do not invent client-side state, and instead invalidate their
- * affected projections after settlement.
- */
+/** Runs account recovery and refreshes affected user projections. */
 export function useUserRecovery(userId: string) {
   const queryClient = useQueryClient();
   const detailKey = queryKeys.users.detail(userId);

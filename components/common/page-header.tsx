@@ -2,15 +2,7 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-/**
- * The title block at the top of a page (ADM-040).
- *
- * <p>A single `<h1>` per page lives here, so every feature page shares the same heading rhythm
- * and a screen-reader user gets one predictable landmark rather than each page inventing its
- * own. `actions` is the right-hand slot for the page's primary buttons — "Export", "New role" —
- * which is why it sits on the header and not inside each page's body, where it would drift out
- * of alignment.
- */
+/** Page title and optional primary actions. */
 export function PageHeader({
   title,
   description,

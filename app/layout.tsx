@@ -5,23 +5,14 @@ import { getLocale } from "next-intl/server";
 import { Providers } from "@/providers";
 import "./globals.css";
 
-/**
- * Latin UI face, matching the mobile app (SSOT §11.3 / DESIGN_SYSTEM.md).
- *
- * `display: "swap"` renders fallback text immediately rather than holding the page blank
- * while the font loads — next/font's default, stated here because it is a requirement.
- */
+/** Latin UI font; `swap` keeps text visible while it loads. */
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
   subsets: ["latin"],
   display: "swap",
 });
 
-/**
- * Khmer face. The admin UI is English-first, but user-generated content and bilingual entity
- * fields render in Khmer, so the face has to be present from the start — a Khmer name in a
- * user table otherwise falls back to whatever the OS supplies.
- */
+/** Khmer font for user content and bilingual fields. */
 const kantumruy = Kantumruy_Pro({
   variable: "--font-kantumruy",
   subsets: ["khmer"],
@@ -44,15 +35,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
       className={`${plusJakarta.variable} ${kantumruy.variable} h-full antialiased`}
     >
-      {/*
-        suppressHydrationWarning here is for browser extensions, not for our own markup.
-        Password managers, antivirus and privacy extensions inject attributes onto <body>
-        (bis_register, __processed_<uuid>__, data-new-gr-c-s-check-loaded and friends) before
-        React hydrates, which React reports as a mismatch it "won't patch up".
-
-        It suppresses attribute and text differences on this element only — children are still
-        checked — so a genuine hydration bug in the tree below still surfaces.
-      */}
+      {/* Browser extensions may add body attributes before hydration. */}
       <body
         suppressHydrationWarning
         className="min-h-full flex flex-col bg-background text-foreground"

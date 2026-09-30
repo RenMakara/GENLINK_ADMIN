@@ -6,10 +6,7 @@ export type { AdminUserSanction } from "@/types/admin-sanction";
 export { USER_WORK_STATUSES } from "@/types/admin-user";
 export type { AdminUserTableRow, UserWorkStatus } from "@/types/admin-user";
 
-/**
- * The ADM-062 detail projection consumed by the ADM-073 header. It intentionally mirrors the
- * public response shape rather than a backend entity, and contains no credential material.
- */
+/** User detail fields used by the header, without credential data. */
 export interface AdminUserDetailInterest {
   interestId: string;
   code: string;

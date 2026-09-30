@@ -1,11 +1,6 @@
 "use client";
 
-/*
- * User avatars are runtime URLs supplied by the API (including S3-compatible storage hosts).
- * They cannot be safely enumerated in next.config.ts for next/image, so this feature uses a
- * native lazy image with an initials fallback. The image is decorative because the adjacent
- * user name is the accessible identity.
- */
+/* Dynamic avatar hosts use native lazy images; the adjacent name provides the accessible label. */
 /* eslint-disable @next/next/no-img-element */
 
 import type { SortingState } from "@tanstack/react-table";
@@ -252,10 +247,7 @@ export interface UserTableRowActionsProps {
   onViewDetails: (user: AdminUserTableRow) => void;
 }
 
-/**
- * Feature-owned action menu used with `DataTable`'s `rowActions` slot. Destructive actions are
- * intentionally absent until their permission and confirmation work lands in Phase 4.
- */
+/** Feature-owned action menu for user table rows. */
 export function UserTableRowActions({ user, onViewDetails }: UserTableRowActionsProps) {
   return (
     <DropdownMenu>

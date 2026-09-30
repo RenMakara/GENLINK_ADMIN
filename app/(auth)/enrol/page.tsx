@@ -3,13 +3,7 @@ import { EnrolFlow } from "@/features/auth/enrol-flow";
 
 export const metadata = { title: "Set up two-factor authentication · GenLink KH Admin" };
 
-/**
- * Forced enrolment on first sign-in (SSOT §10.8).
- *
- * <p>Reached when the password step reports `enrolmentRequired`. Two-factor is mandatory for
- * every admin and not configurable: an admin panel without it is a credential-stuffing target
- * with a total blast radius.
- */
+/** Requires TOTP enrolment before an admin can continue sign-in. */
 export default function EnrolPage() {
   return (
     <Card className="w-full max-w-md">

@@ -16,14 +16,7 @@ import { QrCode } from "@/features/auth/qr-code";
 import { RecoveryCodes } from "@/features/auth/recovery-codes";
 import { mfaSchema, normaliseCode, type MfaValues } from "@/features/auth/schemas";
 
-/**
- * First-login TOTP enrolment (SSOT §10.8, ADM-037).
- *
- * <p>Three steps, one at a time: scan or type the key, prove a code works, save the recovery
- * codes. Nothing is switched on until the middle step succeeds — marking an admin enrolled
- * against a secret their app never accepted would lock them out permanently at the next sign-in,
- * with no recovery codes issued yet to dig them out.
- */
+/** First-login TOTP setup, verification, and recovery-code flow. */
 type Step = "intro" | "starting" | "setup" | "codes" | "failed";
 
 /** Base32 in groups of four, because this is transcribed by hand into a phone. */
@@ -56,18 +49,7 @@ export function EnrolFlow() {
     }
   }, [challenge, router]);
 
-  /**
-   * Started by a click, never automatically.
-   *
-   * <p>Each call mints a <em>new</em> secret and discards the previous one (SSOT §10.8) — which
-   * is correct, since an admin who lost the QR page must be able to start over. But it means an
-   * automatic call on mount would silently kill a secret already scanned: visit, scan, navigate
-   * back, return, and the authenticator entry is dead with nothing on screen to say so.
-   *
-   * <p>Requiring a click makes replacing the secret a deliberate act. It also keeps the fetch
-   * out of an effect, which is what `react-hooks/set-state-in-effect` was objecting to — the
-   * rule and the correct behaviour happened to point the same way.
-   */
+  /** Starts setup only after a click, so revisiting the page cannot replace a scanned secret. */
   const start = useCallback(async () => {
     if (!challenge) return;
     setStep("starting");

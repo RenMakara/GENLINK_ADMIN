@@ -19,12 +19,7 @@ interface SidebarNavProps {
   onNavigate?: () => void;
 }
 
-/**
- * The nav list itself, shared by the desktop rail and the mobile sheet.
- *
- * <p>One component for both so a link can never exist on one and not the other — the sheet is a
- * presentation of the same menu, not a second menu.
- */
+/** Navigation list shared by desktop and mobile layouts. */
 export function SidebarNav({ collapsed, onNavigate }: SidebarNavProps) {
   const pathname = usePathname();
   // Permissions come from /admin/auth/me, resolved from the caller's own granted authorities -
@@ -68,8 +63,7 @@ export function SidebarNav({ collapsed, onNavigate }: SidebarNavProps) {
                   )}
                 >
                   <item.icon className="size-4 shrink-0" aria-hidden />
-                  {/* The label is removed from the DOM when collapsed, not hidden with CSS:
-                      a visually-hidden label inside a 64px rail still gets read out on hover. */}
+                      {/* Keep collapsed labels out of the DOM; icon links retain accessible names. */}
                   {!collapsed && <span className="truncate">{item.label}</span>}
                   {collapsed && <span className="sr-only">{item.label}</span>}
                 </Link>

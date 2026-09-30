@@ -13,13 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useDashboardSummary, useSystemHealth } from "@/services/dashboard";
 
-/**
- * Main Admin Dashboard Overview Page (SSOT §2, ADM-056).
- *
- * <p>Composes KPI card row, Phase 2 charts, Quick Actions, System Health summary, and Recent
- * Activity panels. Each subsystem query degrades independently so an Actuator failure leaves
- * the KPI cards and charts intact (SSOT §2, AC#1).
- */
+/** Composes dashboard panels; each query can fail without hiding the others. */
 export default function DashboardPage() {
   const summaryQuery = useDashboardSummary();
   const healthQuery = useSystemHealth();

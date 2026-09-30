@@ -1,34 +1,19 @@
 import { z } from "zod";
 
-/**
- * The single source of truth for sign-in validation (SSOT §11.6).
- *
- * <p>Zod rather than hand-written checks so the rule and the type come from one declaration —
- * a form field and its validator cannot drift apart if only one of them exists.
- */
+/** Shared Zod schemas for sign-in forms. */
 
 export const loginSchema = z.object({
   email: z
     .string()
     .min(1, "Enter your email address")
     .email("That does not look like an email address"),
-  /**
-   * Presence only. No length or complexity rule on a sign-in form: the password either matches
-   * what is stored or it does not, and a client-side minimum would reject a correct legacy
-   * password before it was ever tried. Strength rules belong at registration.
-   */
+  /** Check presence only so valid legacy passwords remain accepted. */
   password: z.string().min(1, "Enter your password"),
 });
 
 export type LoginValues = z.infer<typeof loginSchema>;
 
-/**
- * A TOTP code or a recovery code.
- *
- * <p>Both are accepted here because both are valid second factors (SSOT §10.8), and an admin
- * reaching for a recovery code has usually lost their phone — being told "must be 6 digits" at
- * that moment would be a small cruelty. The server decides which it is.
- */
+/** Accepts either a TOTP or recovery code; the server validates it. */
 export const mfaSchema = z.object({
   code: z
     .string()

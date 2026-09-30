@@ -62,12 +62,7 @@ export interface UserActionClusterProps {
   onAction?: (action: UserAction) => void;
 }
 
-/**
- * The API currently exposes deletion time rather than a separate anonymised flag. The
- * anonymisation job runs after the documented 30-day grace period, so an old soft-deletion is
- * the client-safe signal for suppressing Restore. Invalid/future timestamps remain restorable
- * rather than being treated as irreversible by mistake.
- */
+/** Hides Restore after the anonymisation grace period has elapsed. */
 export function isAnonymisedAccount(user: AdminUserDetail, now = Date.now()): boolean {
   if (user.accountStatus !== "DELETED" || !user.deletedAt) return false;
 
@@ -87,11 +82,7 @@ function hasPermission(permissions: readonly Permission[], permission: Permissio
   return permissions.includes(permission);
 }
 
-/**
- * Derives the detail-header controls without knowing anything about the eventual mutations.
- * Server-side authorization remains authoritative; this model only avoids rendering controls
- * that would be invalid for the current account state or would immediately return 403.
- */
+/** Derives valid detail controls; server authorization remains authoritative. */
 export function getUserActionClusterModel(
   user: AdminUserDetail,
   permissions: readonly Permission[],

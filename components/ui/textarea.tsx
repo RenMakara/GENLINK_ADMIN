@@ -2,11 +2,7 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-/**
- * Multi-line text input, matching {@link Input}'s token usage so the two sit together in a form
- * without drifting apart on focus or invalid styling. Added for the confirm dialog's reason
- * field (ADM-040); kept general.
- */
+/** Multi-line input styled to match the shared input component. */
 function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
   return (
     <textarea

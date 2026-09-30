@@ -72,13 +72,7 @@ function rememberWindow(window: SudoWindow, expectedGeneration: number): SudoWin
   return window;
 }
 
-/**
- * Opens the server-side five-minute window, or reuses the still-open window in this tab.
- *
- * <p>The cache is deliberately memory-only: a sudo window must not survive a reload, logout,
- * or a new session. The single-flight guard also prevents two high-tier dialogs opened at once
- * from sending two re-authentication requests with the same one-time TOTP code.
- */
+/** Opens or reuses this tab's in-memory sudo window. */
 export function openSudoWindow(credentials: SudoCredentials): Promise<SudoWindow> {
   if (isOpenAt(now())) {
     return Promise.resolve({
@@ -124,10 +118,7 @@ export function getSudoWindowState(timestamp = now()): SudoWindowState {
   };
 }
 
-/**
- * Clears local knowledge of the window. The server remains authoritative and can still reject a
- * request with ADMIN_SUDO_REQUIRED; callers should clear this cache when that happens too.
- */
+/** Clears local sudo state; the server remains authoritative. */
 export function clearSudoWindow(): void {
   generation += 1;
   windowExpiresAtMs = null;

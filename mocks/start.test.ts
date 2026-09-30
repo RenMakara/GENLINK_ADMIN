@@ -1,11 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-/**
- * The single toggle, from both sides (ADM-041 AC-1). The worker itself needs a browser, so what
- * is asserted here is the *decision*: whether mocking is on, and that `startMocking` never
- * reaches for `msw/browser` when it should not — off by default, and even when on there is no
- * `window` on the server to host a worker.
- */
+/** Checks the mocking toggle without starting a browser worker. */
 
 afterEach(() => {
   vi.unstubAllEnvs();

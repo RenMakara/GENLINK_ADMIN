@@ -8,19 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
-/**
- * The one and only display of the recovery codes (SSOT §10.8, ADM-037).
- *
- * <h2>Why the acknowledgement is a real gate and not a nicety</h2>
- *
- * These are stored BCrypt-hashed, so this render is the only moment the plaintext exists
- * anywhere. An admin who closes the tab has lost them permanently — and an admin who has lost
- * both their phone and their codes needs another admin with `rbac:manage` to reset their MFA.
- * For a lone `SUPER_ADMIN` that means database access.
- *
- * <p>So the continue button stays disabled until they tick the box. It is deliberately a small
- * friction in the one place where being slowed down is cheaper than the alternative.
- */
+/** Displays recovery codes once and requires acknowledgement before continuing. */
 export function RecoveryCodes({ codes, onAcknowledged }: { codes: string[]; onAcknowledged: () => void }) {
   const [acknowledged, setAcknowledged] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -70,10 +58,7 @@ export function RecoveryCodes({ codes, onAcknowledged }: { codes: string[]; onAc
         </AlertDescription>
       </Alert>
 
-      {/*
-        A list, not a paragraph: a screen reader announces "10 items" and reads each code
-        separately, which is what someone transcribing them needs.
-      */}
+      {/* A list lets screen readers announce and read each code separately. */}
       <ul
         aria-label="Your ten recovery codes"
         className="bg-muted grid grid-cols-2 gap-x-4 gap-y-2 rounded-lg p-4 font-mono text-sm"

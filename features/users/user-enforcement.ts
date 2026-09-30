@@ -8,11 +8,7 @@ import { banUser, suspendUser, unbanUser } from "@/services/users";
 
 import type { AdminUserDetail } from "./types";
 
-/**
- * The provisional fixed duration set from SSOT Appendix B.3. Keeping the values in one typed
- * constant makes the unresolved product choice easy to replace without changing the dialog or
- * mutation contract.
- */
+/** Fixed sanction durations used by enforcement controls. */
 export const SUSPENSION_DURATION_OPTIONS = [
   { value: 24, label: "24 hours" },
   { value: 24 * 7, label: "7 days" },
@@ -32,10 +28,7 @@ interface MutationContext {
   previous: AdminUserDetail | undefined;
 }
 
-/**
- * Applies only the safe, immediately visible part of an enforcement result. The server remains
- * authoritative for sanction details; the detail query is invalidated after the request settles.
- */
+/** Applies a safe optimistic update and refreshes server-owned sanction details. */
 export function optimisticUserAfterEnforcement(
   user: AdminUserDetail,
   input: UserEnforcementInput,
@@ -75,10 +68,7 @@ export function userEnforcementErrorMessage(error: unknown): string | null {
   }
 }
 
-/**
- * Runs one enforcement action with an immediate detail-header update, rollback on mutation
- * failure, and invalidation of the detail/list/session projections after the server responds.
- */
+/** Runs enforcement with rollback and projection refresh on completion. */
 export function useUserEnforcement(userId: string) {
   const queryClient = useQueryClient();
   const detailKey = queryKeys.users.detail(userId);

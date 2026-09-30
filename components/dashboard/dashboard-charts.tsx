@@ -221,9 +221,7 @@ export function StatusSplitChart({
   );
 }
 
-/**
- * Container rendering all four Phase 2 dashboard charts (SSOT §2.2, ADM-052).
- */
+/** Renders the four dashboard chart panels. */
 export function DashboardCharts({
   data,
   loading = false,

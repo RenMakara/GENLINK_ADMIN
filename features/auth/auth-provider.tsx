@@ -18,26 +18,7 @@ import { api } from "@/lib/api/client";
 import { configureAuth } from "@/lib/api/client";
 import { endpoints } from "@/lib/api/endpoints";
 
-/**
- * Session state for the whole portal (SSOT §10.9, ADM-035).
- *
- * <h2>The access token lives in a ref, not in state</h2>
- *
- * Deliberately not `localStorage`, not `sessionStorage`, not a cookie the page can read. Any
- * XSS in an admin panel would otherwise hand over a token carrying `user:delete`. This differs
- * from the mobile client on purpose: browsers have XSS, Flutter does not.
- *
- * <p>A ref rather than `useState` because {@link configureAuth} hands the API client a
- * `getAccessToken` callback that must return the *current* token whenever a request is made.
- * A state value captured in a closure goes stale the moment a refresh replaces it, and the
- * symptom would be a request retrying with the token that had just expired.
- *
- * <h2>Reload restores the session, the access token does not survive it</h2>
- *
- * That is the design working, not a gap. The refresh cookie is `httpOnly`, so a reload sends it
- * automatically and {@link bootstrap} exchanges it for a fresh access token before anything
- * renders.
- */
+/** Keeps access tokens in memory and restores sessions from the refresh cookie. */
 
 export interface AdminSession {
   adminUserId: string;
@@ -53,14 +34,7 @@ export interface AdminSession {
 
 type Status = "loading" | "authenticated" | "unauthenticated";
 
-/**
- * The half-finished sign-in between the password step and the code step.
- *
- * <p>Held in memory only. Not the URL — a token in a query string reaches the browser history,
- * the server access log and any Referer header. Not storage — the lint rule that keeps tokens
- * out of `localStorage` applies just as much to a challenge, and a reload legitimately
- * abandoning a half-finished sign-in is the correct behaviour rather than a limitation.
- */
+/** In-memory MFA challenge between the password and code steps. */
 export interface PendingChallenge {
   token: string;
   enrolmentRequired: boolean;
@@ -108,14 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setStatus("authenticated");
   }, []);
 
-  /**
-   * Exchanges the refresh cookie for an access token.
-   *
-   * <p>Returned to the API client through {@link configureAuth}, so an expired token during
-   * normal use is replaced transparently — the request that hit the 401 retries and the admin
-   * sees nothing. The client single-flights this, so a dashboard firing twelve queries produces
-   * one refresh rather than twelve.
-   */
+  /** Exchanges the refresh cookie for an access token. */
   const refresh = useCallback(async (): Promise<boolean> => {
     const result = await refreshSession();
     if (!result.success || !result.data) {
@@ -128,15 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return true;
   }, []);
 
-  /**
-   * Hands the API client its accessor before anything can use it.
-   *
-   * <p>Declared above the bootstrap effect so it runs first — effects fire in declaration order
-   * within a component. Child effects run before a parent's, which would normally be a problem
-   * here, but no child can issue a request first: {@link AuthGuard} renders a loading state
-   * until `status === "authenticated"`, and that status is only reachable *through* the
-   * bootstrap below. Nothing that queries exists until this has run.
-   */
+  /** Installs the token accessor before authenticated pages can request data. */
   useEffect(() => {
     configureAuth({
       getAccessToken: () => accessToken.current,

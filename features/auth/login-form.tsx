@@ -13,12 +13,7 @@ import { useAuth } from "@/features/auth/auth-provider";
 import { loginSchema, type LoginValues } from "@/features/auth/schemas";
 import { returnToFrom, withReturnTo } from "@/lib/auth/routes";
 
-/**
- * The password step (ADM-036).
- *
- * <p>A correct password does not sign anyone in — it buys a TOTP challenge. The page moves to
- * `/mfa`, or to enrolment when this admin has never set up an authenticator.
- */
+/** Password step that issues an MFA challenge instead of a session. */
 export function LoginForm() {
   const { beginSignIn } = useAuth();
   const router = useRouter();
@@ -96,11 +91,7 @@ export function LoginForm() {
         ) : null}
       </div>
 
-      {/*
-        Disabled while pending, which is what prevents a double submit (AC#4). A second
-        password attempt counts towards the 5-failure lockout, so an impatient double-click
-        must not spend two of them.
-      */}
+      {/* Disable while pending to prevent duplicate password attempts. */}
       <Button type="submit" disabled={isSubmitting} className="mt-2">
         {isSubmitting ? "Checking…" : "Continue"}
       </Button>

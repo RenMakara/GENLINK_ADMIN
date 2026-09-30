@@ -36,12 +36,7 @@ export interface ChartCardProps {
   minHeight?: number | string;
 }
 
-/**
- * Reusable wrapper shell for all dashboard and analytics charts (ADM-050).
- *
- * <p>Provides standardized title, description, actions header, loading skeleton, error fallback,
- * and empty state handling so no chart renders a broken SVG or blank container.
- */
+/** Shared chart wrapper with loading, error, and empty states. */
 export function ChartCard({
   title,
   description,

@@ -1,10 +1,4 @@
-/**
- * The small components every feature page reuses (ADM-040).
- *
- * <p>A single import surface so a page pulls `PageHeader`, `EmptyState` and the rest from one
- * place rather than six. These are the vocabulary of a feature screen; the feature-specific
- * pieces live under `features/`.
- */
+/** Shared components used across feature pages. */
 export { PageHeader } from "@/components/common/page-header";
 export { EmptyState } from "@/components/common/empty-state";
 export { ErrorState } from "@/components/common/error-state";

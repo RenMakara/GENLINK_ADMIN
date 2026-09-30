@@ -6,15 +6,7 @@ import { AlertDialog as AlertDialogPrimitive } from "radix-ui"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
-/**
- * A modal that interrupts for a decision, wrapping Radix `AlertDialog` (ADM-040).
- *
- * <p>`AlertDialog`, not `Dialog`, and the difference is the point: it announces itself as
- * `role="alertdialog"`, it cannot be dismissed by clicking the backdrop or pressing Escape into
- * nothing, and — the property ADM-040 AC#2 turns on — Radix moves initial focus to the
- * <em>Cancel</em> action rather than the first focusable child. A confirm box that opens with
- * the destructive button focused is one stray Enter away from a ban.
- */
+/** Accessible modal confirmation that initially focuses Cancel. */
 function AlertDialog({
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {

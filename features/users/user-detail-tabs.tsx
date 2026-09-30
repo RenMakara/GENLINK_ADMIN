@@ -33,13 +33,7 @@ interface UserDetailTabsProps {
   children: ReactNode;
 }
 
-/**
- * Accessible, URL-controlled tab presentation for the user detail route (ADM-073).
- *
- * <p>The feature owns the tab names and URL policy; this component owns only the interaction
- * primitives. The active panel is the only panel rendered, so future tab queries can be mounted
- * on first activation and then cached by TanStack Query without App Router parallel routes.
- */
+/** Accessible tabs controlled by the user detail route's URL. */
 export function UserDetailTabs({ activeTab, onTabChange, children }: UserDetailTabsProps) {
   const tabRefs = useRef<Partial<Record<UserDetailTab, HTMLButtonElement | null>>>({});
 

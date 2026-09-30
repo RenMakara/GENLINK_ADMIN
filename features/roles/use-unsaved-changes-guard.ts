@@ -7,14 +7,7 @@ export const UNSAVED_CHANGES_MESSAGE =
 
 type Navigation = () => void;
 
-/**
- * Protects the permission editor from accidental document and in-app link navigation.
- *
- * <p>The browser's beforeunload prompt covers refresh, close, and external navigation. The
- * capture-phase link listener covers Next.js `<Link>` navigation before the router consumes the
- * click. Feature buttons should use the returned {@link confirmNavigation} callback because
- * programmatic router navigation does not produce an anchor click.
- */
+/** Warns on browser exits and intercepts in-app links while edits are unsaved. */
 export function useUnsavedChangesGuard(isDirty: boolean) {
   const dirtyRef = useRef(isDirty);
 

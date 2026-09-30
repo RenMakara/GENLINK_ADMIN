@@ -34,12 +34,7 @@ const SAMPLE_DONUT_DATA = [
   { name: "Pending", value: 117 },
 ];
 
-/**
- * Developer gallery for ADM-050 Chart Component Library.
- *
- * <p>Renders all four chart wrappers (Area, Bar, Line, Donut) and all three ChartCard states
- * (Loading, Error, Empty) to verify theme switching, responsive container math, and accessibility.
- */
+/** Developer page for previewing chart components and states. */
 export function ChartsShowcase() {
   return (
     <Card className="w-full">

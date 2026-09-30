@@ -38,12 +38,7 @@ export interface KpiCardRowProps {
   className?: string;
 }
 
-/**
- * Seven headline numbers, each a doorway into its filtered view (SSOT §2.1, ADM-051).
- *
- * <p>Grid reflows cleanly from 2 columns on mobile (`grid-cols-2`) to 4 columns on desktop
- * (`md:grid-cols-4`). "Open Reports" is deferred to Phase 7 alongside the report queue it links to.
- */
+/** Seven headline metrics, each linked to a filtered view. */
 export function KpiCardRow({ summary, loading = false, className }: KpiCardRowProps) {
   if (loading) {
     return (

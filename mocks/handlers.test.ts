@@ -1,16 +1,6 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
-/**
- * Drives the *real* API client (`lib/api/client`) through the Node MSW server, so the assertion
- * is end-to-end: a mocked response is unwrapped exactly as a real one would be, and a mocked
- * failure produces the same typed {@link ApiError} the UI branches on. Testing the handlers in
- * isolation would prove the fixture shape but not that the client accepts it.
- *
- * <p>The base URL is stubbed to an absolute host before the modules load, because a relative
- * `/api/v1` cannot be parsed by `fetch` under Node — the browser has an origin to resolve it
- * against, Node does not. The handlers match host-agnostically (a wildcard host prefix), so the
- * same handlers still serve the browser worker where the base is relative.
- */
+/** Exercises the API client through the Node MSW server. */
 
 // Bound in beforeAll after the env is stubbed and modules are reloaded.
 let api: typeof import("@/lib/api/client").api;

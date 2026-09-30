@@ -1,46 +1,16 @@
 import { env } from "@/lib/config/env";
 
-/**
- * The only place a timestamp becomes a string.
- *
- * <p>Project strategy (SSOT §9.5): the database stores and the API transmits **UTC**;
- * everything displayed is **Asia/Phnom_Penh**. Every formatter here passes an explicit
- * `timeZone`, so output does not depend on the machine or browser it runs on.
- *
- * <h2>Why this is centralised</h2>
- *
- * `date.toLocaleString()` uses the *viewer's* timezone. An admin travelling would see
- * different day boundaries from a colleague in Phnom Penh, and two people comparing the same
- * dashboard on a call would disagree about which day a signup landed on.
- *
- * <p>The failure is invisible where it is most likely to be reviewed: on a machine set to
- * Cambodian time, `toLocaleString()` and this module produce identical output. An ESLint rule
- * therefore rejects `toLocaleString` / `toLocaleDateString` / `toLocaleTimeString` outside
- * this file — the mistake cannot be caught by reading the diff.
- *
- * <p>These use `Intl.DateTimeFormat(...).format()` rather than the `toLocale*` methods, so the
- * module needs no exemption from its own rule.
- */
+/** Formats UTC timestamps in Asia/Phnom_Penh with explicit timezones. */
 
 const TIME_ZONE = env.NEXT_PUBLIC_TIMEZONE;
 
-/**
- * `en-GB` for day-first ordering — `2 Aug 2026`, never `Aug 2, 2026`.
- *
- * <p>Fixed rather than following the viewer's locale: `01/08/2026` reads as 1 August to most
- * of the team and 8 January to a US-configured browser, and a date that is silently wrong by
- * seven months is worse than one that looks foreign. The month is spelled to remove the
- * ambiguity entirely.
- */
+/** Day-first, unambiguous date format for admin screens. */
 const LOCALE = "en-GB";
 
 /** Shown when a value is missing or unparseable, rather than "Invalid Date" in a table cell. */
 const EMPTY = "—";
 
-/**
- * `Intl.DateTimeFormat` construction is expensive, and a data table renders it per cell — 25
- * rows across three date columns is 75 constructions per paint. Built once, reused.
- */
+/** Reuses formatter instances across table cells. */
 const formatters = new Map<string, Intl.DateTimeFormat>();
 
 function formatter(key: string, options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
@@ -107,14 +77,7 @@ export function formatPrecise(value: DateInput): string {
   }).format(date);
 }
 
-/**
- * The Cambodian calendar day an instant falls on, as `YYYY-MM-DD`.
- *
- * <p>This is what date-range filters send to the backend, which converts it to UTC instants at
- * the request boundary (SSOT §9.5). Deriving it from the formatter rather than from
- * `toISOString().slice(0, 10)` matters: the latter gives the *UTC* day, which is the previous
- * date for the first seven hours of every Cambodian morning.
- */
+/** Returns the Cambodia-local calendar day for an instant. */
 export function toCalendarDate(value: DateInput): string {
   const date = toDate(value);
   if (!date) return "";
@@ -138,17 +101,7 @@ const RELATIVE_UNITS: Array<[Intl.RelativeTimeFormatUnit, number]> = [
 
 const relativeFormatter = new Intl.RelativeTimeFormat(LOCALE, { numeric: "auto" });
 
-/**
- * `3 months ago`, `in 2 days`, `yesterday`.
- *
- * <p><strong>Client-only.</strong> The result depends on "now", so a Server Component would
- * render one value and hydration would produce another — React reports that as a mismatch,
- * and it is a real one. Render it after mount, or pair it with an absolute value as SSOT §4.1
- * describes: relative in the cell, exact on hover.
- *
- * @param now injectable so tests do not depend on the wall clock — the flake that took down
- *     the backend's productivity test every evening.
- */
+/** Client-only relative time avoids SSR mismatches; `now` keeps tests deterministic. */
 export function formatRelative(value: DateInput, now: Date = new Date()): string {
   const date = toDate(value);
   if (!date) return EMPTY;

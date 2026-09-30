@@ -16,12 +16,7 @@ interface TopbarProps {
   onOpenCommandPalette?: () => void;
 }
 
-/**
- * Sticky topbar: breadcrumb, ⌘K, environment badge, theme, account (SSOT §3).
- *
- * <p>Sticky rather than scrolling away because the environment badge lives here. A warning that
- * only shows at the top of a long user list is not a warning.
- */
+/** Sticky shell controls, including the environment badge. */
 export function Topbar({
   collapsed,
   onToggleSidebar,

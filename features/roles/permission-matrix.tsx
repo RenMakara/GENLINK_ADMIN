@@ -55,12 +55,7 @@ function GroupCheckboxIcon({ checked }: { checked: GroupSelectionState }) {
   return checked ? <Check aria-hidden="true" /> : null;
 }
 
-/**
- * Accessible permission matrix primitives for ADM-108.
- *
- * <p>The component owns only the matrix presentation and checkbox semantics. The role editor
- * owns the selected set, dirty state, save flow, and authorization decisions.
- */
+/** Accessible permission matrix presentation and checkbox controls. */
 export function PermissionMatrix({
   groups,
   selectedPermissions,

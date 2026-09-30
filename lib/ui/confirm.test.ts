@@ -2,13 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { confirmGate, MIN_REASON_LENGTH, type ConfirmTier } from "@/lib/ui/confirm";
 
-/**
- * ADM-040 / SSOT §10.7 — the gate that decides whether a sensitive action may proceed.
- *
- * <p>The dialog around this is verified by eye in the browser; the decision is verified here,
- * because "is a nine-character reason enough to ban someone?" is a safety question, not a
- * styling one.
- */
+/** Tests confirmation rules independently of dialog styling. */
 
 const target = "sok.dara@genlink.kh";
 

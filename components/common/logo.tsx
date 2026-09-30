@@ -20,13 +20,7 @@ const SIZE_MAP = {
   lg: { dimensions: 44, textClass: "text-xl font-bold" },
 };
 
-/**
- * GenLink KH Brand Logo component displaying the official GenLink logo icon with dark and light mode support
- * (public/genlink_logo_light.png and public/genlink_logo_dark.png).
- *
- * <p>Supports Next.js `basePath` resolution (`/admin/...`) and theme-aware CSS switching
- * (dark:hidden / dark:block) so image requests do not 404 and hydration mismatch is avoided.
- */
+/** GenLink logo with theme-aware assets and basePath support. */
 export function GenLinkLogo({
   size = "md",
   iconOnly = false,

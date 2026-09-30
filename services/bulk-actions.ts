@@ -116,11 +116,7 @@ async function sendChunk(input: BulkActionInput, userIds: string[], batchId: str
   }
 }
 
-/**
- * Runs a bounded, partial-success operation. Requests are sequential so a 500-user selection
- * does not create a burst of concurrent writes, and every chunk receives a new batch id because
- * the backend deduplicates each id for 24 hours.
- */
+/** Runs sequential batches with unique IDs to limit concurrent writes. */
 export async function executeBulkAction(
   input: BulkActionInput,
   options: BulkActionExecutionOptions = {},

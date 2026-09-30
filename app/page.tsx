@@ -2,10 +2,7 @@ import type { Metadata } from "next";
 
 import { AdminLandingPage } from "@/features/landing/admin-landing-page";
 
-/**
- * Public GenLink introduction page. The staff portal remains protected under `/dashboard`, while
- * the root is intentionally useful to unauthenticated visitors who discover the Admin host.
- */
+/** Public introduction page; staff tools remain under `/dashboard`. */
 export const metadata: Metadata = {
   title: "GenLink KH — Grow together",
   description:

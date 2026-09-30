@@ -3,20 +3,7 @@
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 
-/**
- * Renders an `otpauth://` URI as a QR code.
- *
- * <h2>Generated locally, never by a service</h2>
- *
- * The URI contains the TOTP secret. Sending it to a third-party QR generator — the obvious
- * shortcut, and one that appears in a lot of tutorials — would hand a working second factor to
- * whoever runs that service, and leave it in their logs. `qrcode` renders in the browser and
- * the string never leaves the page.
- *
- * <p>Rendered as an SVG string rather than a canvas: it stays sharp on a high-density phone
- * screen held up to a laptop, which is exactly how it will be used, and it needs no ref or
- * imperative draw call.
- */
+/** Renders TOTP setup URIs locally so secrets never reach a third party. */
 export function QrCode({ value, size = 200 }: { value: string; size?: number }) {
   const [svg, setSvg] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);

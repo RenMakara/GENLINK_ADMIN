@@ -4,35 +4,7 @@ import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "genlink-admin.sidebar.collapsed";
 
-/**
- * Sidebar collapsed state, persisted across reloads (SSOT §3, ADM-034 AC#2).
- *
- * <h2>Why `useSyncExternalStore` and not `useState` + `useEffect`</h2>
- *
- * `localStorage` is an external store whose value differs between server and client, which is
- * exactly what this hook is for. The obvious alternative — read it in an effect and `setState` —
- * causes a cascading render, which `react-hooks/set-state-in-effect` rejects, and it does so for
- * good reason: React cannot batch the correction with the initial paint.
- *
- * <p>Reading during render is not an option either. The server has no `localStorage`, so the
- * markup would disagree with the first client render and React would report a hydration
- * mismatch — the same class of bug as rendering a relative timestamp.
- *
- * <p>`getServerSnapshot` therefore answers "expanded" for both the server and the hydrating
- * client, and React swaps in the real value immediately afterwards.
- *
- * <h2>Why `animate` lags a frame behind</h2>
- *
- * That correction must not be animated, or a stored-collapsed sidebar visibly slides shut on
- * every page load. Gating on "have we hydrated" does not achieve it: the hydration flag and the
- * corrected width land in the same render, so the transition is already in place when the width
- * changes. It has to be enabled one frame *later*, which is what the `requestAnimationFrame`
- * below does - the correction snaps, and every toggle after it animates.
- *
- * <p>Subscribing also brings cross-tab sync, which the effect version did not have: collapsing
- * the sidebar in one tab now updates the others, because `storage` fires in every other
- * document sharing the origin.
- */
+/** Persists sidebar state with hydration-safe rendering and cross-tab sync. */
 
 const listeners = new Set<() => void>();
 let storageListenerAttached = false;

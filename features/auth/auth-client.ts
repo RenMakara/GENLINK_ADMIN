@@ -1,20 +1,9 @@
 import { endpoints } from "@/lib/api/endpoints";
 import { env } from "@/lib/config/env";
 
-/**
- * Calls to the Next route handlers that own the refresh cookie.
- *
- * <p>Separate from `lib/api/client`, which talks to Spring. These three requests are the only
- * ones that carry a cookie, so they are the only ones that need a CSRF token — and they must
- * not go through the Spring client's 401-refresh loop, since they *are* the refresh.
- */
+/** Calls Next auth routes that manage the refresh cookie. */
 
-/**
- * Route handlers live under the portal's base path.
- *
- * <p>`fetch("/api/auth/refresh")` would resolve against the origin root and miss `/admin`
- * entirely, producing a 404 that looks like an expired session.
- */
+/** Includes the portal base path in auth route URLs. */
 function authUrl(path: string): string {
   return `${env.NEXT_PUBLIC_BASE_PATH}/api/auth/${path}`;
 }

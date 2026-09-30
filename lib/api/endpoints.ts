@@ -1,14 +1,4 @@
-/**
- * Every admin endpoint, in one place.
- *
- * <p>Paths live here rather than inline at call sites so a route change is one edit, and so
- * the set of things the portal talks to is readable at a glance. Paths are relative to
- * `NEXT_PUBLIC_API_BASE_URL`; nothing here names a host (SSOT §1.7).
- *
- * <p>Most entries are deployed backend endpoints. A small number of explicitly labelled contract
- * routes are included when the frontend is intentionally working ahead of its backend task; the
- * label keeps those routes distinguishable from live APIs at the call site.
- */
+/** Central list of admin API paths, relative to the configured API base URL. */
 
 const ADMIN = "/admin";
 

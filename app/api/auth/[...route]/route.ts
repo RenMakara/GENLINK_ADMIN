@@ -12,24 +12,7 @@ import {
   refreshCookieOptions,
 } from "@/lib/server/session-cookies";
 
-/**
- * The only part of the portal that touches the refresh token (SSOT §10.9, §12).
- *
- * <h2>Why a Next route handler and not a direct call to Spring</h2>
- *
- * The refresh token has to be stored somewhere the page's JavaScript cannot read, which means
- * an `httpOnly` cookie, which means something on the server has to set and read it. Spring
- * takes its refresh token from a request *body*, so this layer holds the cookie and forwards
- * the value — the browser never possesses it and an XSS cannot exfiltrate it.
- *
- * <p>That split also decides where CSRF protection belongs: **here**, because this is the only
- * hop where a browser presents a cookie. Spring's endpoint is immune by construction, which is
- * why ADM-029 was re-scoped and SSOT §10.9 amended.
- *
- * <p>Access tokens are returned in the response body and held in memory by the auth provider.
- * They are short-lived (10 minutes) and a page reload legitimately loses them — the refresh
- * cookie is what restores the session.
- */
+/** Proxies auth requests, keeping refresh tokens in HTTP-only cookies and checking CSRF. */
 
 const REFRESH_TTL_SECONDS = 8 * 60 * 60;
 

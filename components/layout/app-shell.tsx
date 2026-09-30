@@ -10,18 +10,7 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { useSidebarState } from "@/hooks/use-sidebar-state";
 import { cn } from "@/lib/utils";
 
-/**
- * The frame every dashboard page renders inside (SSOT §3, ADM-034).
- *
- * <h2>Two presentations of one navigation</h2>
- *
- * At or above 768px a fixed rail: 264px, collapsible to 64px, state persisted. Below it the rail
- * is gone entirely and the same {@link SidebarNav} renders inside a sheet — at that width a
- * permanent 264px rail leaves too little for a data table, and a 64px icon rail is unusable on
- * touch (AC#3).
- *
- * <p>The two share one component, so a link cannot exist in one and not the other.
- */
+/** Shared responsive frame for signed-in pages. */
 export function AppShell({ children }: { children: ReactNode }) {
   const { collapsed, toggle, animate } = useSidebarState();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -53,8 +42,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <SheetTitle className="sr-only">GenLink KH Navigation</SheetTitle>
             <GenLinkLogo size="sm" />
           </div>
-          {/* Never collapsed in the sheet: it has the room, and icons alone are a poor
-              touch target with no hover to reveal a tooltip. */}
+          {/* Keep mobile navigation expanded for touch users. */}
           <SidebarNav collapsed={false} onNavigate={() => setMobileNavOpen(false)} />
         </SheetContent>
       </Sheet>
@@ -66,8 +54,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           onOpenMobileNav={() => setMobileNavOpen(true)}
           onOpenCommandPalette={() => setCommandPaletteOpen(true)}
         />
-        {/* max-w-[1600px] per SSOT §3: a data table stretched across an ultrawide monitor is
-            unreadable, because the eye loses the row between the first and last column. */}
+        {/* Limit page width to keep wide tables readable. */}
         <main className="min-w-0 flex-1">
           <div className="mx-auto w-full max-w-[1600px] p-4 lg:p-6">{children}</div>
         </main>

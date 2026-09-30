@@ -4,18 +4,7 @@ import { AlertTriangleIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-/**
- * The "this failed" panel (ADM-040, AC#3).
- *
- * <p>Deliberately not an {@link EmptyState}: a failure and an absence are different facts, and an
- * operator who cannot tell them apart will either retry a genuinely empty list forever or shrug
- * off a real outage. This one carries an alarm colour and, crucially, a retry (AC#3) — a
- * transient API error should cost a click, not a page reload.
- *
- * <p>`onRetry` is the common case and gets a button built in; `action` is the escape hatch for a
- * page that needs something other than a plain retry. Passing neither is allowed — some errors
- * genuinely have no client-side remedy — but a message is always shown.
- */
+/** Error state with a message and optional retry or recovery action. */
 export function ErrorState({
   title = "Something went wrong",
   description,

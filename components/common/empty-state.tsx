@@ -3,16 +3,7 @@ import type { LucideProps } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-/**
- * The "nothing here" panel (ADM-040, AC#3).
- *
- * <p>An empty list is ambiguous — did the query fail, is the filter too narrow, or is there
- * genuinely nothing? This says which, and gives a way forward: the `action` slot (AC#3) carries
- * a "Clear filters" or "Add the first one" control, so an empty screen is never a dead end.
- *
- * <p>Distinct from {@link ErrorState} on purpose. This is an expected, calm absence; that is a
- * failure. Rendering them the same way trains operators to ignore both.
- */
+/** Empty state with optional guidance or an action. */
 export function EmptyState({
   icon: Icon,
   title,

@@ -3,10 +3,6 @@ import { describe, expect, it } from "vitest";
 import { NAVIGATION, activeItem, shippedItems, visibleGroups } from "./navigation";
 
 describe("navigation — MVP filtering (ADM-034 AC#1)", () => {
-  /**
-   * The point of declaring every phase in the map: this assertion is only meaningful because
-   * the menu genuinely contains Phase 7–10 entries that must not render.
-   */
   it("hides every item whose phase has not shipped", () => {
     const rendered = visibleGroups(null).flatMap((group) => group.items.map((item) => item.label));
 
@@ -47,10 +43,7 @@ describe("navigation — MVP filtering (ADM-034 AC#1)", () => {
 });
 
 describe("navigation — permission filtering", () => {
-  /**
-   * Not wired to a real permission source until ADM-035/038. The logic is tested now so that
-   * task is a one-line change rather than a design decision made under time pressure.
-   */
+  /** Permission filtering is tested independently of the auth provider. */
   it("shows only items whose permission the admin holds", () => {
     const labels = visibleGroups(["user:read", "audit:read"]).flatMap((group) =>
       group.items.map((item) => item.label),
@@ -82,10 +75,7 @@ describe("navigation — permission filtering", () => {
     expect(visibleGroups([])).toEqual([]);
   });
 
-  /**
-   * `null` means "do not filter", which the shell uses until an auth provider exists. An empty
-   * array would be indistinguishable from "no permissions" and would render a blank sidebar.
-   */
+  /** Null skips filtering; an empty list hides every item. */
   it("null skips permission filtering entirely", () => {
     expect(visibleGroups(null).length).toBeGreaterThan(0);
     expect(visibleGroups(null)).not.toEqual(visibleGroups([]));
@@ -113,10 +103,7 @@ describe("navigation — data integrity", () => {
     expect(hrefs.every((href) => href.startsWith("/"))).toBe(true);
   });
 
-  /**
-   * Gamification manages the badge catalogue. Gating it on `xp:grant` would hand that to anyone
-   * who can adjust a single user's score — a mistake the §14 review caught once already.
-   */
+  /** Badge catalogue access is separate from per-user XP grants. */
   it("gamification is gated on gamification:manage, not xp:grant", () => {
     const item = NAVIGATION.flatMap((group) => group.items).find(
       (candidate) => candidate.label === "Gamification",

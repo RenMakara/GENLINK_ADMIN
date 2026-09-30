@@ -64,11 +64,7 @@ describe("refresh cookie", () => {
 });
 
 describe("CSRF double-submit", () => {
-  /**
-   * The one cookie here that must NOT be httpOnly: a double-submit token only works if the page
-   * can read it and echo it back. Its protection comes from the same-origin policy, not secrecy
-   * from same-origin JavaScript.
-   */
+  /** The page reads this CSRF cookie and echoes it in a request header. */
   it("the CSRF cookie is readable by the page", () => {
     expect(csrfCookieOptions().httpOnly).toBe(false);
     expect(csrfCookieOptions().sameSite).toBe("strict");
@@ -126,12 +122,7 @@ describe("what must never be stored where the page can read it (AC#1)", () => {
     });
   });
 
-  /**
-   * A structural assertion rather than a behavioural one: this module is the only code that
-   * handles the refresh token, and it writes it to a cookie. If a token ever reaches
-   * `localStorage`, it will be because someone added a new path — which is what the
-   * `sessionStorage`/`localStorage` audit in the auth client guards.
-   */
+  /** Refresh tokens must stay in cookies, never browser storage. */
   it("the refresh token is handed to a cookie, never to storage", () => {
     const options = refreshCookieOptions(3600);
 

@@ -44,12 +44,7 @@ describe("refreshSession is single-flighted", () => {
     vi.unstubAllGlobals();
   });
 
-  /**
-   * The bug this pins: React StrictMode double-invokes the bootstrap effect, so two refreshes
-   * fired with the same cookie. The backend rotates on every refresh, so the second presented a
-   * revoked token — treated as theft, revoking every token on the account. A browser reload
-   * ended the session and wrote an attack-shaped row into the audit log.
-   */
+  /** Concurrent bootstrap calls share one refresh to avoid replaying rotated tokens. */
   it("two simultaneous callers produce ONE request", async () => {
     const [a, b] = await Promise.all([refreshSession(), refreshSession()]);
 
@@ -71,10 +66,7 @@ describe("refreshSession is single-flighted", () => {
     expect(results.every((r) => r.success)).toBe(true);
   });
 
-  /**
-   * The guard must not become permanent. Holding the resolved promise would make a genuinely
-   * later expiry reuse a stale answer and never refresh again.
-   */
+  /** Clear the shared promise so later expiries can refresh again. */
   it("a later refresh starts a new request", async () => {
     await refreshSession();
     expect(refreshCalls).toBe(1);
@@ -83,11 +75,7 @@ describe("refreshSession is single-flighted", () => {
     expect(refreshCalls).toBe(2);
   });
 
-  /**
-   * The CSRF fetch races the same way. Before this, two callers each fetched a token, the
-   * endpoint minted a fresh one for each, and whichever finished first held a token the cookie
-   * no longer matched — 403, cache cleared, refetch, loop.
-   */
+  /** Concurrent CSRF fetches must share the token matching the cookie. */
   it("concurrent callers share ONE csrf fetch", async () => {
     let csrfCalls = 0;
     vi.stubGlobal("fetch", (input: string) => {

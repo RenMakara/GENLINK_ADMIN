@@ -39,9 +39,7 @@ export interface DonutChartProps {
   className?: string;
 }
 
-/**
- * Recharts Donut / Pie chart wrapper for status split and proportional distributions (ADM-050).
- */
+/** Donut chart wrapper for status and proportional data. */
 export function DonutChart({
   data,
   colors = [...CHART_PALETTE],

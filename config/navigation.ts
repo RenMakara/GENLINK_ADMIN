@@ -22,21 +22,13 @@ import {
 import type { Permission } from "@/types/permissions";
 
 
-/** The phase an item becomes reachable. `mvp` = present at the end of Phase 6. */
 export type NavPhase = "mvp" | 7 | 8 | 9 | 10 | "blocked";
 
 export interface NavItem {
   label: string;
   href: string;
   icon: LucideIcon;
-  /**
-   * Permission code required to see this item, without the `PERM_` prefix — the shape
-   * `/admin/auth/me` returns.
-   *
-   * <p>Typed as {@link Permission} rather than `string` (ADM-038): a nav entry gated on
-   * `user:bann` would compile as a string, match nothing, and silently vanish from every
-   * sidebar. That is a bug with no error message, which is exactly what a union is for.
-   */
+  /** Permission required to show this item, matching the API's permission codes. */
   permission: Permission;
   phase: NavPhase;
 }
@@ -58,8 +50,7 @@ export const NAVIGATION: readonly NavGroup[] = [
     label: "People",
     items: [
       { label: "Users", href: "/users", icon: Users, permission: "user:read", phase: "mvp" },
-      // "Enforcement", not "Warnings & Bans": one filterable list across all users, matching the
-      // merged user_sanctions model (SSOT §9.2, §14 review).
+      // One filterable list covers warnings and bans across users.
       { label: "Enforcement", href: "/enforcement", icon: ShieldAlert, permission: "user:warn", phase: "mvp" },
       { label: "Roles & Permissions", href: "/roles", icon: KeyRound, permission: "rbac:read", phase: "mvp" },
       { label: "Admin Users", href: "/admins", icon: UserCog, permission: "rbac:read", phase: "mvp" },
@@ -80,8 +71,7 @@ export const NAVIGATION: readonly NavGroup[] = [
     label: "Engagement",
     items: [
       { label: "Notifications", href: "/notifications", icon: Bell, permission: "notification:send", phase: 8 },
-      // gamification:manage, NOT xp:grant. This page rewrites the badge catalogue; reusing the
-      // per-user XP permission would hand that power to anyone who can adjust one user's score.
+      // Badge catalogue changes require gamification permission, not per-user XP access.
       { label: "Gamification", href: "/gamification", icon: Trophy, permission: "gamification:manage", phase: 8 },
     ],
   },
@@ -103,22 +93,7 @@ export const NAVIGATION: readonly NavGroup[] = [
   },
 ] as const;
 
-/**
- * The groups to render.
- *
- * <p>Two rules from SSOT §3, both of which hide rather than disable:
- *
- * <ul>
- *   <li>An item whose phase has not shipped does not appear <em>at all</em>. A nav entry leading
- *       to an empty page is worse than a shorter menu.</li>
- *   <li>A group left with no visible children hides its header too — otherwise the sidebar grows
- *       section titles with nothing under them.</li>
- * </ul>
- *
- * @param permissions codes the current admin holds. **Pass `null` to skip permission filtering**,
- *     which is what the shell does until ADM-035 supplies a real set — an empty array would
- *     correctly render an empty sidebar and make the shell impossible to look at.
- */
+/** Hides unavailable or unauthorized items and empty groups. Null skips permission filtering. */
 export function visibleGroups(permissions: readonly string[] | null): NavGroup[] {
   return NAVIGATION.map((group) => ({
     ...group,
@@ -133,12 +108,7 @@ export function shippedItems(): NavItem[] {
   return NAVIGATION.flatMap((group) => group.items).filter((item) => item.phase === "mvp");
 }
 
-/**
- * The nav item whose section the given path belongs to.
- *
- * <p>Matched by prefix so a detail page (`/users/123`) keeps its parent highlighted. Longest
- * match wins, so `/moderation/forum` does not light up under `/moderation`.
- */
+/** Finds the longest navigation path prefix for the current route. */
 export function activeItem(pathname: string): NavItem | undefined {
   return shippedItems()
     .filter((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))

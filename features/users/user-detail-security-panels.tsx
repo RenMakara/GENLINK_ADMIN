@@ -144,7 +144,7 @@ const SESSION_COLUMNS: DataTableColumnDef<AdminUserSession>[] = [
   },
 ];
 
-/** ADM-075 Sessions tab. Revoke controls intentionally remain out of scope until Phase 4. */
+/** User session list; session tokens and revoke controls are not exposed. */
 export function UserSessionsTab({ userId }: { userId: string }) {
   const { pageIndex, pageSize, setPageIndex, setPageSize } = useDetailPagination();
   const sessionsQuery = useUserSessions(userId, pageIndex, pageSize);

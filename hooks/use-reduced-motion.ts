@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-/**
- * Returns true if the user has requested reduced motion via OS/browser settings (SSOT §11.8, ADM-058 AC#3).
- */
+/** Detects the user's reduced-motion preference. */
 export function useReducedMotion(): boolean {
   const [shouldReduceMotion, setShouldReduceMotion] = useState<boolean>(() => {
     if (typeof window === "undefined" || !window.matchMedia) return false;

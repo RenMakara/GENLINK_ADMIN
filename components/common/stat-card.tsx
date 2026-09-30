@@ -4,18 +4,7 @@ import type { LucideProps } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-/**
- * A single headline figure (ADM-040) — "1,284 users", "117 pending".
- *
- * <p>The value is `tabular-nums` so a row of these lines up digit-for-digit and can be scanned,
- * and it is a plain string or number rather than pre-formatted markup: locale and thousands
- * separators are a caller concern (SSOT §9.5 keeps date/number formatting in one place), so this
- * does not reach for a formatter of its own.
- *
- * <p>`hint` carries a period-over-period delta or a note. It is styled but not coloured
- * green/red here — "up 12%" is good for signups and bad for churn, and the component cannot know
- * which, so the caller passes an already-decided node.
- */
+/** Headline metric with an optional caller-formatted hint. */
 export function StatCard({
   label,
   value,

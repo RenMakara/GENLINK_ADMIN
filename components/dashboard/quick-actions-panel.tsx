@@ -64,13 +64,7 @@ export interface QuickActionsPanelProps {
   className?: string;
 }
 
-/**
- * A compact panel of high-frequency tasks (SSOT §2.4, ADM-054).
- *
- * <p>Each action is rendered only if the viewer holds its required permission code. Phase 7
- * and Phase 8 actions ("Review report queue", "Send broadcast notification") are omitted until
- * their feature phases ship.
- */
+/** Shortcuts to frequent tasks, filtered by the viewer's permissions. */
 export function QuickActionsPanel({
   userPermissions,
   loading = false,

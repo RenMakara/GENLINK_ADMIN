@@ -16,11 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { USER_STATUSES } from "@/lib/ui/status";
 import type { ConfirmTier } from "@/lib/ui/confirm";
 
-/**
- * A live gallery of the ADM-040 primitives, for eyeballing both themes and for verifying the
- * confirm dialog's tiers in the browser (its focus and gating behaviour cannot be asserted in
- * the node test environment). Developer-only, same as the rest of this page.
- */
+/** Developer-only gallery for previewing shared UI primitives. */
 export function PrimitivesShowcase() {
   const [tier, setTier] = useState<ConfirmTier | null>(null);
 

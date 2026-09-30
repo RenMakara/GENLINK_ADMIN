@@ -1,13 +1,4 @@
-/**
- * Which routes need a session, and where to send someone who does not have one (ADM-039).
- *
- * <p>Shared by `proxy.ts` on the server and `AuthGuard` on the client so the two cannot disagree
- * about what is protected — a proxy that guards `/users` while the client guard does not is a
- * flash of shell, and the reverse is a redirect loop.
- *
- * <p>Deliberately free of React and of `next/server`, so it is importable from both and testable
- * in a plain node environment.
- */
+/** Shared route rules for the server proxy and client auth guard. */
 
 /** Where an admin lands when there is nothing better. First item in the sidebar. */
 export const DEFAULT_ROUTE = "/dashboard";
@@ -17,17 +8,7 @@ export const LOGIN_ROUTE = "/login";
 /** Query parameter carrying the page the visitor was trying to reach. */
 export const RETURN_TO_PARAM = "next";
 
-/**
- * The only paths reachable without a session.
- *
- * <h2>An allowlist, so protection is the default</h2>
- *
- * The obvious alternative — list the dashboard routes and guard those — is wrong in a way that
- * does not show up until later: Phase 3 adds `/finance`, nobody updates the list, and the page
- * ships unguarded while looking exactly like every other page. Inverting it means a new route is
- * protected the moment it exists, and the mistake in the other direction (a public page
- * accidentally guarded) is loud and immediate.
- */
+/** Public paths are allowlisted so new routes are protected by default. */
 const PUBLIC_ROUTES = ["/", "/login", "/mfa", "/enrol"] as const;
 
 export function isPublicRoute(pathname: string): boolean {

@@ -13,17 +13,7 @@ import { Input } from "@/components/ui/input";
 import { ChartsShowcase } from "./charts-showcase";
 import { PrimitivesShowcase } from "./primitives-showcase";
 
-/**
- * Placeholder home page, doubling as the theme proof for ADM-013.
- *
- * <p>Renders one of each shadcn primitive so that toggling light/dark visibly exercises the
- * token set rather than asserting it in the abstract.
- *
- * <p>Moved under the app shell by ADM-034 and off the root route, which now lands on the
- * dashboard. Kept rather than deleted: it is the fastest way to eyeball both themes after a
- * token change, and it is deliberately absent from the sidebar because it is a developer tool,
- * not a page an administrator has any use for.
- */
+/** Developer-only showcase for checking shared design tokens and themes. */
 export default function Home() {
   const t = useTranslations("App");
 
@@ -53,11 +43,7 @@ export default function Home() {
             <Button variant="destructive">Destructive</Button>
           </div>
 
-          {/*
-            Status colours are semantic (SSOT §11.2), and every badge carries text as well as
-            colour — roughly 1 in 12 men has a colour-vision deficiency, and the person banning
-            accounts may be one of them.
-          */}
+          {/* Statuses use text labels as well as color. */}
           <div className="flex flex-wrap gap-2">
             <Badge className="bg-success text-success-foreground">Active</Badge>
             <Badge className="bg-warning text-warning-foreground">Suspended</Badge>

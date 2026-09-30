@@ -1,11 +1,4 @@
-/**
- * The standard GenLink chart color palette from SSOT §11.2 and ADM-050.
- *
- * <p>Categorical series draw from GenLink brand greens and cohesive neutral accents so charts
- * remain recognisably GenLink without relying on random rainbow hues.
- *
- * <p>Sequential scales run from light to dark green.
- */
+/** Brand-aligned categorical and sequential chart colors. */
 
 /** Categorical series palette (SSOT §11.2) */
 export const CHART_PALETTE = [

@@ -56,9 +56,7 @@
 }
 
 :root {
-  /* ── GenLink KH palette (SSOT §11.2, from docs/DESIGN_SYSTEM.md) ──────────
-     Hex rather than oklch on purpose: these values are greppable against the
-     design system document, which is where they are agreed. */
+  /* Brand palette uses the agreed hex values from the design system. */
   --background: #F8FAFC;
   --foreground: #0E1621;
 
@@ -74,12 +72,10 @@
   --secondary-foreground: #0E1621;
 
   --muted: #EEF2F6;
-  /* Slate. Deliberately NOT #64748B (slate-500): that fails 4.5:1 on this
-     background - see scripts/check-contrast.mjs and the note in ADM-013. */
+  /* This slate shade meets AA text contrast on the background. */
   --muted-foreground: #55637A;
 
-  /* GenLink light green. BACKGROUND AND BORDER ONLY - #BDF4D3 fails 4.5:1
-     against white, so it must never carry text or a small icon (SSOT §11.8). */
+  /* Light green is for fills and borders; it fails text contrast. */
   --accent: #BDF4D3;
   --accent-foreground: #0E1621;
 
@@ -91,14 +87,11 @@
   --success-foreground: #FFFFFF;
 
   --border: #DDE3EA;              /* decorative divider - subtle by design */
-  /* Darker than --border on purpose: this draws the edge of a text field, and
-     WCAG 1.4.11 wants 3:1 for anything that identifies a control. shadcn ships
-     these equal; that leaves form fields at ~1.2:1 and hard to locate. */
+  /* Darker field borders meet the 3:1 control-boundary target. */
   --input: #7C8B9E;
   --ring: #1F5B3A;
 
-  /* Categorical series (SSOT §11.2): GenLink greens extended with neutrals
-     rather than unrelated hues, so charts stay recognisably GenLink. */
+  /* Chart series use brand greens with neutral accents. */
   --chart-1: #1F5B3A;
   --chart-2: #4BAE73;
   --chart-3: #BDF4D3;
@@ -180,21 +173,13 @@
 }
 
 @layer base {
-  /*
-    Khmer needs more room than Latin. At the line heights that look right for
-    Plus Jakarta Sans, Khmer diacritics are clipped by the line box (SSOT §11.3).
-    Applied by language so it never affects English copy.
-  */
+  /* Give Khmer text extra line-height to prevent clipped diacritics. */
   :lang(km) {
     font-family: var(--font-khmer);
     line-height: 1.7;
   }
 
-  /*
-    Proportional digits make a column of numbers impossible to scan - the digits
-    do not line up vertically (SSOT §11.3). Applied to the elements that actually
-    hold figures rather than globally, because tabular digits look wrong in prose.
-  */
+  /* Align figures with tabular digits while keeping prose proportional. */
   table,
   .tabular-nums,
   [data-slot="table"] {
@@ -202,11 +187,7 @@
   }
 }
 
-/*
-  Reduce non-essential CSS motion for users who request it at the OS/browser level (ADM-058).
-  Recharts receives the same preference through useReducedMotion; this covers the remaining
-  loading, refresh, dialog, sheet, and transition utilities without removing motion for others.
-*/
+/* Respect reduced-motion preferences across transitions and charts. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

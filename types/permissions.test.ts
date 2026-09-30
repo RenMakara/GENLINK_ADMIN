@@ -6,20 +6,10 @@ import { describe, expect, it } from "vitest";
 import { NAVIGATION } from "@/config/navigation";
 import { isPermission, PERMISSIONS, toPermissions, type Permission } from "@/types/permissions";
 
-/**
- * ADM-038 — the permission union.
- *
- * <p>AC#1 (a typo is a compile error) is not asserted here, because a `expect()` cannot observe
- * a type error. It is enforced by the `@ts-expect-error` directives further down: `pnpm
- * typecheck` compiles this file, and an unused directive is itself an error — so if the union
- * ever widened to `string`, those lines would fail the build rather than pass silently.
- */
+/** Compile-time checks ensure permission typos remain errors. */
 
 describe("the catalogue", () => {
-  /**
-   * SSOT §5.3 defines forty. Pinned as a number because the interesting failure is a *dropped*
-   * code, and a test that only iterates whatever is in the array cannot see one go missing.
-   */
+  /** Pin the expected count so removed permissions fail this test. */
   it("has all forty codes", () => {
     expect(PERMISSIONS).toHaveLength(40);
   });
@@ -43,10 +33,7 @@ describe("isPermission", () => {
     }
   });
 
-  /**
-   * The near-misses that a typo actually produces. `user:bann` is the one named in the task
-   * description; the others are the plural, the prefixed authority, and the wrong case.
-   */
+  /** Common permission typos and casing errors must be rejected. */
   it.each(["user:bann", "user:bans", "PERM_user:ban", "USER_BAN", "user:ban ", ""])(
     "rejects %o",
     (value) => {
@@ -56,11 +43,7 @@ describe("isPermission", () => {
 });
 
 describe("toPermissions", () => {
-  /**
-   * The API returns `string[]`. Unknown codes are dropped rather than thrown on: a backend
-   * deployed ahead of this build sends a permission this bundle has never heard of, and the
-   * right response is to ignore it, not to break every page that reads the session.
-   */
+  /** Ignore unknown permission codes to keep newer API responses safe. */
   it("keeps what it knows and drops what it does not", () => {
     expect(toPermissions(["user:ban", "user:invented", "audit:read"])).toEqual([
       "user:ban",
@@ -78,11 +61,7 @@ describe("toPermissions", () => {
 });
 
 describe("the nav gates", () => {
-  /**
-   * `NavItem.permission` is typed as {@link Permission}, so this cannot fail while the types
-   * hold — which is the point. It fails if someone widens the field back to `string`, at which
-   * moment a mistyped gate would start silently hiding a page from everyone.
-   */
+  /** Keep navigation permissions typed to reject invalid codes. */
   it("only gate on codes in the catalogue", () => {
     for (const group of NAVIGATION) {
       for (const item of group.items) {

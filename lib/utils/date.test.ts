@@ -10,24 +10,14 @@ import {
   toCalendarDate,
 } from "./date";
 
-/**
- * 01 Aug 2026 17:30 UTC. Chosen because it falls on a *different calendar day* in Phnom Penh
- * (UTC+7) — 2 August, 00:30. Any timestamp during Cambodian office hours would pass these
- * tests whether or not the timezone were applied at all.
- */
+/** Crosses into the next day in Phnom Penh, catching timezone mistakes. */
 const CROSSES_MIDNIGHT = "2026-08-01T17:30:00Z";
 
 /** Same UTC day, same Cambodian day — the control for the case above. */
 const SAME_DAY = "2026-08-01T02:00:00Z";
 
 describe("timezone pinning", () => {
-  /**
-   * The acceptance criterion is "identical with the machine timezone set to UTC or to
-   * America/New_York". A test cannot change the process timezone after Node has started, so
-   * this asserts the property that makes the criterion hold — every formatter carries an
-   * explicit `timeZone` — and CI runs the suite under a deliberately wrong `TZ` to confirm the
-   * behaviour end to end.
-   */
+  /** Explicit timezones make output independent of the machine setting. */
   it("resolves to Asia/Phnom_Penh regardless of the machine timezone", () => {
     expect(displayTimeZone).toBe("Asia/Phnom_Penh");
   });
